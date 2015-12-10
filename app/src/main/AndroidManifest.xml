@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    android:versionCode="0"
+    android:versionName="0.5"
     package="com.carlise.dribbble">
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -18,6 +22,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".activities.LoginActivity"
+            android:noHistory="true" />
+        <activity android:name=".activities.UserInfoActivity" />
+        <activity android:name=".activities.WithActionBarActivity" />
+        <activity android:name=".activities.HomeActivity" />
+        <activity android:name=".activities.OneShotInListActivity" />
+        <activity android:name=".activities.ShotDetailActivity" />
+        <activity android:name=".activities.InputActivity" />
+        <activity android:name=".activities.UsersActivity" />
+        <activity android:name=".activities.ShotsActivity" />
+        <activity android:name=".activities.BucketsActivity" />
+        <activity android:name=".activities.AboutActivity" />
+
     </application>
 
 </manifest>
