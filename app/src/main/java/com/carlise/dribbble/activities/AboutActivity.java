@@ -11,9 +11,7 @@ import com.carlise.dribbble.R;
  */
 public class AboutActivity extends Activity {
 
-
     private Button mTitle, mLine1, mLine2, mLine3, mLine4;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

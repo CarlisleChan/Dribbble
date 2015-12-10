@@ -67,7 +67,7 @@ public class AuthUtil {
         context.startActivity(intent);
     }
 
-    public static  void goLogin(Context context) {
+    public static void goLogin(Context context) {
         Intent intent = new Intent(context, LoginActivity.class);
         context.startActivity(intent);
     }
@@ -76,7 +76,6 @@ public class AuthUtil {
         SharedPreferences shared = context.getSharedPreferences(LoginActivity.ACCOUNT_INFO_MEM, Context.MODE_PRIVATE);
         int id = shared.getInt(LoginActivity.ACCOUNT_USER_ID, -1);
         return id != -1;
-
     }
 
     private static void clearAuthInfo(Context context) {

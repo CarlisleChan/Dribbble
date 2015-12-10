@@ -20,14 +20,14 @@ public class NetworkHandler {
     }
 
     public static synchronized NetworkHandler getInstance(Context context) {
-        if (mInstance==null) {
+        if (mInstance == null) {
             mInstance = new NetworkHandler(context);
         }
         return mInstance;
     }
 
     public RequestQueue getRequestQueue() {
-        if (mRequestQueue==null) {
+        if (mRequestQueue == null) {
             mRequestQueue = Volley.newRequestQueue(mCtx.getApplicationContext());
         }
         return mRequestQueue;

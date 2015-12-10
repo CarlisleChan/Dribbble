@@ -50,7 +50,6 @@ public class LoginActivity extends Activity {
     public static final String ACCOUNT_USER_LIKE_URL = "com.tuesda.watch.account.user.like.url";
     public static final String ACCOUNT_USER_BUCKETS_URL = "com.tuesda.watch.account.user.buckets.url";
 
-
     private WebView mLoginWeb;
 
     private SharedPreferences mDribleShare;
@@ -62,16 +61,15 @@ public class LoginActivity extends Activity {
 
     RequestQueue mQueue;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         Log.e("into login");
         super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_login);
 
-            initView();
-            setupWeb();
+        initView();
+        setupWeb();
     }
 
     private void initView() {
@@ -106,8 +104,8 @@ public class LoginActivity extends Activity {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
                     if (url.startsWith(DriRegInfo.DRIBLE_CALL_BACK)) {
-                        String returnCode =  null;
-                        if (url.indexOf("code=")!=-1) {
+                        String returnCode = null;
+                        if (url.indexOf("code=") != -1) {
                             // save the code str
                             returnCode = getCodeFromUrl(url);
 
@@ -182,12 +180,12 @@ public class LoginActivity extends Activity {
                     }
                 },
                 new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
 
-                Toast.makeText(LoginActivity.this, "Please try again", Toast.LENGTH_SHORT).show();
-            }
-        });
+                        Toast.makeText(LoginActivity.this, "Please try again", Toast.LENGTH_SHORT).show();
+                    }
+                });
         mQueue.add(jsonObjectRequest);
 
     }
@@ -197,8 +195,8 @@ public class LoginActivity extends Activity {
 //        if (AuthUtil.hasUserInfo(this)) {
 //            AuthUtil.goHome(this);
 //        } else {
-            fetchUserInfo();
-            mLoading.setVisibility(View.VISIBLE);
+        fetchUserInfo();
+        mLoading.setVisibility(View.VISIBLE);
 //        }
     }
 

@@ -21,37 +21,33 @@ import java.util.Date;
  */
 public class DribleShot implements Parcelable {
 
-    public static final String
-    SHOT_ID = "id",
-    SHOT_TITLE = "title",
-    SHOT_DESCRIPTION = "description",
-    SHOT_WIDTH = "width",
-    SHOT_HEIGHT = "height",
-    SHOT_IMAGES = "images",
-        SHOT_IMAGES_HIDPI = "hidpi",
-        SHOT_IMAGES_NORMAL = "normal",
-        SHOT_IMAGES_TEASER = "teaser",
-    SHOT_VIEWS_COUNT = "views_count",
-    SHOT_LIKES_COUNT = "likes_count",
-    SHOT_COMMENTS_COUNT = "comments_count",
-    SHOT_ATTACHMENTS_COUNT = "attachments_count",
-    SHOT_REBOUNDS_COUNT = "rebounds_count",
-    SHOT_BUCKETS_COUNT = "buckets_count",
-    SHOT_CREATED_AT = "created_at",
-    SHOT_UPDATED_AT = "updated_at",
-    SHOT_HTML_URL = "html_url",
-    SHOT_ATTACHMENTS_URL = "attachments_url",
-    SHOT_BUCKETS_URL = "buckets_url",
-    SHOT_COMMENTS_URL = "comments_url",
-    SHOT_LIKES_URL = "likes_url",
-    SHOT_PROJECTS_URL = "projects_url",
-    SHOT_REBOUNDS_URL = "rebounds_url",
-    SHOT_TAGS = "tags",
-    SHOT_USER = "user",
-    SHOT_TEAM = "team";
-
-    ;
-
+    public static final String SHOT_ID = "id";
+    public static final String SHOT_TITLE = "title";
+    public static final String SHOT_DESCRIPTION = "description";
+    public static final String SHOT_WIDTH = "width";
+    public static final String SHOT_HEIGHT = "height";
+    public static final String SHOT_IMAGES = "images";
+    public static final String SHOT_IMAGES_HIDPI = "hidpi";
+    public static final String SHOT_IMAGES_NORMAL = "normal";
+    public static final String SHOT_IMAGES_TEASER = "teaser";
+    public static final String SHOT_VIEWS_COUNT = "views_count";
+    public static final String SHOT_LIKES_COUNT = "likes_count";
+    public static final String SHOT_COMMENTS_COUNT = "comments_count";
+    public static final String SHOT_ATTACHMENTS_COUNT = "attachments_count";
+    public static final String SHOT_REBOUNDS_COUNT = "rebounds_count";
+    public static final String SHOT_BUCKETS_COUNT = "buckets_count";
+    public static final String SHOT_CREATED_AT = "created_at";
+    public static final String SHOT_UPDATED_AT = "updated_at";
+    public static final String SHOT_HTML_URL = "html_url";
+    public static final String SHOT_ATTACHMENTS_URL = "attachments_url";
+    public static final String SHOT_BUCKETS_URL = "buckets_url";
+    public static final String SHOT_COMMENTS_URL = "comments_url";
+    public static final String SHOT_LIKES_URL = "likes_url";
+    public static final String SHOT_PROJECTS_URL = "projects_url";
+    public static final String SHOT_REBOUNDS_URL = "rebounds_url";
+    public static final String SHOT_TAGS = "tags";
+    public static final String SHOT_USER = "user";
+    public static final String SHOT_TEAM = "team";
 
     private int id;
     private String title;
@@ -99,7 +95,7 @@ public class DribleShot implements Parcelable {
             images[0] = imageJson.getString(SHOT_IMAGES_HIDPI);
             images[1] = imageJson.getString(SHOT_IMAGES_NORMAL);
             images[2] = imageJson.getString(SHOT_IMAGES_TEASER);
-            for (int i=0; i<3; i++) {
+            for (int i = 0; i < 3; i++) {
                 if (images[i].equals("null")) {
                     images[i] = null;
                 }
@@ -130,7 +126,7 @@ public class DribleShot implements Parcelable {
             rebounds_url = data.getString(SHOT_REBOUNDS_URL);
             JSONArray jsonArray = data.getJSONArray(SHOT_TAGS);
             tags = new ArrayList<>();
-            for (int i=0; i<jsonArray.length(); i++) {
+            for (int i = 0; i < jsonArray.length(); i++) {
                 tags.add(jsonArray.getString(i));
             }
             if (data.has(SHOT_USER)) {
@@ -455,8 +451,8 @@ public class DribleShot implements Parcelable {
         width = bundle.getInt(SHOT_WIDTH);
         height = bundle.getInt(SHOT_HEIGHT);
         ArrayList<String> imagesList = bundle.getStringArrayList(SHOT_IMAGES);
-        for (int i=0; i<imagesList.size(); i++) {
-            if (i>2) break; // there should only 3 images
+        for (int i = 0; i < imagesList.size(); i++) {
+            if (i > 2) break; // there should only 3 images
             images[i] = imagesList.get(i);
         }
         views_count = bundle.getInt(SHOT_VIEWS_COUNT);
@@ -496,7 +492,7 @@ public class DribleShot implements Parcelable {
         bundle.putInt(SHOT_WIDTH, width);
         bundle.putInt(SHOT_HEIGHT, height);
         ArrayList<String> imagesList = new ArrayList<>();
-        for (int i=0; i<images.length; i++) {
+        for (int i = 0; i < images.length; i++) {
             imagesList.add(images[i]);
         }
         bundle.putStringArrayList(SHOT_IMAGES, imagesList);

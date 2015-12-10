@@ -23,46 +23,43 @@ import java.util.Map;
  */
 public class DribleUser implements Parcelable {
 
+    public static final String USER_ID = "id";
+    public static final String USER_NAME = "name";
+    public static final String USER_USERNAME = "username";
+    public static final String USER_HTML_URL = "html_url";
+    public static final String USER_AVATAR_URL = "avatar_url";
 
-    public static final String
-            USER_ID = "id",
-            USER_NAME = "name",
-            USER_USERNAME = "username",
-            USER_HTML_URL = "html_url",
-            USER_AVATAR_URL = "avatar_url",
+    public static final String USER_BIO = "bio";
+    public static final String USER_LOCATION = "location";
+    public static final String USER_LINKS = "links";
+    public static final String USER_LINKS_KEYS = "links.keys";
+    public static final String USER_LINKS_VALUES = "links.values";
+    public static final String USER_BUCKETS_COUNT = "buckets_count";
+    public static final String USER_COMMENTS_RECEIVED_COUNT = "comments_received_count";
 
-    USER_BIO = "bio",
-            USER_LOCATION = "location",
-            USER_LINKS = "links",
-            USER_LINKS_KEYS = "links.keys",
-            USER_LINKS_VALUES = "links.values",
-            USER_BUCKETS_COUNT = "buckets_count",
-            USER_COMMENTS_RECEIVED_COUNT = "comments_received_count",
+    public static final String USER_FOLLOWERS_COUNT = "followers_count";
+    public static final String USER_FOLLOWINGS_COUNT = "followings_count";
+    public static final String USER_LIKES_COUNT = "likes_count";
+    public static final String USER_LIKES_RECEIVED_COUNT = "likes_received_count";
+    public static final String USER_PROJECTS_COUNT = "projects_count";
 
-    USER_FOLLOWERS_COUNT = "followers_count",
-            USER_FOLLOWINGS_COUNT = "followings_count",
-            USER_LIKES_COUNT = "likes_count",
-            USER_LIKES_RECEIVED_COUNT = "likes_received_count",
-            USER_PROJECTS_COUNT = "projects_count",
+    public static final String USER_REBOUNDS_RECEIVED_COUNT = "rebounds_received_count";
+    public static final String USER_SHOTS_COUNT = "shots_count";
+    public static final String USER_TEAMS_COUNT = "teams_count";
+    public static final String USER_CAN_UPLOAD_SHOT = "can_upload_shot";
+    public static final String USER_TYPE = "type";
 
-    USER_REBOUNDS_RECEIVED_COUNT = "rebounds_received_count",
-            USER_SHOTS_COUNT = "shots_count",
-            USER_TEAMS_COUNT = "teams_count",
-            USER_CAN_UPLOAD_SHOT = "can_upload_shot",
-            USER_TYPE = "type",
+    public static final String USER_PRO = "pro";
+    public static final String USER_BUCKETS_URL = "buckets_url";
+    public static final String USER_FOLLOWERS_URL = "followers_url";
+    public static final String USER_FOLLOWINGS_URL = "following_url";
+    public static final String USER_LIKES_URL = "likes_url";
 
-    USER_PRO = "pro",
-            USER_BUCKETS_URL = "buckets_url",
-            USER_FOLLOWERS_URL = "followers_url",
-            USER_FOLLOWINGS_URL = "following_url",
-            USER_LIKES_URL = "likes_url",
-
-    USER_PROJECTS_URL = "projects_url",
-            USER_SHOTS_URL = "shots_url",
-            USER_TEAMS_URL = "teams_url",
-            USER_CREATED_AT = "created_at",
-            USER_UPDATED_AT = "updated_at";
-
+    public static final String USER_PROJECTS_URL = "projects_url";
+    public static final String USER_SHOTS_URL = "shots_url";
+    public static final String USER_TEAMS_URL = "teams_url";
+    public static final String USER_CREATED_AT = "created_at";
+    public static final String USER_UPDATED_AT = "updated_at";
 
     // for mem, totally 30 fields
     private int id;
@@ -123,16 +120,21 @@ public class DribleUser implements Parcelable {
             }
 
             if (data.has(USER_BUCKETS_COUNT)) buckets_count = data.getInt(USER_BUCKETS_COUNT);
-            if (data.has(USER_COMMENTS_RECEIVED_COUNT)) comments_received_count = data.getInt(USER_COMMENTS_RECEIVED_COUNT);
+            if (data.has(USER_COMMENTS_RECEIVED_COUNT))
+                comments_received_count = data.getInt(USER_COMMENTS_RECEIVED_COUNT);
             if (data.has(USER_FOLLOWERS_COUNT)) followers_count = data.getInt(USER_FOLLOWERS_COUNT);
-            if (data.has(USER_FOLLOWINGS_COUNT)) followings_count = data.getInt(USER_FOLLOWINGS_COUNT);
+            if (data.has(USER_FOLLOWINGS_COUNT))
+                followings_count = data.getInt(USER_FOLLOWINGS_COUNT);
             if (data.has(USER_LIKES_COUNT)) likes_count = data.getInt(USER_LIKES_COUNT);
-            if (data.has(USER_LIKES_RECEIVED_COUNT)) likes_received_count = data.getInt(USER_LIKES_RECEIVED_COUNT);
+            if (data.has(USER_LIKES_RECEIVED_COUNT))
+                likes_received_count = data.getInt(USER_LIKES_RECEIVED_COUNT);
             if (data.has(USER_PROJECTS_COUNT)) projects_count = data.getInt(USER_PROJECTS_COUNT);
-            if (data.has(USER_REBOUNDS_RECEIVED_COUNT)) rebounds_received_count = data.getInt(USER_REBOUNDS_RECEIVED_COUNT);
+            if (data.has(USER_REBOUNDS_RECEIVED_COUNT))
+                rebounds_received_count = data.getInt(USER_REBOUNDS_RECEIVED_COUNT);
             if (data.has(USER_SHOTS_COUNT)) shots_count = data.getInt(USER_SHOTS_COUNT);
             if (data.has(USER_TEAMS_COUNT)) teams_count = data.getInt(USER_TEAMS_COUNT);
-            if (data.has(USER_CAN_UPLOAD_SHOT)) can_upload_shot = data.getBoolean(USER_CAN_UPLOAD_SHOT);
+            if (data.has(USER_CAN_UPLOAD_SHOT))
+                can_upload_shot = data.getBoolean(USER_CAN_UPLOAD_SHOT);
             if (data.has(USER_TYPE)) type = data.getString(USER_TYPE);
             if (data.has(USER_PRO)) pro = data.getBoolean(USER_PRO);
             if (data.has(USER_BUCKETS_URL)) buckets_url = data.getString(USER_BUCKETS_URL);
@@ -162,7 +164,6 @@ public class DribleUser implements Parcelable {
             e.printStackTrace();
         }
     }
-
 
     public DribleUser(int comments_received_count, int id, String name, String username, String html_url,
                       String avatar_url, String bio, String location, Map<String, String> links, int buckets_count,

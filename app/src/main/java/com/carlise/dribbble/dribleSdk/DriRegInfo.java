@@ -8,8 +8,6 @@ import java.util.Random;
  */
 public class DriRegInfo {
 
-
-
     public static final String DRIBLE_AUTH_BASE = "https://dribbble.com/oauth/authorize";
     public static final String DRIBLE_TOKEN_URL = "https://dribbble.com/oauth/token";
 
@@ -18,18 +16,19 @@ public class DriRegInfo {
     public static final String DRIBLE_SECRET = "33528ad1f9a36832eda52ab7d19e3c382c5d6c4ff993e079a5a4f8aca09ab388";
     public static Random mGen = new Random(89);
     public static String mState;
+
     static {
         StringBuilder str = new StringBuilder();
-        for (int i = 0; i<10; i++) {
+        for (int i = 0; i < 10; i++) {
             str.append(mGen.nextInt(26) + 'a');
         }
     }
 
     public static final String DRIBLE_LOGIN_URL = DRIBLE_AUTH_BASE + "?" +
-                            "client_id=" + DRIBLE_CLIENT_ID +
-                            "&redirect_uri=" + DRIBLE_CALL_BACK +
-                            "&scope=" + "public write comment upload" +
-                            "&state=" + mState;
+            "client_id=" + DRIBLE_CLIENT_ID +
+            "&redirect_uri=" + DRIBLE_CALL_BACK +
+            "&scope=" + "public write comment upload" +
+            "&state=" + mState;
 
     public static final String REQUEST_HEAD_AUTH_FIELD = "Authorization";
     public static final String REQUEST_HEAD_BEAR = " Bearer ";
@@ -45,44 +44,36 @@ public class DriRegInfo {
     public static final String DRIBLE_DATE_FORMAT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     public static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat(DRIBLE_DATE_FORMAT_PATTERN);
 
-
     /**
      * Following is about shots set
      */
-    public static final String REQUEST_SHOTS_FIELD_LIST = "list",
-                                REQUEST_LIST_ANIMATED = "animated",
-                                REQEUST_LIST_ATTACHMENTS = "attachments",
-                                REQUEST_LIST_DEBUTS = "debuts",
-                                REQUEST_LIST_PLAYOFFS = "playoffs",
-                                REQUEST_LIST_REBOUNDS = "rebounds",
-                                REQUEST_LIST_TEAMS = "teams";
-    public static final String REQUEST_SHOTS_FIELD_TIMEFRAME = "timeframe",
-                                REQUEST_TIMEFRAME_WEEK = "week",
-                                REQUEST_TIMEFRAME_MONTH = "month",
-                                REQUEST_TIMEFRAME_YEAR = "year",
-                                REQUEST_TIMEFRAME_EVER = "ever";
+    public static final String REQUEST_SHOTS_FIELD_LIST = "list";
+    public static final String REQUEST_LIST_ANIMATED = "animated";
+    public static final String REQEUST_LIST_ATTACHMENTS = "attachments";
+    public static final String REQUEST_LIST_DEBUTS = "debuts";
+    public static final String REQUEST_LIST_PLAYOFFS = "playoffs";
+    public static final String REQUEST_LIST_REBOUNDS = "rebounds";
+    public static final String REQUEST_LIST_TEAMS = "teams";
+    public static final String REQUEST_SHOTS_FIELD_TIMEFRAME = "timeframe";
+    public static final String REQUEST_TIMEFRAME_WEEK = "week";
+    public static final String REQUEST_TIMEFRAME_MONTH = "month";
+    public static final String REQUEST_TIMEFRAME_YEAR = "year";
+    public static final String REQUEST_TIMEFRAME_EVER = "ever";
 
     // Limit the timeframe to a specific date, week, month, or year. Must be in the format of YYYY-MM-DD.
     public static final String REQUEST_SHOTS_FIELD_DATE = "date";
 
     public static final String REQUEST_SHOTS_FIELD_SORT = "sort",
-                                REQUEST_SORT_COMMENTS = "comments",
-                                REQUEST_SORT_RECENT = "recent",
-                                REQUEST_SORT_VIEWS = "views";
-
+            REQUEST_SORT_COMMENTS = "comments",
+            REQUEST_SORT_RECENT = "recent",
+            REQUEST_SORT_VIEWS = "views";
 
     /**
      * Response header info
      */
     public static final String RESPONSE_HEADER_LINK = "Link";
 
-
     public static final String CHECK_IF_ME_FOLLOW_URL = "https://api.dribbble.com/v1/user/following/";
-
-
-
-
-
 
     public static final String FOLLOWER_URL_FLAG = "followers";
     public static final String FOLLOWING_URL_FLAG = "following";

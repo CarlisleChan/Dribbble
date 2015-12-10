@@ -57,9 +57,6 @@ public class BucketsActivity extends Activity {
 
     private ProgressBar mProgress;
 
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +71,6 @@ public class BucketsActivity extends Activity {
         initView();
         requestForBuckets();
     }
-
 
     private void initView() {
         mNavBack = (RelativeLayout) findViewById(R.id.nav_back);
@@ -93,12 +89,9 @@ public class BucketsActivity extends Activity {
         mHeader.setLayoutParams(headParam);
         mList.addHeaderView(mHeader);
 
-
         mBucketsAdapter = new BucketListAdapter(this, mBuckets);
         mList.setAdapter(mBucketsAdapter);
         mList.setDivider(null);
-
-
 
         mTitle = (TextView) findViewById(R.id.buckets_nav_title);
         mTitle.setText(mTitleTxt);
@@ -111,17 +104,15 @@ public class BucketsActivity extends Activity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (position > 0) {
                     Intent intent = new Intent(BucketsActivity.this, ShotsActivity.class);
-                    intent.putExtra(ShotsActivity.SHOTS_TITLE_EXTRA, "Shots of " + mBuckets.get(position-1).getName());
-                    intent.putExtra(ShotsActivity.SHOTS_URL, DriRegInfo.REQUEST_BUCKETS_URL + mBuckets.get(position-1).getId() + "/shots");
+                    intent.putExtra(ShotsActivity.SHOTS_TITLE_EXTRA, "Shots of " + mBuckets.get(position - 1).getName());
+                    intent.putExtra(ShotsActivity.SHOTS_URL, DriRegInfo.REQUEST_BUCKETS_URL + mBuckets.get(position - 1).getId() + "/shots");
                     intent.putExtra(ShotsActivity.CALL_FROM, "bucket");
                     startActivity(intent);
                 }
             }
         });
 
-
     }
-
 
     private void requestForBuckets() {
         final String accessToken = AuthUtil.getAccessToken(this);
@@ -160,12 +151,11 @@ public class BucketsActivity extends Activity {
 
     private void parseBuckets(JSONArray jsonArray) {
         if (jsonArray.length() <= 0) {
-
             return;
         }
 
         try {
-            for (int i=0; i<jsonArray.length(); i++) {
+            for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject json = (JSONObject) jsonArray.get(i);
                 DribleBucket bucket = new DribleBucket(json);
                 mBuckets.add(bucket);

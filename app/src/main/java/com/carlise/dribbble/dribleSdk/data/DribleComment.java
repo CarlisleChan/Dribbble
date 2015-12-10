@@ -20,16 +20,13 @@ public class DribleComment {
     private Calendar updated_at;
     private DribleUser user;
 
-
-    private static final String COMMENT_ID = "id",
-    COMMENT_BODY = "body",
-    COMMENT_LIKES_COUNT = "likes_count",
-    COMMENT_LIKES_URL = "likes_url",
-    COMMENT_CREATED_AT = "created_at",
-    COMMENT_UPDATED_AT = "updated_at",
-    COMMENT_USER = "user";
-
-
+    private static final String COMMENT_ID = "id";
+    private static final String COMMENT_BODY = "body";
+    private static final String COMMENT_LIKES_COUNT = "likes_count";
+    private static final String COMMENT_LIKES_URL = "likes_url";
+    private static final String COMMENT_CREATED_AT = "created_at";
+    private static final String COMMENT_UPDATED_AT = "updated_at";
+    private static final String COMMENT_USER = "user";
 
     public DribleComment() {
     }

@@ -62,7 +62,6 @@ public class UserInfoActivity extends Activity {
     private boolean mFollowed = false;
     private boolean mCanChangeFollow = false;
 
-
     private SwipeRefreshLayout mSwipeRefresh;
     private HashMap<String, String> mRelatedLinks;
     private boolean mCanLoadMore = true;
@@ -91,9 +90,7 @@ public class UserInfoActivity extends Activity {
 
     private RelativeLayout mProgressZone;
 
-
     private Handler mHandler = new Handler();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,7 +102,7 @@ public class UserInfoActivity extends Activity {
         initView();
 
         requestUserInfo();
-        if (AuthUtil.getMe(this).getId()!=mUserId) {
+        if (AuthUtil.getMe(this).getId() != mUserId) {
             checkIfFollowing();
         }
     }
@@ -124,7 +121,6 @@ public class UserInfoActivity extends Activity {
         mFollowZone = (RelativeLayout) findViewById(R.id.nav_follow);
         mFollowText = (TextView) findViewById(R.id.nav_follow_text);
         mFollowZone.setVisibility(View.INVISIBLE);
-
 
         mSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.user_info_swipe);
         mList = (ListView) findViewById(R.id.user_info_list);
@@ -153,8 +149,6 @@ public class UserInfoActivity extends Activity {
             });
         }
 
-
-
         mSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -179,9 +173,9 @@ public class UserInfoActivity extends Activity {
 
 
                 if (!mList.canScrollVertically(1) && (firstVisibleItem + visibleItemCount == totalItemCount)
-                        && firstVisibleItem>0 && mCanLoadMore) {
+                        && firstVisibleItem > 0 && mCanLoadMore) {
                     mCanLoadMore = false;
-                    if (mRelatedLinks==null||
+                    if (mRelatedLinks == null ||
                             TextUtils.isEmpty(mRelatedLinks.get("next"))) {
                         requestUserShots(null, true);
                     } else {
@@ -190,9 +184,6 @@ public class UserInfoActivity extends Activity {
                 }
             }
         });
-
-
-
 
         mUserAvatar = (SimpleDraweeView) findViewById(R.id.user_info_avatar);
         mUserName = (TextView) findViewById(R.id.user_info_name);
@@ -223,25 +214,22 @@ public class UserInfoActivity extends Activity {
     }
 
     private void handleNavNameAlpha(int firstVisibleItem) {
-        if (firstVisibleItem > 0)  {
+        if (firstVisibleItem > 0) {
             mNavBack.setAlpha(0xff);
             return;
         }
         int height = mHeader.getHeight();
         int delta = height - mHeader.getBottom();
-        if (delta >= height/2 && delta < height*3/4) {
-            float ratio = (delta - height/2)/(float) (height/4);
+        if (delta >= height / 2 && delta < height * 3 / 4) {
+            float ratio = (delta - height / 2) / (float) (height / 4);
             ratio = Math.min(ratio, 1);
             mNavName.setAlpha(ratio);
-        } else if (delta < height/2) {
+        } else if (delta < height / 2) {
             mNavName.setAlpha(0);
         } else {
             mNavName.setAlpha(1);
         }
-
     }
-
-
 
     private void requestUserInfo() {
 
@@ -258,7 +246,7 @@ public class UserInfoActivity extends Activity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (Log.DBG) {
-                    Toast.makeText(UserInfoActivity.this, "userinfo error code: " + (error.networkResponse==null ? "" : error.networkResponse.statusCode), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(UserInfoActivity.this, "userinfo error code: " + (error.networkResponse == null ? "" : error.networkResponse.statusCode), Toast.LENGTH_SHORT).show();
                 }
             }
         }) {
@@ -291,10 +279,10 @@ public class UserInfoActivity extends Activity {
         }
 
         int followerCount = user.getFollowers_count();
-        String followerCStr = followerCount > 1000 ? (String.valueOf(followerCount/1000) + "K") : String.valueOf(followerCount);
+        String followerCStr = followerCount > 1000 ? (String.valueOf(followerCount / 1000) + "K") : String.valueOf(followerCount);
         mUserFollowerC.setText(followerCStr);
         int followingCount = user.getFollowings_count();
-        String followingCStr = followingCount > 1000 ? (String.valueOf(followingCount/1000) + "K") : String.valueOf(followingCount);
+        String followingCStr = followingCount > 1000 ? (String.valueOf(followingCount / 1000) + "K") : String.valueOf(followingCount);
         mUserFollowingC.setText(followingCStr);
 
         mUserFollowerZone.setOnClickListener(new View.OnClickListener() {
@@ -356,7 +344,7 @@ public class UserInfoActivity extends Activity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 mCanChangeFollow = true;
-                if (error.networkResponse!=null && error.networkResponse.statusCode == 404) { // unfollow
+                if (error.networkResponse != null && error.networkResponse.statusCode == 404) { // unfollow
                     updateFollowView(false);
                 }
                 mFollowZone.setVisibility(View.VISIBLE);
@@ -373,7 +361,7 @@ public class UserInfoActivity extends Activity {
             @Override
             protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
 //                Log.e(response.headers.toString());
-                if (response.headers!=null && response.headers.get("Status").startsWith("204")) {
+                if (response.headers != null && response.headers.get("Status").startsWith("204")) {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -394,7 +382,6 @@ public class UserInfoActivity extends Activity {
         NetworkHandler.getInstance(getApplicationContext()).addToRequestQueue(request);
     }
 
-
     private void updateFollowView(boolean followed) {
         if (followed) {
             mFollowed = true;
@@ -408,7 +395,6 @@ public class UserInfoActivity extends Activity {
             mFollowText.setBackgroundResource(R.drawable.unfollow_btn_back);
         }
     }
-
 
     private void requestChangeFollow(final boolean follow) {
 
@@ -525,7 +511,6 @@ public class UserInfoActivity extends Activity {
         }
     }
 
-
     private void parseUserShots(JSONArray jsonArray, boolean first) {
         mSwipeRefresh.setRefreshing(false);
         if (jsonArray.length() <= 0) {
@@ -547,7 +532,7 @@ public class UserInfoActivity extends Activity {
             mShots.clear();
         }
         try {
-            for (int i=0; i<jsonArray.length(); i++) {
+            for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject json = (JSONObject) jsonArray.get(i);
                 DribleShot shot = new DribleShot(json);
                 shot.setUser(mDribleUser);
@@ -561,12 +546,6 @@ public class UserInfoActivity extends Activity {
             e.printStackTrace();
         }
     }
-
-
-
-
-
-
 
 
 }

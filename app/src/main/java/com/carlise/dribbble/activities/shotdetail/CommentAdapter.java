@@ -52,7 +52,7 @@ public class CommentAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         final HolderView holder;
-        if (convertView==null) {
+        if (convertView == null) {
             convertView = mInflater.inflate(R.layout.comment_item, parent, false);
             holder = new HolderView();
             holder.commentBody = (TextView) convertView.findViewById(R.id.comment_item_body);

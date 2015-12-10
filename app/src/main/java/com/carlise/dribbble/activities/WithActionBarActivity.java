@@ -14,7 +14,7 @@ public class WithActionBarActivity extends Activity {
 
     private RelativeLayout mNavBack;
     private RelativeLayout mMain;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,9 +26,8 @@ public class WithActionBarActivity extends Activity {
             @Override
             public void onClick(View v) {
                 finish();
-
-
             }
         });
     }
+
 }

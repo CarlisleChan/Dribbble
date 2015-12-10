@@ -61,8 +61,6 @@ public class InputActivity extends Activity {
         }
         initView();
         fillData();
-
-
     }
 
     private void initView() {
@@ -104,7 +102,6 @@ public class InputActivity extends Activity {
         mNavName.setText(mName);
     }
 
-
     private void requestPublishCom(String input) {
         final String accessToken = AuthUtil.getAccessToken(this);
 
@@ -143,8 +140,6 @@ public class InputActivity extends Activity {
                 params.putAll(super.getHeaders());
                 return params;
             }
-
-
         };
 
         request.setShouldCache(false);

@@ -13,13 +13,12 @@ import java.util.Calendar;
  */
 public class DribleBucket {
 
-    public static final String BUCKET_ID = "id",
-    BUCKET_NAME  = "name",
-    BUCKET_DESCRIPTION = "description",
-    BUCKET_SHOTS_COUNT = "shots_count",
-    BUCKET_CREATED_AT = "created_at",
-    BUCKET_UPDATED_AT = "updated_at";
-
+    public static final String BUCKET_ID = "id";
+    public static final String BUCKET_NAME = "name";
+    public static final String BUCKET_DESCRIPTION = "description";
+    public static final String BUCKET_SHOTS_COUNT = "shots_count";
+    public static final String BUCKET_CREATED_AT = "created_at";
+    public static final String BUCKET_UPDATED_AT = "updated_at";
 
     private int id;
     private String name;

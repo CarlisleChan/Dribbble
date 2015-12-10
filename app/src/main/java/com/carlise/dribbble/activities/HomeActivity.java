@@ -32,7 +32,6 @@ import java.util.List;
  */
 public class HomeActivity extends FragmentActivity {
 
-
     private RelativeLayout mNavBar;
     private RelativeLayout mNavMenu;
     private RelativeLayout mNavSearch;
@@ -75,7 +74,7 @@ public class HomeActivity extends FragmentActivity {
     private TextView mMyName;
 
     private TextView mMenuHome;
-//    private TextView mMenuNew;
+    //    private TextView mMenuNew;
     private TextView mMenuLiked;
     private TextView mMenuBuckets;
     private TextView mMenuAbout;
@@ -91,14 +90,12 @@ public class HomeActivity extends FragmentActivity {
         initPager();
         initTabIndicatorWidth();
         showUserInfo();
-
     }
 
     private void initView() {
         mNavBar = (RelativeLayout) findViewById(R.id.nav);
         mNavMenu = (RelativeLayout) findViewById(R.id.nav_menu);
         mNavSearch = (RelativeLayout) findViewById(R.id.nav_search);
-
 
         mNavBtnLeft = (RelativeLayout) findViewById(R.id.nav_btn_l);
         mNavBtnMid = (RelativeLayout) findViewById(R.id.nav_btn_m);
@@ -111,10 +108,8 @@ public class HomeActivity extends FragmentActivity {
         mContentPager = (ViewPager) findViewById(R.id.home_content);
         mIndicator = findViewById(R.id.home_pager_indicator);
 
-
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mLeftDrawer = (RelativeLayout) findViewById(R.id.left_drawer);
-
 
         mUserZone = (LinearLayout) findViewById(R.id.left_menu_user_zone);
         mMyAvatar = (SimpleDraweeView) findViewById(R.id.left_menu_avatar_img);
@@ -125,8 +120,6 @@ public class HomeActivity extends FragmentActivity {
         mMenuLiked = (TextView) findViewById(R.id.left_menu_like);
         mMenuBuckets = (TextView) findViewById(R.id.left_menu_buckets);
         mMenuAbout = (TextView) findViewById(R.id.left_menu_about);
-
-
 
         mNavMenu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -146,8 +139,6 @@ public class HomeActivity extends FragmentActivity {
             }
         });
     }
-
-
 
     private void initPager() {
         mLeftFrag = new HomeFragment();
@@ -193,7 +184,6 @@ public class HomeActivity extends FragmentActivity {
         mContentPager.setCurrentItem(0);
         onTabSelected(0);
 
-
         mContentPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -212,19 +202,18 @@ public class HomeActivity extends FragmentActivity {
         });
 
         addTabClickListener();
-
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (mLeftFrag!=null && getSupportFragmentManager().findFragmentById(mLeftFrag.getId())!=null) {
+        if (mLeftFrag != null && getSupportFragmentManager().findFragmentById(mLeftFrag.getId()) != null) {
             getSupportFragmentManager().putFragment(outState, "left", mLeftFrag);
         }
-        if (mMidFrag!=null && getSupportFragmentManager().findFragmentById(mMidFrag.getId())!=null) {
+        if (mMidFrag != null && getSupportFragmentManager().findFragmentById(mMidFrag.getId()) != null) {
             getSupportFragmentManager().putFragment(outState, "mid", mMidFrag);
         }
-        if (mRigFrag!=null && getSupportFragmentManager().findFragmentById(mRigFrag.getId())!=null) {
+        if (mRigFrag != null && getSupportFragmentManager().findFragmentById(mRigFrag.getId()) != null) {
             getSupportFragmentManager().putFragment(outState, "right", mRigFrag);
         }
         outState.putFloat("navBarTranslation", mNavBar.getTranslationY());
@@ -233,7 +222,7 @@ public class HomeActivity extends FragmentActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        if (getSupportFragmentManager().getFragment(savedInstanceState, "left")!=null) {
+        if (getSupportFragmentManager().getFragment(savedInstanceState, "left") != null) {
             mLeftFrag = (HomeFragment) getSupportFragmentManager().getFragment(savedInstanceState, "left");
             mLeftFrag.setOnScrollListListener(new HomeFragment.OnScrollListListener() {
                 @Override
@@ -242,7 +231,7 @@ public class HomeActivity extends FragmentActivity {
                 }
             });
         }
-        if (getSupportFragmentManager().getFragment(savedInstanceState, "mid")!=null) {
+        if (getSupportFragmentManager().getFragment(savedInstanceState, "mid") != null) {
             mMidFrag = (HomeFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mid");
             mMidFrag.setOnScrollListListener(new HomeFragment.OnScrollListListener() {
                 @Override
@@ -251,7 +240,7 @@ public class HomeActivity extends FragmentActivity {
                 }
             });
         }
-        if (getSupportFragmentManager().getFragment(savedInstanceState, "right")!=null) {
+        if (getSupportFragmentManager().getFragment(savedInstanceState, "right") != null) {
             mRigFrag = (HomeFragment) getSupportFragmentManager().getFragment(savedInstanceState, "right");
             mRigFrag.setOnScrollListListener(new HomeFragment.OnScrollListListener() {
                 @Override
@@ -337,14 +326,9 @@ public class HomeActivity extends FragmentActivity {
         DisplayMetrics dpMetrics = new DisplayMetrics();
         getWindow().getWindowManager().getDefaultDisplay().getMetrics(dpMetrics);
         mScreenWidth = dpMetrics.widthPixels;
-        mIndicator.getLayoutParams().width = mScreenWidth/3;
+        mIndicator.getLayoutParams().width = mScreenWidth / 3;
         mIndicator.requestLayout();
     }
-
-
-
-
-
 
 
     private void transNavOnScroll(int disY, int index) {
@@ -359,9 +343,10 @@ public class HomeActivity extends FragmentActivity {
     public float getCurNavTrans() {
         return mCurNavTrans;
     }
-    public RelativeLayout getNav() {return mNavBar; }
 
-
+    public RelativeLayout getNav() {
+        return mNavBar;
+    }
 
 //    private void getUserInfo() {
 //        final String accessToken = AuthUtil.getAccessToken(this);
@@ -458,13 +443,10 @@ public class HomeActivity extends FragmentActivity {
 //
 //    }
 
-
     private void showUserInfo() {
         final DribleUser user = AuthUtil.getMe(this);
 
-
-
-        if (user!=null && !TextUtils.isEmpty(user.getAvatar_url())) {
+        if (user != null && !TextUtils.isEmpty(user.getAvatar_url())) {
             Uri avatarUri = Uri.parse(user.getAvatar_url());
             mMyAvatar.setImageURI(avatarUri);
 
@@ -529,13 +511,9 @@ public class HomeActivity extends FragmentActivity {
 
         }
 
-        if (user!=null && !TextUtils.isEmpty(user.getName())) {
+        if (user != null && !TextUtils.isEmpty(user.getName())) {
             mMyName.setText(user.getName());
 
         }
-
-
     }
-
-
 }

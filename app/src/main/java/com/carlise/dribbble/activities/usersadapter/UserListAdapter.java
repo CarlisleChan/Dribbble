@@ -109,7 +109,6 @@ public class UserListAdapter extends BaseAdapter {
             });
         }
 
-
         return convertView;
     }
 

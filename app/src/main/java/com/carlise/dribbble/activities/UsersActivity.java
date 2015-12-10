@@ -63,7 +63,6 @@ public class UsersActivity extends Activity {
 
     private LayoutInflater mInflater;
 
-
     private HashMap<String, String> mRelatedLinks = new HashMap<>();
 
     @Override
@@ -73,7 +72,6 @@ public class UsersActivity extends Activity {
         setContentView(R.layout.activity_users);
         mInflater = LayoutInflater.from(this);
         initView();
-
     }
 
     private void initView() {
@@ -98,11 +96,9 @@ public class UsersActivity extends Activity {
 
         mList.addFooterView(mFooter);
 
-
         mUsersAdapter = new UserListAdapter(this, mUsers);
         mList.setAdapter(mUsersAdapter);
         mList.setDivider(null);
-
 
         mNavBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -144,7 +140,6 @@ public class UsersActivity extends Activity {
             }
         });
     }
-
 
     private void requestUsers(String url) {
         final String accessToken = AuthUtil.getAccessToken(this);

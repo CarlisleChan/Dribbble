@@ -49,7 +49,6 @@ public class HomeFragment extends Fragment {
     public static final String TAB_INDEX_FIELD = "tab.index";
     private static final int RETRY_COUNT = 5;
 
-
     private int mIndex;
     private SwipeRefreshLayout mRefreshLayout;
     private ListView mList;
@@ -60,9 +59,9 @@ public class HomeFragment extends Fragment {
     private ShotListAdapter mListAdapter;
     private ArrayList<DribleShot> mShotList;
 
-    private HashMap<Integer, Integer> leftItemsH = new HashMap<Integer, Integer>(),
-                                      midItemsH = new HashMap<Integer, Integer>(),
-                                      rigItemsH = new HashMap<Integer, Integer>();
+    private HashMap<Integer, Integer> leftItemsH = new HashMap<Integer, Integer>();
+    private HashMap<Integer, Integer> midItemsH = new HashMap<Integer, Integer>();
+    private HashMap<Integer, Integer> rigItemsH = new HashMap<Integer, Integer>();
     private int mLastScrollY;
 
     private Runnable mTimeOut = new Runnable() {
@@ -76,11 +75,6 @@ public class HomeFragment extends Fragment {
     private boolean mCanScroll = true;
     private boolean mCanLoadMore = true;
 
-
-
-
-
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -88,7 +82,7 @@ public class HomeFragment extends Fragment {
 
         mIndex = getArguments().getInt(TAB_INDEX_FIELD);
 
-        if (mList==null) {
+        if (mList == null) {
             mRefreshLayout = (SwipeRefreshLayout) inflater.inflate(R.layout.home_content_fragment, container, false);
             mList = (ListView) mRefreshLayout.findViewById(R.id.home_content_fragment);
             mHeader = new View(getActivity());
@@ -102,14 +96,11 @@ public class HomeFragment extends Fragment {
             mList.addFooterView(mFooter);
             mFootProgress = (ProgressBar) mFooter.findViewById(R.id.footer_progress);
 
-
             mList.setDivider(null);
             mList.setFriction(ViewConfiguration.getScrollFriction() /** 0.7f*/);
 
-
             String url = genRequestUrl();
             requestForList(url, true);
-
 
             mRefreshLayout.post(new Runnable() {
                 @Override
@@ -117,8 +108,6 @@ public class HomeFragment extends Fragment {
                     mRefreshLayout.setRefreshing(true);
                 }
             });
-
-
 
             mList.setOnScrollListener(new AbsListView.OnScrollListener() {
                 @Override
@@ -161,11 +150,11 @@ public class HomeFragment extends Fragment {
                         onScrollListListener.onListScroll(scrollHeight - mLastScrollY);
                     }
                     mLastScrollY = scrollHeight;
-                    if (firstVisibleItem+visibleItemCount == totalItemCount && !mList.canScrollVertically(1)
-                            && mList.getAdapter()!=null && mCanLoadMore) {
+                    if (firstVisibleItem + visibleItemCount == totalItemCount && !mList.canScrollVertically(1)
+                            && mList.getAdapter() != null && mCanLoadMore) {
                         mCanLoadMore = false;
 //                        Toast.makeText(getActivity(), "foot comming! index: " + mIndex, Toast.LENGTH_LONG).show();
-                        if (mRelatedLinks==null||
+                        if (mRelatedLinks == null ||
                                 TextUtils.isEmpty(mRelatedLinks.get("next"))) {
                             requestForList(genRequestUrl(), true);
                         } else {
@@ -185,34 +174,24 @@ public class HomeFragment extends Fragment {
             });
             int curTop = (int) (getResources().getDimension(R.dimen.navbar_home_height) + ((HomeActivity) getActivity()).getCurNavTrans());
             mRefreshLayout.setProgressViewOffset(true, curTop, curTop + 100);
-            mRefreshLayout.setColorSchemeResources( R.color.pretty_blue,
-                                                    R.color.pretty_green);
+            mRefreshLayout.setColorSchemeResources(R.color.pretty_blue,
+                    R.color.pretty_green);
 
         }
 
-
-
-
-
         return mRefreshLayout;
     }
-
-
-
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
     }
 
-
-
     private OnScrollListListener onScrollListListener;
 
     public void setOnScrollListListener(OnScrollListListener listener) {
         onScrollListListener = listener;
     }
-
 
     public interface OnScrollListListener {
         void onListScroll(int scrollDisY);
@@ -228,25 +207,22 @@ public class HomeFragment extends Fragment {
             return;
         }
 
-
-
         JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url,
                 new Response.Listener<JSONArray>() {
-            @Override
-            public void onResponse(JSONArray response) {
-                mRefreshLayout.setRefreshing(false);
-                parseResponse(response, isFirst);
-            }
-        }, new Response.ErrorListener() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        mRefreshLayout.setRefreshing(false);
+                        parseResponse(response, isFirst);
+                    }
+                }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 mRefreshLayout.setRefreshing(false);
-                if (getActivity()!=null) {
+                if (getActivity() != null) {
                     Toast.makeText(getActivity(), "errors", Toast.LENGTH_LONG).show();
                 }
             }
-        }
-        ) {
+        }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> params = new HashMap<String, String>();
@@ -262,10 +238,7 @@ public class HomeFragment extends Fragment {
                 return super.parseNetworkResponse(response);
             }
 
-
         };
-
-
 
         request.setRetryPolicy(new DefaultRetryPolicy(10000, RETRY_COUNT, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
@@ -280,13 +253,12 @@ public class HomeFragment extends Fragment {
         new Handler().postDelayed(mTimeOut, 10000);
     }
 
-
     private void parseResponse(JSONArray response, boolean isFirst) {
         try {
-            if (mShotList==null) {
+            if (mShotList == null) {
                 mShotList = new ArrayList<DribleShot>();
             }
-            if (mListAdapter==null) {
+            if (mListAdapter == null) {
                 mListAdapter = new ShotListAdapter(getActivity(), mShotList);
                 mList.setAdapter(mListAdapter);
                 mList.post(new Runnable() {
@@ -300,7 +272,7 @@ public class HomeFragment extends Fragment {
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         if (position > 0) {
                             Intent intent = new Intent(getActivity(), ShotDetailActivity.class);
-                            intent.putExtra(ShotDetailActivity.SHOT_ID_EXTRA_FIELD, mShotList.get(position-1).getId());
+                            intent.putExtra(ShotDetailActivity.SHOT_ID_EXTRA_FIELD, mShotList.get(position - 1).getId());
                             startActivity(intent);
                             getActivity().overridePendingTransition(0, 0);
                         }
@@ -310,14 +282,13 @@ public class HomeFragment extends Fragment {
             if (isFirst) {
                 mShotList.clear();
             }
-            for (int i=0; i<response.length(); i++) {
-                DribleShot shot = new DribleShot((JSONObject)response.get(i));
+            for (int i = 0; i < response.length(); i++) {
+                DribleShot shot = new DribleShot((JSONObject) response.get(i));
                 mShotList.add(shot);
             }
             mListAdapter.notifyDataSetChanged();
             mCanLoadMore = true;
             mFootProgress.setVisibility(View.INVISIBLE);
-
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -359,14 +330,13 @@ public class HomeFragment extends Fragment {
         }
     }
 
-
     public void resetList(final int trans) {
         final int navBottom = (int) (getResources().getDimension(R.dimen.navbar_home_height) + trans);
         mList.post(new Runnable() {
             @Override
             public void run() {
-                if (mList.getFirstVisiblePosition()==0) {
-                    if (mList.getChildAt(1)!=null) {
+                if (mList.getFirstVisiblePosition() == 0) {
+                    if (mList.getChildAt(1) != null) {
                         mCanScroll = false;
                         mList.setSelectionFromTop(1, navBottom);
 
@@ -382,14 +352,13 @@ public class HomeFragment extends Fragment {
         });
     }
 
-
     private HashMap<String, String> genNextUrl(String link) {
         HashMap<String, String> result = new HashMap<String, String>();
         if (TextUtils.isEmpty(link)) {
             return null;
         }
-        String [] links = link.split(",");
-        for (int i=0; i< links.length; i++) {
+        String[] links = link.split(",");
+        for (int i = 0; i < links.length; i++) {
             String str = links[i];
             String url = str.substring(str.indexOf("<") + 1, str.lastIndexOf(">"));
             String flag = str.substring(str.indexOf("rel=\"") + 5, str.lastIndexOf("\""));
@@ -397,8 +366,5 @@ public class HomeFragment extends Fragment {
         }
         return result;
     }
-
-
-
 
 }

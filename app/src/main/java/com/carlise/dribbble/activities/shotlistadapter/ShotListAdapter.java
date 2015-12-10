@@ -35,7 +35,6 @@ public class ShotListAdapter extends BaseAdapter {
         this.mDribleShots = mDribleShots;
         mContext = context;
         mInflater = LayoutInflater.from(context);
-
     }
 
     @Override
@@ -72,7 +71,7 @@ public class ShotListAdapter extends BaseAdapter {
             holder = (ShotViewHolder) convertView.getTag();
         }
         final DribleShot dribleShot = mDribleShots.get(position);
-        if (dribleShot.getTags()!=null && dribleShot.getTags().size()>0 &&!TextUtils.isEmpty(dribleShot.getTags().get(0))) {
+        if (dribleShot.getTags() != null && dribleShot.getTags().size() > 0 && !TextUtils.isEmpty(dribleShot.getTags().get(0))) {
             holder.itemHeader.setText(dribleShot.getTags().get(0));
             holder.itemHeader.setVisibility(View.VISIBLE);
         } else {
@@ -85,7 +84,6 @@ public class ShotListAdapter extends BaseAdapter {
         } else {
             holder.itemImage.setImageURI(imgUri);
         }
-
 
         holder.itemTitle.setText(dribleShot.getTitle());
         Uri avatarUri = Uri.parse(dribleShot.getUser().getAvatar_url());
@@ -111,8 +109,6 @@ public class ShotListAdapter extends BaseAdapter {
             }
         });
 
-
-
         return convertView;
     }
 
@@ -126,8 +122,6 @@ public class ShotListAdapter extends BaseAdapter {
                 .build();
         imageView.setController(controller);
     }
-
-
 
     class ShotViewHolder {
         TextView itemHeader;

@@ -100,7 +100,6 @@ public class ShotDetailActivity extends Activity {
 
     private boolean mFirstTime = true;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,8 +119,6 @@ public class ShotDetailActivity extends Activity {
         String url = DriRegInfo.REQUEST_ONE_SHOT_URL + mShotId;
         requestShot(url);
         requestComments();
-
-
     }
 
     @Override
@@ -191,8 +188,6 @@ public class ShotDetailActivity extends Activity {
         mCommentsList.setAdapter(mCommentAdapter);
         mCommentsList.setDivider(null);
 
-
-
         mNavBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -202,11 +197,6 @@ public class ShotDetailActivity extends Activity {
         });
 
         mProgress.setVisibility(View.VISIBLE);
-
-
-
-
-
     }
 
     private int mLoadShotRetryCount = 5;
@@ -224,7 +214,6 @@ public class ShotDetailActivity extends Activity {
         if (TextUtils.isEmpty(accessToken)) { // because we examine the accesstoken, so will never in this switch
             return;
         }
-
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url,
                 new Response.Listener<JSONObject>() {
@@ -260,12 +249,10 @@ public class ShotDetailActivity extends Activity {
             }
         };
 
-
         request.setRetryPolicy(new DefaultRetryPolicy(10000, RETRY_COUNT, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         request.setShouldCache(false);
 
         NetworkHandler.getInstance(getApplicationContext()).addToRequestQueue(request);
-
     }
 
     private void parseResponse(JSONObject response) {
@@ -320,9 +307,9 @@ public class ShotDetailActivity extends Activity {
             public void onClick(View v) {
                 if (mCanChangeLike) {
                     if (!mLiked) {
-                       requestLike(true);
+                        requestLike(true);
                         AnimatorHelp.btnClick(mNavLikeImg, 300);
-                       Toast.makeText(ShotDetailActivity.this, "requesting", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ShotDetailActivity.this, "requesting", Toast.LENGTH_SHORT).show();
                     } else {
                         requestLike(false);
                         AnimatorHelp.btnClick(mNavLikeImg, 300);
@@ -333,7 +320,7 @@ public class ShotDetailActivity extends Activity {
             }
         });
 
-        for(int i=0; i<3; i++) {
+        for (int i = 0; i < 3; i++) {
             if (!TextUtils.isEmpty(shot.getImages()[i])) {
                 String imgStr = shot.getImages()[i];
                 Uri uri = Uri.parse(imgStr);
@@ -360,8 +347,6 @@ public class ShotDetailActivity extends Activity {
         mShotInfoCommentText.setText(String.valueOf(shot.getComments_count()));
         mShotInfoViewText.setText(String.valueOf(shot.getViews_count()));
 
-
-
         ArrayList<String> tags = shot.getTags();
         if (tags.size() > 0) {
             StringBuilder stringBuilder = new StringBuilder();
@@ -369,11 +354,10 @@ public class ShotDetailActivity extends Activity {
                 stringBuilder.append(s + ", ");
             }
 
-            mShotTagText.setText(stringBuilder.toString().substring(0, stringBuilder.length()-2));
+            mShotTagText.setText(stringBuilder.toString().substring(0, stringBuilder.length() - 2));
         } else {
             mShotTagText.setText("No one tag");
         }
-
 
         mShotComment.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -391,8 +375,6 @@ public class ShotDetailActivity extends Activity {
                 Toast.makeText(ShotDetailActivity.this, "developing...", Toast.LENGTH_SHORT).show();
             }
         });
-
-
     }
 
     private void checkIfLike() {
@@ -435,13 +417,10 @@ public class ShotDetailActivity extends Activity {
 
         request.setShouldCache(false);
         NetworkHandler.getInstance(getApplicationContext()).addToRequestQueue(request);
-
-
     }
 
-
-
     private boolean mCanChangeLike = true;
+
     private void requestLike(boolean like) {
 
         String url = DriRegInfo.REQUEST_ONE_SHOT_URL + mShotId + "/" + "like";
@@ -477,9 +456,6 @@ public class ShotDetailActivity extends Activity {
         request.setShouldCache(false);
         NetworkHandler.getInstance(getApplicationContext()).addToRequestQueue(request);
         mCanChangeLike = false;
-
-
-
     }
 
     private void updateLikeView(boolean like) {
@@ -491,8 +467,6 @@ public class ShotDetailActivity extends Activity {
             mLiked = false;
         }
     }
-
-
 
     private void requestComments() {
         final String accessToken = AuthUtil.getAccessToken(this);
@@ -530,13 +504,13 @@ public class ShotDetailActivity extends Activity {
     }
 
     private void parseComments(JSONArray jsonArray) {
-        if (jsonArray!=null && jsonArray.length() <= 0) {
+        if (jsonArray != null && jsonArray.length() <= 0) {
             return;
         }
         mComments.clear();
 
         try {
-            for (int i=0; i<jsonArray.length(); i++) {
+            for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject json = (JSONObject) jsonArray.get(i);
                 mComments.add(new DribleComment(json));
             }

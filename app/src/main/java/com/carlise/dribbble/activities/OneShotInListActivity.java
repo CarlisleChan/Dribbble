@@ -42,7 +42,6 @@ public class OneShotInListActivity extends Activity {
     private RelativeLayout mNavBack;
     private String mAccess_token;
 
-
     private TextView mItemHeaderText;
     private SimpleDraweeView mItemImage;
     private TextView mItemTitle;
@@ -60,7 +59,6 @@ public class OneShotInListActivity extends Activity {
         initView();
         setupRequest();
     }
-
 
     private void initView() {
         mNavBack = (RelativeLayout) findViewById(R.id.nav_back);
@@ -80,7 +78,6 @@ public class OneShotInListActivity extends Activity {
         mItemLikeCount = (TextView) findViewById(R.id.item_likes_count);
     }
 
-
     private void setupRequest() {
         checkAuth();
 
@@ -98,9 +95,7 @@ public class OneShotInListActivity extends Activity {
             public void onErrorResponse(VolleyError error) {
                 Toast.makeText(OneShotInListActivity.this, "return error", Toast.LENGTH_LONG).show();
             }
-        }
-
-        ) {
+        }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
 
@@ -166,6 +161,5 @@ public class OneShotInListActivity extends Activity {
             startActivity(intent);
         }
     }
-
 
 }

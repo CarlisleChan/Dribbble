@@ -19,13 +19,11 @@ public class ImageHelper {
 
     public static void setupImage(Resources resources, Uri imgUri, Uri placeholder, SimpleDraweeView imageView) {
 
-
         GenericDraweeHierarchyBuilder builder = new GenericDraweeHierarchyBuilder(resources);
         GenericDraweeHierarchy hierarchy = builder.setProgressBarImage(new CustomProgressBar())
                 .build();
 
         imageView.setHierarchy(hierarchy);
-
 
         BaseControllerListener controllerListener = new BaseControllerListener() {
             @Override
@@ -36,13 +34,10 @@ public class ImageHelper {
             }
         };
 
-
         DraweeController controller = Fresco.newDraweeControllerBuilder()
                 .setUri(imgUri)
                 .setControllerListener(controllerListener)
                 .build();
-
-
 
         imageView.setController(controller);
     }

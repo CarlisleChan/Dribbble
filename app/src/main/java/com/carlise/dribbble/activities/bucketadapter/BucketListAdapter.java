@@ -56,7 +56,6 @@ public class BucketListAdapter extends BaseAdapter {
 
         holder.name.setText(mBuckets.get(position).getName());
 
-
         return convertView;
     }
 
