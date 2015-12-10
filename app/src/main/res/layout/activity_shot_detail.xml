@@ -12,6 +12,7 @@
         android:background="@color/image_placeholder"
         android:minHeight="250dp"
         android:scaleType="centerCrop" />
+
     <ListView
         android:id="@+id/shot_detail_comments_list"
         android:background="@color/main_back"
@@ -21,14 +22,11 @@
 
     </ListView>
 
-
-
     <RelativeLayout
         android:id="@+id/nav"
         android:layout_width="match_parent"
         android:layout_height="@dimen/toolbar_height"
         android:background="@color/toolbar_back">
-
 
         <RelativeLayout
             android:id="@+id/nav_back"
@@ -62,7 +60,6 @@
             android:layout_toRightOf="@id/shot_detail_avatar"
             android:maxWidth="@dimen/shot_detail_author_length"
             android:singleLine="true" />
-
 
         <RelativeLayout
             android:id="@+id/nav_like"

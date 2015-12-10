@@ -18,13 +18,13 @@
             android:layout_height="50dp"
             android:layout_centerInParent="true"
             app:roundAsCircle="true" />
+
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_toRightOf="@id/user_item_avatar_zone">
-
 
         <RelativeLayout
             android:id="@+id/user_item_detail_zone"
@@ -80,14 +80,14 @@
                 android:maxLines="3"
                 android:textColor="@color/grey_text" />
 
-
         </RelativeLayout>
-
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1px"
             android:layout_alignParentBottom="true"
             android:background="@color/grey_text" />
+
     </RelativeLayout>
+
 </RelativeLayout>

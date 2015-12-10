@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:background="@color/content_back"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
 
     <TextView
         android:id="@+id/about_line_1"
@@ -16,6 +14,7 @@
         android:textColor="@color/default_font"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
     <TextView
         android:id="@+id/about_line_2"
         android:layout_below="@id/about_line_1"
@@ -28,6 +27,7 @@
         android:text="Please feel free to send email to:"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
     <TextView
         android:id="@+id/about_line_3"
         android:layout_below="@id/about_line_2"
@@ -41,6 +41,7 @@
         android:fontFamily="sans-serif-light"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
     <TextView
         android:id="@+id/about_line_4"
         android:layout_below="@id/about_line_3"
@@ -48,11 +49,10 @@
         android:layout_marginTop="5dp"
         android:text=": )"
         android:textColor="@color/pretty_green"
-
         android:textSize="18sp"
-
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
     <TextView
         android:id="@+id/about_title"
         android:text="Thanks for use"

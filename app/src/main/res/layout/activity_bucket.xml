@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
-
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <ListView
         android:id="@+id/buckets_list"
         android:background="@color/main_back"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></ListView>
-
+        android:layout_height="match_parent" />
 
     <RelativeLayout
         android:id="@+id/nav"
@@ -16,7 +15,6 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/toolbar_height"
         android:background="@color/toolbar_back">
-
 
         <RelativeLayout
             android:id="@+id/nav_back"
@@ -32,8 +30,6 @@
                 android:src="@drawable/left_arrow" />
         </RelativeLayout>
 
-
-
         <TextView
             android:id="@+id/buckets_nav_title"
             android:layout_width="wrap_content"
@@ -45,13 +41,7 @@
             android:textStyle="bold"
             android:layout_marginLeft="10dp"
             android:layout_toRightOf="@id/nav_back"
-            android:maxWidth="200dp"
-            />
-
-
-
-
-
+            android:maxWidth="200dp" />
 
         <View
             android:layout_width="match_parent"
@@ -59,7 +49,6 @@
             android:layout_alignParentBottom="true"
             android:background="@drawable/nav_bottom_divider" />
     </RelativeLayout>
-
 
     <ProgressBar
         android:id="@+id/buckets_progress"

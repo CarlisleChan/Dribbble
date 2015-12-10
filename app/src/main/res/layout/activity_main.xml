@@ -1,5 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:visibility="gone"
     tools:context=".MainActivity">
@@ -9,36 +10,42 @@
         android:text="Login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
     <Button
         android:layout_below="@id/btn_login"
         android:id="@+id/get_user"
         android:text="User Info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/to_action"
         android:layout_below="@id/get_user"
         android:text="actionbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/to_home"
         android:text="Home Page"
         android:layout_below="@id/to_action"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/to_one_shot"
         android:text="One Shot"
         android:layout_below="@id/to_home"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/to_shot_detail"
         android:text="Shot Detail"
         android:layout_below="@id/to_one_shot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/to_input"
         android:layout_below="@id/to_shot_detail"

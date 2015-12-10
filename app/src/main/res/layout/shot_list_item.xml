@@ -47,17 +47,14 @@
                 android:layout_height="wrap_content"
                 android:background="@color/image_placeholder"
                 android:minHeight="@dimen/item_pic_min_height"
-                android:scaleType="centerCrop"
-
-
-                />
+                android:scaleType="centerCrop" />
         </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/between_pic_and_title"
             android:layout_width="match_parent"
             android:layout_height="@dimen/item_height_between_pic_title"
-            android:layout_below="@id/item_pic"></RelativeLayout>
+            android:layout_below="@id/item_pic" />
 
         <TextView
             android:id="@+id/item_title"
@@ -75,7 +72,7 @@
             android:id="@+id/between_title_and_detail"
             android:layout_width="match_parent"
             android:layout_height="@dimen/item_height_between_pic_title"
-            android:layout_below="@id/item_title"></RelativeLayout>
+            android:layout_below="@id/item_title" />
 
         <RelativeLayout
             android:id="@+id/item_detail"
@@ -94,9 +91,7 @@
                     android:layout_width="@dimen/item_detail_avatar_w_h"
                     android:layout_height="@dimen/item_detail_avatar_w_h"
                     android:layout_marginLeft="@dimen/item_detail_avatar_margin_l"
-                    app:roundAsCircle="true"
-
-                    />
+                    app:roundAsCircle="true" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -164,5 +159,7 @@
             </LinearLayout>
 
         </RelativeLayout>
+
     </RelativeLayout>
+
 </RelativeLayout>

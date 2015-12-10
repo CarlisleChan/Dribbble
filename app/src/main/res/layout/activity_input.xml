@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:background="@color/content_back"
-    android:layout_width="match_parent" android:layout_height="match_parent">
-
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <RelativeLayout
         android:id="@+id/nav"
         android:layout_width="match_parent"
         android:layout_height="@dimen/toolbar_height"
         android:background="@color/toolbar_back">
-
 
         <RelativeLayout
             android:id="@+id/nav_cancel"
@@ -25,7 +24,6 @@
                 android:src="@drawable/cancel" />
         </RelativeLayout>
 
-
         <TextView
             android:id="@+id/nav_name"
             android:layout_width="wrap_content"
@@ -39,7 +37,6 @@
             android:layout_toRightOf="@id/nav_cancel"
             android:maxWidth="@dimen/shot_detail_author_length"
             android:singleLine="true" />
-
 
         <RelativeLayout
             android:id="@+id/nav_publish"
@@ -59,8 +56,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </RelativeLayout>
-
-
 
         <View
             android:layout_width="match_parent"

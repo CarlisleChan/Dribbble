@@ -11,11 +11,10 @@
         android:layout_height="match_parent"
         android:background="@color/main_back">
 
-
         <android.support.v4.view.ViewPager
             android:id="@+id/home_content"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"></android.support.v4.view.ViewPager>
+            android:layout_height="match_parent" />
 
         <RelativeLayout
             android:id="@+id/nav"
@@ -145,15 +144,13 @@
 
     </RelativeLayout>
 
-
     <RelativeLayout
         android:id="@+id/left_drawer"
         android:layout_width="300dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="@color/main_back"
-        android:clickable="true"
-        >
+        android:clickable="true">
 
         <LinearLayout
             android:orientation="vertical"
@@ -202,6 +199,7 @@
                 android:textColor="@color/grey_text"
                 android:textSize="16sp" />
         </LinearLayout>
+
         <TextView
             android:id="@+id/left_menu_home"
             android:layout_below="@id/left_menu_user_zone"
@@ -217,18 +215,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
         <!--<TextView-->
-            <!--android:id="@+id/left_menu_new"-->
-            <!--android:background="@drawable/menu_btn_back"-->
-            <!--android:clickable="true"-->
-            <!--android:text="New Shot"-->
-            <!--android:textStyle="bold"-->
-            <!--android:fontFamily="sans-serif-light"-->
-            <!--android:textColor="@color/grey_text"-->
-            <!--android:textSize="24sp"-->
-            <!--android:paddingLeft="@dimen/left_menu_padding_left"-->
-            <!--android:paddingTop="15dp"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content" />-->
+        <!--android:id="@+id/left_menu_new"-->
+        <!--android:background="@drawable/menu_btn_back"-->
+        <!--android:clickable="true"-->
+        <!--android:text="New Shot"-->
+        <!--android:textStyle="bold"-->
+        <!--android:fontFamily="sans-serif-light"-->
+        <!--android:textColor="@color/grey_text"-->
+        <!--android:textSize="24sp"-->
+        <!--android:paddingLeft="@dimen/left_menu_padding_left"-->
+        <!--android:paddingTop="15dp"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content" />-->
         <TextView
             android:id="@+id/left_menu_like"
             android:layout_below="@id/left_menu_home"
@@ -243,6 +241,7 @@
             android:paddingTop="15dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+
         <TextView
             android:id="@+id/left_menu_buckets"
             android:layout_below="@id/left_menu_like"
@@ -258,7 +257,6 @@
             android:paddingBottom="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-
 
         <TextView
             android:id="@+id/left_menu_about"
