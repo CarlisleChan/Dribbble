@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
@@ -7,6 +8,8 @@
         android:id="@+id/home_content_fragment"
         android:scrollbars="none"
         android:layout_height="match_parent"
-        android:layout_width="match_parent"/>
+        android:layout_width="match_parent"
+        tools:listfooter="@layout/home_list_footer"
+        tools:listitem="@layout/shot_list_item" />
 
 </android.support.v4.widget.SwipeRefreshLayout>
