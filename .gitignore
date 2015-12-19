@@ -35,3 +35,8 @@ captures/
 
 *.iml
 ajcore.*.txt
+
+# buck & OkBuck
+/buck-out/
+/.buckd/
+/.okbuck/
