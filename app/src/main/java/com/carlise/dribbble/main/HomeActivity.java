@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -19,6 +20,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.carlise.dribbble.R;
@@ -61,6 +63,7 @@ public class HomeActivity extends AppCompatActivity implements Toolbar.OnMenuIte
 
         initView();
         initPager();
+        initToolbar();
         showUserInfo();
     }
 
@@ -75,11 +78,16 @@ public class HomeActivity extends AppCompatActivity implements Toolbar.OnMenuIte
         drawerLayout.setDrawerListener(drawerToggle);
 
         navigationView = (NavigationView) findViewById(R.id.navigationView);
+        View headerLayout = navigationView.inflateHeaderView(R.layout.drawer_header);
+        avatar = (SimpleDraweeView) headerLayout.findViewById(R.id.left_menu_avatar_img);
+        name = (TextView) headerLayout.findViewById(R.id.left_menu_name);
+
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
                 SharedPreferences shared;
                 Intent intent = null;
+
                 switch (menuItem.getItemId()) {
                     case R.id.item_liked_shots:
                         shared = getSharedPreferences(LoginActivity.ACCOUNT_INFO_MEM, Context.MODE_PRIVATE);
@@ -100,17 +108,25 @@ public class HomeActivity extends AppCompatActivity implements Toolbar.OnMenuIte
                         intent = new Intent(HomeActivity.this, AboutActivity.class);
                         break;
                 }
+
                 drawerLayout.closeDrawers();
-                startActivity(intent);
+
+                final Intent finalIntent = intent;
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (finalIntent != null) {
+                            startActivity(finalIntent);
+                        }
+                    }
+                }, 300);
                 return true;
             }
         });
 
-        View headerLayout = navigationView.inflateHeaderView(R.layout.drawer_header);
+    }
 
-        avatar = (SimpleDraweeView) headerLayout.findViewById(R.id.left_menu_avatar_img);
-        name = (TextView) headerLayout.findViewById(R.id.left_menu_name);
-
+    private void initToolbar() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 //        toolbar.setNavigationIcon(android.R.drawable.ic_menu_sort_by_size);
@@ -124,6 +140,21 @@ public class HomeActivity extends AppCompatActivity implements Toolbar.OnMenuIte
             }
         });
 
+        // this is gross but toolbar doesn't expose it's children to animate them :(
+        View t = toolbar.getChildAt(0);
+        if (t != null && t instanceof TextView) {
+            TextView title = (TextView) t;
+            title.setAlpha(0f);
+            title.setScaleX(0.8f);
+
+            title.animate()
+                    .alpha(1f)
+                    .scaleX(1f)
+                    .setStartDelay(300)
+                    .setDuration(900)
+                    .setInterpolator(AnimationUtils.loadInterpolator(this,
+                            android.R.interpolator.fast_out_slow_in));
+        }
     }
 
     private void initPager() {
