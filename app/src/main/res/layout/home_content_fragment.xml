@@ -9,7 +9,6 @@
         android:scrollbars="none"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        tools:listfooter="@layout/home_list_footer"
-        tools:listitem="@layout/shot_list_item" />
+        tools:listitem="@layout/item_shot_list" />
 
 </android.support.v4.widget.SwipeRefreshLayout>

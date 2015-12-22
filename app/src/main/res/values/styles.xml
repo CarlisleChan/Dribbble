@@ -1,12 +1,17 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-    </style>
-
-    <style name="input_editText_style" parent="android:Widget.EditText">
-        <item name="android:background">@drawable/input_text_back</item>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!--导航栏底色-->
+        <item name="colorPrimary">@color/primary_color</item>
+        <!--状态栏底色-->
+        <item name="colorPrimaryDark">@color/primary_dark_color</item>
+        <!--按钮选中或者点击获得焦点后的颜色-->
+        <item name="colorAccent">@color/accent_material_light</item>
+        <!--和 colorAccent相反，正常状态下按钮的颜色-->
+        <item name="colorControlNormal">@color/material_blue_grey_950</item>
+        <!--Button按钮正常状态颜色-->
+        <item name="colorButtonNormal">@color/button_material_light</item>
     </style>
 
 </resources>

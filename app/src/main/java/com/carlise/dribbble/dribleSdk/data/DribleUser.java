@@ -5,7 +5,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.carlise.dribbble.dribleSdk.DriRegInfo;
-import com.carlise.dribbble.log.Log;
+import com.carlise.dribbble.utils.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -1,0 +1,49 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:id="@+id/left_menu_user_zone"
+    android:paddingBottom="20dp"
+    android:background="@color/content_back"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:id="@+id/left_menu_avatar_zone"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/left_menu_avatar_zone_height"
+        android:background="@color/content_back">
+
+        <com.facebook.drawee.view.SimpleDraweeView
+            android:id="@+id/left_menu_avatar_img"
+            android:layout_width="@dimen/left_menu_avatar_w_h"
+            android:layout_height="@dimen/left_menu_avatar_w_h"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="@dimen/left_menu_padding_left"
+            app:roundAsCircle="true" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/left_menu_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/content_back"
+        android:fontFamily="sans-serif-light"
+        android:paddingLeft="@dimen/left_menu_padding_left"
+        android:paddingTop="25dp"
+        android:textColor="@color/grey_text"
+        android:textSize="26sp" />
+
+    <TextView
+        android:id="@+id/left_menu_see_profile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/content_back"
+        android:fontFamily="sans-serif-light"
+        android:paddingBottom="10dp"
+        android:paddingLeft="@dimen/left_menu_padding_left"
+        android:paddingTop="10dp"
+        android:text="See profile"
+        android:textColor="@color/grey_text"
+        android:textSize="16sp" />
+
+</LinearLayout>

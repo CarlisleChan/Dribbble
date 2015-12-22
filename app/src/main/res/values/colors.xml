@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="primary_color">#fffafafa</color>
+    <color name="primary_dark_color">#707070</color>
+
     <color name="red">#ffff0000</color>
     <color name="toolbar_back">#fffafafa</color>
     <color name="content_back">#fffafafa</color>
@@ -13,4 +16,6 @@
     <color name="pretty_red">#fff24789</color>
     <color name="grey_text">#ffb9b9b9</color>
     <color name="left_menu_btn_pressed">#ffdddddd</color>
+
+    <color name="grey_btn">#ffb9b9b9</color>
 </resources>

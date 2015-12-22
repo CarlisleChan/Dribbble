@@ -6,8 +6,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
-import com.carlise.dribbble.activities.HomeActivity;
-import com.carlise.dribbble.activities.LoginActivity;
+import com.carlise.dribbble.main.HomeActivity;
+import com.carlise.dribbble.main.LoginActivity;
 import com.carlise.dribbble.dribleSdk.data.DribleUser;
 
 /**

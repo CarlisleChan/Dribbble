@@ -2,8 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:visibility="gone"
-    tools:context=".MainActivity">
+    android:visibility="visible"
+    tools:context=".main.MainActivity">
 
     <Button
         android:id="@+id/btn_login"
@@ -19,16 +19,9 @@
         android:layout_height="wrap_content" />
 
     <Button
-        android:id="@+id/to_action"
-        android:layout_below="@id/get_user"
-        android:text="actionbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <Button
         android:id="@+id/to_home"
         android:text="Home Page"
-        android:layout_below="@id/to_action"
+        android:layout_below="@id/get_user"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

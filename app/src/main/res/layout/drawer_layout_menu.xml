@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/item_home"
+            android:title="Home"
+            android:checked="true" />
+
+        <item
+            android:id="@+id/item_liked_shots"
+            android:title="Liked Shots" />
+
+        <item
+            android:id="@+id/item_buckets"
+            android:title="Buckets" />
+    </group>
+
+    <item android:title="">
+
+        <menu>
+
+            <item
+                android:id="@+id/item_dev"
+                android:title="Developer" />
+        </menu>
+    </item>
+
+</menu>
