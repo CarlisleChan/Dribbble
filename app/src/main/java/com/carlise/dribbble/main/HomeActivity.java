@@ -11,9 +11,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,6 +41,7 @@ public class HomeActivity extends AppCompatActivity implements Toolbar.OnMenuIte
 
     private Toolbar toolbar;
     private TabLayout tabLayout;
+    private ActionBarDrawerToggle drawerToggle;
     private ViewPager viewPager;
     private List<Fragment> fragmentList = new ArrayList<>();
     private FragmentAdapter fragmentAdapter;
@@ -65,7 +68,11 @@ public class HomeActivity extends AppCompatActivity implements Toolbar.OnMenuIte
 
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close);
+        drawerToggle.syncState();
+        drawerLayout.setDrawerListener(drawerToggle);
 
         navigationView = (NavigationView) findViewById(R.id.navigationView);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -106,7 +113,7 @@ public class HomeActivity extends AppCompatActivity implements Toolbar.OnMenuIte
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(android.R.drawable.ic_menu_sort_by_size);
+//        toolbar.setNavigationIcon(android.R.drawable.ic_menu_sort_by_size);
         toolbar.setOnMenuItemClickListener(this);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -205,5 +212,14 @@ public class HomeActivity extends AppCompatActivity implements Toolbar.OnMenuIte
         }
 
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
+            drawerLayout.closeDrawer(Gravity.LEFT);
+        } else {
+            finish();
+        }
     }
 }
