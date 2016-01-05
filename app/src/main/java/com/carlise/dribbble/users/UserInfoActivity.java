@@ -29,17 +29,17 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.carlise.dribbble.BuildConfig;
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.application.BaseActivity;
-import com.carlise.dribbble.dribleSdk.AuthUtil;
-import com.carlise.dribbble.dribleSdk.DriRegInfo;
-import com.carlise.dribbble.dribleSdk.HttpUtils;
-import com.carlise.dribbble.dribleSdk.data.DribleShot;
-import com.carlise.dribbble.dribleSdk.data.DribleUser;
 import com.carlise.dribbble.shot.ShotDetailActivity;
 import com.carlise.dribbble.shot.ShotListAdapter;
-import com.carlise.dribbble.utils.Log;
+import com.carlise.dribbble.utils.AuthUtil;
 import com.carlise.dribbble.utils.NetworkHandler;
+import com.carlisle.model.DribleShot;
+import com.carlisle.model.DribleUser;
+import com.carlisle.provider.DriRegInfo;
+import com.carlisle.tools.HttpUtils;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
 
@@ -55,6 +55,7 @@ import java.util.Map;
  * Created by zhanglei on 15/7/24.
  */
 public class UserInfoActivity extends BaseActivity {
+    private static final String TAG = UserInfoActivity.class.getSimpleName();
 
     private static final int RETRY_COUNT = 5;
 
@@ -235,7 +236,7 @@ public class UserInfoActivity extends BaseActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                if (Log.DBG) {
+                if (BuildConfig.DEBUG) {
                     Toast.makeText(UserInfoActivity.this, "userinfo error code: " + (error.networkResponse == null ? "" : error.networkResponse.statusCode), Toast.LENGTH_SHORT).show();
                 }
             }

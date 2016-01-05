@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
@@ -19,14 +20,14 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.carlise.dribbble.BuildConfig;
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.application.BaseActivity;
-import com.carlise.dribbble.dribleSdk.AuthUtil;
-import com.carlise.dribbble.dribleSdk.DriRegInfo;
-import com.carlise.dribbble.dribleSdk.HttpUtils;
-import com.carlise.dribbble.dribleSdk.data.DribleUser;
-import com.carlise.dribbble.utils.Log;
+import com.carlise.dribbble.utils.AuthUtil;
 import com.carlise.dribbble.utils.NetworkHandler;
+import com.carlisle.model.DribleUser;
+import com.carlisle.provider.DriRegInfo;
+import com.carlisle.tools.HttpUtils;
 import com.facebook.drawee.backends.pipeline.Fresco;
 
 import org.json.JSONArray;
@@ -41,6 +42,7 @@ import java.util.Map;
  * Created by zhanglei on 15/8/2.
  */
 public class UsersActivity extends BaseActivity {
+    private static final String TAG = UsersActivity.class.getSimpleName();
 
     public static final String USERS_TITLE = "com.tuesda.watch.title.extra";
     public static final String USERS_URL = "com.tuesda.watch.url.extra";
@@ -123,8 +125,8 @@ public class UsersActivity extends BaseActivity {
 
     private void requestUsers(String url) {
         final String accessToken = AuthUtil.getAccessToken(this);
-        if (Log.DBG) {
-//            Log.e("uses request: url: " + url);
+        if (BuildConfig.DEBUG) {
+            Log.e(TAG, "uses request: url: " + url);
         }
 
         JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url,
@@ -150,8 +152,8 @@ public class UsersActivity extends BaseActivity {
 
             @Override
             protected Response<JSONArray> parseNetworkResponse(NetworkResponse response) {
-                if (response.headers != null && Log.DBG) {
-//                    Log.e("response: " + response.headers);
+                if (response.headers != null && BuildConfig.DEBUG) {
+                    Log.e(TAG, "response: " + response.headers);
                 }
                 if (response.headers != null && response.headers.containsKey(DriRegInfo.RESPONSE_HEADER_LINK)) {
                     mRelatedLinks = HttpUtils.genNextUrl(response.headers.get(DriRegInfo.RESPONSE_HEADER_LINK));

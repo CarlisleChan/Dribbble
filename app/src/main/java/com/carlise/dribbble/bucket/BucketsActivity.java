@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -18,13 +19,12 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.carlise.dribbble.R;
-import com.carlise.dribbble.shot.ShotsActivity;
 import com.carlise.dribbble.application.BaseActivity;
-import com.carlise.dribbble.dribleSdk.AuthUtil;
-import com.carlise.dribbble.dribleSdk.DriRegInfo;
-import com.carlise.dribbble.dribleSdk.data.DribleBucket;
-import com.carlise.dribbble.utils.Log;
+import com.carlise.dribbble.shot.ShotsActivity;
+import com.carlise.dribbble.utils.AuthUtil;
 import com.carlise.dribbble.utils.NetworkHandler;
+import com.carlisle.model.DribleBucket;
+import com.carlisle.provider.DriRegInfo;
 import com.facebook.drawee.backends.pipeline.Fresco;
 
 import org.json.JSONArray;
@@ -39,6 +39,7 @@ import java.util.Map;
  * Created by zhanglei on 15/8/5.
  */
 public class BucketsActivity extends BaseActivity {
+    private static final String TAG = BucketsActivity.class.getSimpleName();
 
     public static final String BUCKET_URL = "com.tuesda.watch.buckets.url.extra";
     public static final String BUCKET_TITLE = "com.tuesda.watch.buckets.title.extra";
@@ -128,7 +129,7 @@ public class BucketsActivity extends BaseActivity {
 
             @Override
             protected Response<JSONArray> parseNetworkResponse(NetworkResponse response) {
-                Log.e("buckets response headers" + (response.headers == null ? "" : response.headers));
+                Log.e(TAG, "buckets response headers" + (response.headers == null ? "" : response.headers));
                 return super.parseNetworkResponse(response);
             }
         };

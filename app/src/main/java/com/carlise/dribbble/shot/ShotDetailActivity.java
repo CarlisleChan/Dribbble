@@ -7,6 +7,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,17 +27,17 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.carlise.dribbble.BuildConfig;
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.application.BaseActivity;
-import com.carlise.dribbble.dribleSdk.AuthUtil;
-import com.carlise.dribbble.dribleSdk.DriRegInfo;
-import com.carlise.dribbble.dribleSdk.data.DribleComment;
-import com.carlise.dribbble.dribleSdk.data.DribleShot;
 import com.carlise.dribbble.users.UserInfoActivity;
 import com.carlise.dribbble.utils.AnimatorHelp;
+import com.carlise.dribbble.utils.AuthUtil;
 import com.carlise.dribbble.utils.ImageHelper;
-import com.carlise.dribbble.utils.Log;
 import com.carlise.dribbble.utils.NetworkHandler;
+import com.carlisle.model.DribleComment;
+import com.carlisle.model.DribleShot;
+import com.carlisle.provider.DriRegInfo;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
 
@@ -52,6 +53,7 @@ import java.util.Map;
  * Created by zhanglei on 15/7/30.
  */
 public class ShotDetailActivity extends BaseActivity {
+    private static final String TAG = ShotDetailActivity.class.getSimpleName();
 
     private static int RETRY_COUNT = 5;
 
@@ -108,8 +110,8 @@ public class ShotDetailActivity extends BaseActivity {
 
         mShotId = getIntent().getIntExtra(SHOT_ID_EXTRA_FIELD, -1);
         if (mShotId == -1) {
-            if (Log.DBG) {
-                Log.i("didn't deliver the shot ID");
+            if (BuildConfig.DEBUG) {
+                Log.i(TAG, "didn't deliver the shot ID");
             }
             //finish();
         }
@@ -197,8 +199,8 @@ public class ShotDetailActivity extends BaseActivity {
             return;
         }
 
-        if (Log.DBG) {
-            Log.i("Shot detail request url: " + url);
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "Shot detail request url: " + url);
         }
 
         final String accessToken = AuthUtil.getAccessToken(this);
@@ -235,7 +237,7 @@ public class ShotDetailActivity extends BaseActivity {
 
             @Override
             protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
-                Log.i("shot detail: response headers: " + response.headers);
+                Log.i(TAG, "shot detail: response headers: " + response.headers);
                 return super.parseNetworkResponse(response);
             }
         };
@@ -463,7 +465,7 @@ public class ShotDetailActivity extends BaseActivity {
         final String accessToken = AuthUtil.getAccessToken(this);
         String url = DriRegInfo.REQUEST_ONE_SHOT_URL + mShotId + "/comments";
 
-        Log.e("request comments: " + url);
+        Log.e(TAG, "request comments: " + url);
 
         JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url,
                 new Response.Listener<JSONArray>() {

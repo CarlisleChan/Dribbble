@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
@@ -20,13 +21,13 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.carlise.dribbble.BuildConfig;
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.application.BaseActivity;
-import com.carlise.dribbble.dribleSdk.AuthUtil;
-import com.carlise.dribbble.dribleSdk.DriRegInfo;
-import com.carlise.dribbble.dribleSdk.data.DribleUser;
-import com.carlise.dribbble.utils.Log;
+import com.carlise.dribbble.utils.AuthUtil;
 import com.carlise.dribbble.utils.NetworkHandler;
+import com.carlisle.model.DribleUser;
+import com.carlisle.provider.DriRegInfo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,6 +40,7 @@ import java.util.Map;
  * Created by zhanglei on 15/7/23.
  */
 public class LoginActivity extends BaseActivity {
+    private static final String TAG = LoginActivity.class.getSimpleName();
 
     public static final String DRIBLE_MEM = "com.tuesda.watch.drible.mem";
     public static final String DRIBLE_TOKEN_FIELD = "com.tuesda.watch.dirbbble.token";
@@ -63,7 +65,7 @@ public class LoginActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        Log.e("into login");
+        Log.e(TAG, "into login");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
@@ -88,8 +90,8 @@ public class LoginActivity extends BaseActivity {
         String accessToken = mDribleShare.getString(DRIBLE_TOKEN_FIELD, null);
 
         if (TextUtils.isEmpty(accessToken)) {
-            if (Log.DBG) {
-                Log.e("Login: accessToken is null, need authorization");
+            if (BuildConfig.DEBUG) {
+                Log.e(TAG, "Login: accessToken is null, need authorization");
             }
             mProgress.setVisibility(View.VISIBLE);
             mLoginWeb.setWebViewClient(new WebViewClient() {
@@ -124,7 +126,7 @@ public class LoginActivity extends BaseActivity {
             });
 
             mLoginWeb.loadUrl(DriRegInfo.DRIBLE_LOGIN_URL);
-            Log.i(DriRegInfo.DRIBLE_LOGIN_URL);
+            Log.i(TAG, DriRegInfo.DRIBLE_LOGIN_URL);
         } else {
 //            if (Log.DBG) {
 //                Toast.makeText(LoginActivity.this, "already login", Toast.LENGTH_SHORT).show();
@@ -137,7 +139,7 @@ public class LoginActivity extends BaseActivity {
         int startIndex = url.indexOf("code=") + "code=".length();
         int endIndex = url.indexOf("&state");
         String code = url.substring(startIndex, endIndex);
-        Log.i("code=" + code);
+        Log.i(TAG, "code=" + code);
         return code;
     }
 
@@ -156,7 +158,7 @@ public class LoginActivity extends BaseActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.i(response.toString());
+                        Log.i(TAG, response.toString());
                         try {
                             String accessToken = (String) response.get("access_token");
                             SharedPreferences.Editor editor = mDribleShare.edit();
@@ -214,7 +216,7 @@ public class LoginActivity extends BaseActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e("fetch user info again! count " + count);
+                Log.e(TAG, "fetch user info again! count " + count);
                 if (count > 0) {
                     count--;
                     fetchUserInfo();

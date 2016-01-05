@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -25,14 +26,14 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.carlise.dribbble.BuildConfig;
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.shot.ShotDetailActivity;
 import com.carlise.dribbble.shot.ShotListAdapter;
-import com.carlise.dribbble.dribleSdk.AuthUtil;
-import com.carlise.dribbble.dribleSdk.DriRegInfo;
-import com.carlise.dribbble.dribleSdk.data.DribleShot;
-import com.carlise.dribbble.utils.Log;
+import com.carlise.dribbble.utils.AuthUtil;
 import com.carlise.dribbble.utils.NetworkHandler;
+import com.carlisle.model.DribleShot;
+import com.carlisle.provider.DriRegInfo;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -45,6 +46,8 @@ import java.util.Map;
  * Created by zhanglei on 15/7/27.
  */
 public class HomeFragment extends Fragment {
+    private static final String TAG = HomeFragment.class.getSimpleName();
+
     public static final String TAB_INDEX_FIELD = "tab.index";
     private static final int RETRY_COUNT = 5;
 
@@ -132,7 +135,7 @@ public class HomeFragment extends Fragment {
                             if (heights.containsKey(i)) {
                                 scrollHeight += heights.get(i);
                             } else { // This should not occur,
-                                Log.e("This should not occur, you can slow down scroll speed to fix it");
+                                Log.e(TAG, "This should not occur, you can slow down scroll speed to fix it");
                                 heights.put(i, heights.get(i - 1));
                                 scrollHeight += heights.get(i);
                             }
@@ -190,8 +193,8 @@ public class HomeFragment extends Fragment {
     }
 
     private void requestForList(String url, final boolean isFirst) {
-        if (Log.DBG) {
-            Log.i("request url: " + url);
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "request url: " + url);
         }
         final String accessToken = AuthUtil.getAccessToken(getActivity());
         if (TextUtils.isEmpty(accessToken)) {
@@ -225,7 +228,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             protected Response<JSONArray> parseNetworkResponse(NetworkResponse response) {
-                Log.i("response headers: " + response.headers);
+                Log.i(TAG, "response headers: " + response.headers);
                 mRelatedLinks = genNextUrl(response.headers.get(DriRegInfo.RESPONSE_HEADER_LINK));
                 return super.parseNetworkResponse(response);
             }

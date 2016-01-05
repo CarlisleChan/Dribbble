@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,12 +25,11 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.application.BaseActivity;
-import com.carlise.dribbble.dribleSdk.AuthUtil;
-import com.carlise.dribbble.dribleSdk.DriRegInfo;
-import com.carlise.dribbble.dribleSdk.HttpUtils;
-import com.carlise.dribbble.dribleSdk.data.DribleShot;
-import com.carlise.dribbble.utils.Log;
+import com.carlise.dribbble.utils.AuthUtil;
 import com.carlise.dribbble.utils.NetworkHandler;
+import com.carlisle.model.DribleShot;
+import com.carlisle.provider.DriRegInfo;
+import com.carlisle.tools.HttpUtils;
 import com.facebook.drawee.backends.pipeline.Fresco;
 
 import org.json.JSONArray;
@@ -44,6 +44,7 @@ import java.util.Map;
  * Created by zhanglei on 15/8/5.
  */
 public class ShotsActivity extends BaseActivity {
+    private static final String TAG = ShotsActivity.class.getSimpleName();
 
     public static final String SHOTS_TITLE_EXTRA = "com.tuesda.watch.shots.title.extra";
     public static final String SHOTS_URL = "com.tuesda.watch.shots.url.extra";
@@ -151,7 +152,7 @@ public class ShotsActivity extends BaseActivity {
     private void requestForShots(final boolean isFirst) {
         final String accessToken = AuthUtil.getAccessToken(this);
         String url = isFirst ? mUrl : mRelatedLinks.get("next");
-        Log.i("shots url: " + url);
+        Log.i(TAG, "shots url: " + url);
 
         JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url,
                 new Response.Listener<JSONArray>() {
@@ -177,7 +178,7 @@ public class ShotsActivity extends BaseActivity {
 
             @Override
             protected Response<JSONArray> parseNetworkResponse(NetworkResponse response) {
-                Log.e("shots response: " + (response.headers != null ? response.headers : ""));
+                Log.e(TAG, "shots response: " + (response.headers != null ? response.headers : ""));
                 mRelatedLinks = HttpUtils.genNextUrl(response.headers.get(DriRegInfo.RESPONSE_HEADER_LINK));
                 return super.parseNetworkResponse(response);
             }

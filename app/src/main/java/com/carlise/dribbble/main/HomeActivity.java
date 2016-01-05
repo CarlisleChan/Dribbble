@@ -25,11 +25,11 @@ import android.widget.TextView;
 
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.bucket.BucketsActivity;
-import com.carlise.dribbble.dribleSdk.AuthUtil;
-import com.carlise.dribbble.dribleSdk.DriRegInfo;
-import com.carlise.dribbble.dribleSdk.data.DribleUser;
 import com.carlise.dribbble.shot.ShotsActivity;
 import com.carlise.dribbble.users.UserInfoActivity;
+import com.carlise.dribbble.utils.AuthUtil;
+import com.carlisle.model.DribleUser;
+import com.carlisle.provider.DriRegInfo;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
 

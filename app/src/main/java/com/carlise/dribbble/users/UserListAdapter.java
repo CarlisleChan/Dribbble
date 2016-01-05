@@ -14,7 +14,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.carlise.dribbble.R;
-import com.carlise.dribbble.dribleSdk.data.DribleUser;
+import com.carlisle.model.DribleUser;
 import com.facebook.drawee.view.SimpleDraweeView;
 
 import java.util.ArrayList;

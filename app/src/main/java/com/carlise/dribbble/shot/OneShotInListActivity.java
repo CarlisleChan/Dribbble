@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,11 +20,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.application.BaseActivity;
-import com.carlise.dribbble.dribleSdk.DriRegInfo;
-import com.carlise.dribbble.dribleSdk.data.DribleShot;
 import com.carlise.dribbble.main.LoginActivity;
-import com.carlise.dribbble.utils.Log;
 import com.carlise.dribbble.utils.NetworkHandler;
+import com.carlisle.model.DribleShot;
+import com.carlisle.provider.DriRegInfo;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
 
@@ -37,6 +37,8 @@ import java.util.Map;
  * Created by zhanglei on 15/7/26.
  */
 public class OneShotInListActivity extends BaseActivity {
+    private static final String TAG = OneShotInListActivity.class.getSimpleName();
+
     private static final int RETRY_COUNT = 5;
 
     private String mAccess_token;
@@ -126,7 +128,7 @@ public class OneShotInListActivity extends BaseActivity {
 
     private void parseShotResponse(JSONObject reponse) {
         DribleShot dribleShot = new DribleShot(reponse);
-        Log.i("shot: " + dribleShot);
+        Log.i(TAG, "shot: " + dribleShot);
         if (!TextUtils.isEmpty(dribleShot.getTags().get(0))) {
             mItemHeaderText.setText(dribleShot.getTags().get(0));
             mItemHeaderText.setVisibility(View.VISIBLE);

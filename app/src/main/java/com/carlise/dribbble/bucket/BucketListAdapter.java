@@ -8,7 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.carlise.dribbble.R;
-import com.carlise.dribbble.dribleSdk.data.DribleBucket;
+import com.carlisle.model.DribleBucket;
 
 import java.util.ArrayList;
 

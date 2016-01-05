@@ -7,7 +7,7 @@ import android.widget.Button;
 
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.application.BaseActivity;
-import com.carlise.dribbble.dribleSdk.AuthUtil;
+import com.carlise.dribbble.utils.AuthUtil;
 import com.carlise.dribbble.shot.InputActivity;
 import com.carlise.dribbble.shot.OneShotInListActivity;
 import com.carlise.dribbble.shot.ShotDetailActivity;

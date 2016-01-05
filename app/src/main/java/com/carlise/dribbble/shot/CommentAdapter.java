@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.users.UserInfoActivity;
-import com.carlise.dribbble.dribleSdk.data.DribleComment;
+import com.carlisle.model.DribleComment;
 import com.facebook.drawee.view.SimpleDraweeView;
 
 import java.text.SimpleDateFormat;

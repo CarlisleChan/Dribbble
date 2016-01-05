@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.users.UserInfoActivity;
-import com.carlise.dribbble.dribleSdk.data.DribleShot;
+import com.carlisle.model.DribleShot;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
