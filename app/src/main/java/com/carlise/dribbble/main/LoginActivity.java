@@ -26,14 +26,21 @@ import com.carlise.dribbble.R;
 import com.carlise.dribbble.application.BaseActivity;
 import com.carlise.dribbble.utils.AuthUtil;
 import com.carlise.dribbble.utils.NetworkHandler;
+import com.carlisle.model.AuthRequest;
+import com.carlisle.model.AuthResult;
 import com.carlisle.model.DribleUser;
+import com.carlisle.provider.ApiFactory;
 import com.carlisle.provider.DriRegInfo;
+import com.google.gson.Gson;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 
 /**
@@ -144,43 +151,41 @@ public class LoginActivity extends BaseActivity {
     }
 
     private void requestForAccessToken(String returnCode) {
-        final JSONObject requestJson = new JSONObject();
-        try {
-            requestJson.put("client_id", DriRegInfo.DRIBLE_CLIENT_ID);
-            requestJson.put("client_secret", DriRegInfo.DRIBLE_SECRET);
-            requestJson.put("code", returnCode);
-            requestJson.put("state", DriRegInfo.mState);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        AuthRequest authRequest = new AuthRequest();
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, DriRegInfo.DRIBLE_TOKEN_URL, requestJson,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Log.i(TAG, response.toString());
-                        try {
-                            String accessToken = (String) response.get("access_token");
-                            SharedPreferences.Editor editor = mDribleShare.edit();
-                            editor.putString(DRIBLE_TOKEN_FIELD, accessToken);
-                            editor.commit();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        Toast.makeText(LoginActivity.this, "Authorization success", Toast.LENGTH_LONG).show();
-                        CookieManager.getInstance().removeAllCookie();
+        authRequest.clientId = DriRegInfo.DRIBLE_CLIENT_ID;
+        authRequest.clientSecret = DriRegInfo.DRIBLE_SECRET;
+        authRequest.code = returnCode;
+        authRequest.state = DriRegInfo.mState;
 
-                        onCompleteAuth();
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
+        ApiFactory.getDomainApi().auth(authRequest)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<AuthResult>() {
+            @Override
+            public void onCompleted() {
 
-                        Toast.makeText(LoginActivity.this, "Please try again", Toast.LENGTH_SHORT).show();
-                    }
-                });
-        mQueue.add(jsonObjectRequest);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Toast.makeText(LoginActivity.this, "Please try again", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNext(AuthResult authResult) {
+                Log.i(TAG, new Gson().toJson(authResult));
+
+                SharedPreferences.Editor editor = mDribleShare.edit();
+                editor.putString(DRIBLE_TOKEN_FIELD, authResult.accessToken);
+                editor.commit();
+
+                Toast.makeText(LoginActivity.this, "Authorization success", Toast.LENGTH_LONG).show();
+                CookieManager.getInstance().removeAllCookie();
+
+                onCompleteAuth();
+            }
+        });
 
     }
 
