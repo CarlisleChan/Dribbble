@@ -8,7 +8,6 @@ import java.util.Random;
 public class DriRegInfo {
 
     public static final String DRIBLE_AUTH_BASE = "https://dribbble.com/oauth/authorize";
-    public static final String DRIBLE_TOKEN_URL = "https://dribbble.com/oauth/token";
 
     public static final String DRIBLE_CALL_BACK = "walker://www.tuesda.watch";
     public static final String DRIBLE_CLIENT_ID = "75349c965ebf2921cf1aebb3e3e442692441f49df73136f3483b2e0fcd55410d";

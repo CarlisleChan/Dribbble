@@ -104,7 +104,7 @@ public class UserInfoActivity extends BaseActivity {
         initView();
 
         requestUserInfo();
-        if (AuthUtil.getMe(this).getId() != mUserId) {
+        if (AuthUtil.getMe(this).id != mUserId) {
             checkIfFollowing();
         }
     }
@@ -133,7 +133,7 @@ public class UserInfoActivity extends BaseActivity {
         mShotAdapter = new ShotListAdapter(this, mShots);
         mList.setAdapter(mShotAdapter);
 
-        if (AuthUtil.getMe(this).getId() != mUserId) {
+        if (AuthUtil.getMe(this).id != mUserId) {
             mList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -259,20 +259,20 @@ public class UserInfoActivity extends BaseActivity {
         final DribleUser user = new DribleUser(response);
         mDribleUser = user;
         // Log.e("userinfo: " + user);
-        if (!TextUtils.isEmpty(user.getName())) {
-            mNavName.setText(user.getName());
-            mUserName.setText(user.getName());
+        if (!TextUtils.isEmpty(user.name)) {
+            mNavName.setText(user.name);
+            mUserName.setText(user.name);
         }
 
-        if (!TextUtils.isEmpty(user.getAvatar_url())) {
-            Uri avatarUri = Uri.parse(user.getAvatar_url());
+        if (!TextUtils.isEmpty(user.avatar_url)) {
+            Uri avatarUri = Uri.parse(user.avatar_url);
             mUserAvatar.setImageURI(avatarUri);
         }
 
-        int followerCount = user.getFollowers_count();
+        int followerCount = user.followers_count;
         String followerCStr = followerCount > 1000 ? (String.valueOf(followerCount / 1000) + "K") : String.valueOf(followerCount);
         mUserFollowerC.setText(followerCStr);
-        int followingCount = user.getFollowings_count();
+        int followingCount = user.followings_count;
         String followingCStr = followingCount > 1000 ? (String.valueOf(followingCount / 1000) + "K") : String.valueOf(followingCount);
         mUserFollowingC.setText(followingCStr);
 
@@ -298,7 +298,7 @@ public class UserInfoActivity extends BaseActivity {
         mUserElseZone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for (Map.Entry entry : user.getLinks().entrySet()) {
+                for (Map.Entry entry : user.links.entrySet()) {
                     String url = (String) entry.getValue();
                     if (!TextUtils.isEmpty(url) && !url.equals("null")) {
                         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -310,8 +310,8 @@ public class UserInfoActivity extends BaseActivity {
             }
         });
 
-        if (!TextUtils.isEmpty(user.getBio())) {
-            mUserBio.setText(Html.fromHtml(user.getBio()));
+        if (!TextUtils.isEmpty(user.bio)) {
+            mUserBio.setText(Html.fromHtml(user.bio));
             mUserBio.setMovementMethod(LinkMovementMethod.getInstance());
         }
 

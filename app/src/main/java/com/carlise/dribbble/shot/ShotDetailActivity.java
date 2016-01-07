@@ -256,26 +256,26 @@ public class ShotDetailActivity extends BaseActivity {
 
     private void fillData(final DribleShot shot) {
 
-        if (!TextUtils.isEmpty(shot.getUser().getAvatar_url())) {
-            Uri uri = Uri.parse(shot.getUser().getAvatar_url());
+        if (!TextUtils.isEmpty(shot.getUser().avatar_url)) {
+            Uri uri = Uri.parse(shot.getUser().avatar_url);
             mAvatar.setImageURI(uri);
             mAvatar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(ShotDetailActivity.this, UserInfoActivity.class);
-                    intent.putExtra(UserInfoActivity.USER_ID_EXTRA, shot.getUser().getId());
+                    intent.putExtra(UserInfoActivity.USER_ID_EXTRA, shot.getUser().id);
                     startActivity(intent);
                 }
             });
         }
 
-        if (!TextUtils.isEmpty(shot.getUser().getName())) {
-            mAuthorName.setText(shot.getUser().getName());
+        if (!TextUtils.isEmpty(shot.getUser().name)) {
+            mAuthorName.setText(shot.getUser().name);
             mAuthorName.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(ShotDetailActivity.this, UserInfoActivity.class);
-                    intent.putExtra(UserInfoActivity.USER_ID_EXTRA, shot.getUser().getId());
+                    intent.putExtra(UserInfoActivity.USER_ID_EXTRA, shot.getUser().id);
                     startActivity(intent);
                 }
             });

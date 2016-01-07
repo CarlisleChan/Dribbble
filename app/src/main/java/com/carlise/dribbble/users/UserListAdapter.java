@@ -67,10 +67,10 @@ public class UserListAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        if (!TextUtils.isEmpty(mUsers.get(position).getAvatar_url())) {
-            Uri avatarUri = Uri.parse(mUsers.get(position).getAvatar_url());
+        if (!TextUtils.isEmpty(mUsers.get(position).avatar_url)) {
+            Uri avatarUri = Uri.parse(mUsers.get(position).avatar_url);
             holder.avatar.setImageURI(avatarUri);
-            final int userId = mUsers.get(position).getId();
+            final int userId = mUsers.get(position).id;
             holder.avatar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -83,19 +83,19 @@ public class UserListAdapter extends BaseAdapter {
             holder.avatar.setImageURI(null);
         }
 
-        if (!TextUtils.isEmpty(mUsers.get(position).getName())) {
-            holder.userName.setText(mUsers.get(position).getName());
+        if (!TextUtils.isEmpty(mUsers.get(position).name)) {
+            holder.userName.setText(mUsers.get(position).name);
         } else {
             holder.userName.setText("");
         }
 
-        if (!TextUtils.isEmpty(mUsers.get(position).getBio())) {
-            holder.userDescrip.setText(Html.fromHtml(mUsers.get(position).getBio()));
+        if (!TextUtils.isEmpty(mUsers.get(position).bio)) {
+            holder.userDescrip.setText(Html.fromHtml(mUsers.get(position).bio));
             holder.userDescrip.setMovementMethod(LinkMovementMethod.getInstance());
         } else {
             holder.userDescrip.setText("");
         }
-        final int userId = mUsers.get(position).getId();
+        final int userId = mUsers.get(position).id;
 
         if (userId != 0) {
             holder.detailText.setOnClickListener(new View.OnClickListener() {

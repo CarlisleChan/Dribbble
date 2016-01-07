@@ -1,16 +1,29 @@
 package com.carlisle.provider;
 
+import android.text.TextUtils;
+
 import com.squareup.okhttp.OkHttpClient;
 
 import java.util.concurrent.TimeUnit;
 
+import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.client.OkClient;
 
 /**
  * Created by chengxin on 1/6/16.
  */
-public class RetrofitFactory {
+class RetrofitFactory {
+
+    private static TokenGetter tokenGetter;
+
+    private RetrofitFactory() {
+    }
+
+    public static void setTokenGetter(TokenGetter tokenGetter) {
+        RetrofitFactory.tokenGetter = tokenGetter;
+    }
+
     public static RestAdapter getRestAdapter(Domain.DomainType domainType) {
         RestAdapter.Builder builder = new RestAdapter.Builder()
                 .setEndpoint(Domain.get(domainType))
@@ -22,18 +35,15 @@ public class RetrofitFactory {
         OkClient okClient = new OkClient(okHttpClient);
         builder.setClient(okClient);
 
-//        builder.setRequestInterceptor(new RequestInterceptor() {
-//            @Override
-//            public void intercept(RequestFacade request) {
-//                if (tokenGetter != null) {
-//                    String token = tokenGetter.get();
-//                    if (!TextUtils.isEmpty(token)) {
-//                        request.addQueryParam("token", token);
-//                    }
-//                }
-//
-//            }
-//        });
+        builder.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public void intercept(RequestFacade request) {
+                String accessToken = tokenGetter.get();
+                if (!TextUtils.isEmpty(accessToken)) {
+                    request.addHeader("Authorization", DriRegInfo.REQUEST_HEAD_BEAR + accessToken);
+                }
+            }
+        });
 
         RestAdapter restAdapter = builder.build();
         return restAdapter;

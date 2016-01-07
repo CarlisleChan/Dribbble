@@ -86,9 +86,9 @@ public class ShotListAdapter extends BaseAdapter {
         }
 
         holder.itemTitle.setText(dribleShot.getTitle());
-        Uri avatarUri = Uri.parse(dribleShot.getUser().getAvatar_url());
+        Uri avatarUri = Uri.parse(dribleShot.getUser().avatar_url);
         holder.itemAvatar.setImageURI(avatarUri);
-        holder.itemAuthName.setText(dribleShot.getUser().getName());
+        holder.itemAuthName.setText(dribleShot.getUser().name);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
         holder.itemCreate.setText(formatter.format(dribleShot.getCreated_at().getTime()));
         holder.itemLikesCount.setText("" + dribleShot.getLikes_count());
@@ -104,7 +104,7 @@ public class ShotListAdapter extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, UserInfoActivity.class);
-                intent.putExtra(UserInfoActivity.USER_ID_EXTRA, dribleShot.getUser().getId());
+                intent.putExtra(UserInfoActivity.USER_ID_EXTRA, dribleShot.getUser().id);
                 mContext.startActivity(intent);
             }
         });

@@ -473,7 +473,7 @@ public class DribleShot implements Parcelable {
         tags = bundle.getStringArrayList(SHOT_TAGS);
         int userId = bundle.getInt(SHOT_USER);
         user = new DribleUser();
-        user.setId(userId);
+        user.id = userId;
 
         team = bundle.getString(SHOT_TEAM);
     }
@@ -512,7 +512,7 @@ public class DribleShot implements Parcelable {
         bundle.putString(SHOT_PROJECTS_URL, projects_url);
         bundle.putString(SHOT_REBOUNDS_URL, rebounds_url);
         bundle.putStringArrayList(SHOT_TAGS, tags);
-        bundle.putInt(SHOT_USER, user.getId());
+        bundle.putInt(SHOT_USER, user.id);
 
         bundle.putString(SHOT_TEAM, team);
         dest.writeBundle(bundle);

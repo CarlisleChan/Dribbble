@@ -1,8 +1,6 @@
 package com.carlise.dribbble.shot;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -22,8 +20,10 @@ import com.carlise.dribbble.R;
 import com.carlise.dribbble.application.BaseActivity;
 import com.carlise.dribbble.main.LoginActivity;
 import com.carlise.dribbble.utils.NetworkHandler;
+import com.carlise.dribbble.utils.PreferenceKey;
 import com.carlisle.model.DribleShot;
 import com.carlisle.provider.DriRegInfo;
+import com.carlisle.tools.SPUtils;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
 
@@ -138,17 +138,16 @@ public class OneShotInListActivity extends BaseActivity {
         Uri imgUri = Uri.parse(dribleShot.getImages()[1]);
         mItemImage.setImageURI(imgUri);
         mItemTitle.setText(dribleShot.getTitle());
-        Uri avatarUri = Uri.parse(dribleShot.getUser().getAvatar_url());
+        Uri avatarUri = Uri.parse(dribleShot.getUser().avatar_url);
         mItemAvatar.setImageURI(avatarUri);
-        mItemAuthorName.setText(dribleShot.getUser().getName());
+        mItemAuthorName.setText(dribleShot.getUser().name);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
         mItemCreate.setText(formatter.format(dribleShot.getCreated_at().getTime()));
         mItemLikeCount.setText("" + dribleShot.getLikes_count());
     }
 
     private void checkAuth() {
-        SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.DRIBLE_MEM, Context.MODE_PRIVATE);
-        mAccess_token = sharedPreferences.getString(LoginActivity.DRIBLE_TOKEN_FIELD, null);
+        mAccess_token = SPUtils.getSharedPreference(this).getString(PreferenceKey.DRIBLE_TOKEN_FIELD, null);
         if (TextUtils.isEmpty(mAccess_token)) {
             Intent intent = new Intent(OneShotInListActivity.this, LoginActivity.class);
             startActivity(intent);

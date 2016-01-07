@@ -1,8 +1,6 @@
 package com.carlise.dribbble.main;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,6 +26,7 @@ import com.carlise.dribbble.bucket.BucketsActivity;
 import com.carlise.dribbble.shot.ShotsActivity;
 import com.carlise.dribbble.users.UserInfoActivity;
 import com.carlise.dribbble.utils.AuthUtil;
+import com.carlise.dribbble.utils.UserHelper;
 import com.carlisle.model.DribleUser;
 import com.carlisle.provider.DriRegInfo;
 import com.facebook.drawee.backends.pipeline.Fresco;
@@ -85,21 +84,18 @@ public class HomeActivity extends AppCompatActivity implements Toolbar.OnMenuIte
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
-                SharedPreferences shared;
                 Intent intent = null;
 
                 switch (menuItem.getItemId()) {
                     case R.id.item_liked_shots:
-                        shared = getSharedPreferences(LoginActivity.ACCOUNT_INFO_MEM, Context.MODE_PRIVATE);
-                        String like_url = shared.getString(LoginActivity.ACCOUNT_USER_LIKE_URL, null);
+                        String like_url = UserHelper.getInstance(HomeActivity.this).getDribleUser().likes_url;
                         intent = new Intent(HomeActivity.this, ShotsActivity.class);
                         intent.putExtra(ShotsActivity.SHOTS_URL, like_url);
                         intent.putExtra(ShotsActivity.SHOTS_TITLE_EXTRA, "My liked");
                         intent.putExtra(ShotsActivity.CALL_FROM, "like");
                         break;
                     case R.id.item_buckets:
-                        shared = getSharedPreferences(LoginActivity.ACCOUNT_INFO_MEM, Context.MODE_PRIVATE);
-                        String buckets_url = shared.getString(LoginActivity.ACCOUNT_USER_BUCKETS_URL, null);
+                        String buckets_url = UserHelper.getInstance(HomeActivity.this).getDribleUser().buckets_url;
                         intent = new Intent(HomeActivity.this, BucketsActivity.class);
                         intent.putExtra(BucketsActivity.BUCKET_URL, buckets_url);
                         intent.putExtra(BucketsActivity.BUCKET_TITLE, "My buckets");
@@ -194,8 +190,8 @@ public class HomeActivity extends AppCompatActivity implements Toolbar.OnMenuIte
     private void showUserInfo() {
         final DribleUser user = AuthUtil.getMe(this);
 
-        if (user != null && !TextUtils.isEmpty(user.getAvatar_url())) {
-            Uri avatarUri = Uri.parse(user.getAvatar_url());
+        if (user != null && !TextUtils.isEmpty(user.avatar_url)) {
+            Uri avatarUri = Uri.parse(user.avatar_url);
             avatar.setImageURI(avatarUri);
 
             avatar.setOnClickListener(new View.OnClickListener() {
@@ -203,14 +199,14 @@ public class HomeActivity extends AppCompatActivity implements Toolbar.OnMenuIte
                 public void onClick(View v) {
                     drawerLayout.closeDrawers();
                     Intent intent = new Intent(HomeActivity.this, UserInfoActivity.class);
-                    intent.putExtra(UserInfoActivity.USER_ID_EXTRA, user.getId());
+                    intent.putExtra(UserInfoActivity.USER_ID_EXTRA, user.id);
                     startActivity(intent);
                 }
             });
         }
 
-        if (user != null && !TextUtils.isEmpty(user.getName())) {
-            name.setText(user.getName());
+        if (user != null && !TextUtils.isEmpty(user.name)) {
+            name.setText(user.name);
         }
     }
 

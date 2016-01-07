@@ -55,7 +55,7 @@ public class Domain {
         put(DomainType.REQUEST_BUCKETS_URL.type, "https://api.dribbble.com/v1/buckets/");
 
         put(DomainType.DOMAIN.type, "https://dribbble.com");
-        put(DomainType.DRIBLE.type, "https://api.dribbble.com");
+        put(DomainType.DRIBLE.type, "https://api.dribbble.com/v1");
     }};
 
     private static Map<String, String> DOMAIN = DRIBLE_TEST;

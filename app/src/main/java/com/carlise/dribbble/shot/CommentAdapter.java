@@ -67,14 +67,14 @@ public class CommentAdapter extends BaseAdapter {
         holder.commentBody.setText(Html.fromHtml(comment.getBody()));
         holder.commentBody.setMovementMethod(LinkMovementMethod.getInstance());
 
-        Uri uri = Uri.parse(comment.getUser().getAvatar_url());
+        Uri uri = Uri.parse(comment.getUser().avatar_url);
         holder.avatar.setImageURI(uri);
-        holder.authorName.setText(comment.getUser().getName());
+        holder.authorName.setText(comment.getUser().name);
         holder.avatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, UserInfoActivity.class);
-                intent.putExtra(UserInfoActivity.USER_ID_EXTRA, comment.getUser().getId());
+                intent.putExtra(UserInfoActivity.USER_ID_EXTRA, comment.getUser().id);
                 mContext.startActivity(intent);
             }
         });
@@ -83,7 +83,7 @@ public class CommentAdapter extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, UserInfoActivity.class);
-                intent.putExtra(UserInfoActivity.USER_ID_EXTRA, comment.getUser().getId());
+                intent.putExtra(UserInfoActivity.USER_ID_EXTRA, comment.getUser().id);
                 mContext.startActivity(intent);
             }
         });

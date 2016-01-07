@@ -7,6 +7,10 @@ public class ApiFactory {
     private static DomainApi domainApi;
     private static DribleApi dribleApi;
 
+    public static void init(TokenGetter tokenGetter) {
+        RetrofitFactory.setTokenGetter(tokenGetter);
+    }
+
     public synchronized static DomainApi getDomainApi() {
         if (domainApi == null) {
             domainApi = RetrofitFactory.getRestAdapter(Domain.DomainType.DOMAIN).create(DomainApi.class);
