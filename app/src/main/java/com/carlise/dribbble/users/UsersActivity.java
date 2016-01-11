@@ -1,10 +1,7 @@
 package com.carlise.dribbble.users;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
@@ -13,94 +10,75 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.NetworkResponse;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.carlise.dribbble.BuildConfig;
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.application.BaseActivity;
-import com.carlise.dribbble.utils.AuthUtil;
-import com.carlise.dribbble.utils.NetworkHandler;
+import com.carlise.dribbble.utils.UserHelper;
 import com.carlisle.model.DribleUser;
-import com.carlisle.provider.DriRegInfo;
-import com.carlisle.tools.HttpUtils;
+import com.carlisle.model.FollowResult;
+import com.carlisle.provider.ApiFactory;
 import com.facebook.drawee.backends.pipeline.Fresco;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
- * Created by zhanglei on 15/8/2.
+ * Created by chengxin on 16/1/11.
  */
 public class UsersActivity extends BaseActivity {
     private static final String TAG = UsersActivity.class.getSimpleName();
 
-    public static final String USERS_TITLE = "com.tuesda.watch.title.extra";
-    public static final String USERS_URL = "com.tuesda.watch.url.extra";
+    public static final String USERS_TITLE = "title_extra";
+    public static final String TITLE_FOLLOWING = "Following";
+    public static final String TITLE_FOLLOWER = "Follower";
 
-    private String mUrl;
-    private ListView mList;
-    private RelativeLayout mFooter;
-    private TextView mShowMore;
-    private ProgressBar mFootProgress;
+    private ListView listView;
+    private RelativeLayout footerLayout;
+    private TextView showMore;
+    private ProgressBar footProgress;
 
-    private ArrayList<DribleUser> mUsers = new ArrayList<>();
-    private UserListAdapter mUsersAdapter;
+    private ArrayList<DribleUser> users = new ArrayList<>();
+    private UserListAdapter usersAdapter;
 
-    private ProgressBar mProgress;
+    private ProgressBar progress;
 
-    private LayoutInflater mInflater;
+    private LayoutInflater inflater;
 
-    private HashMap<String, String> mRelatedLinks = new HashMap<>();
+    private int page = 1;
+    private boolean canLoadMore = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fresco.initialize(this);
         setContentView(R.layout.activity_users);
-        mInflater = LayoutInflater.from(this);
+        inflater = LayoutInflater.from(this);
         initView();
     }
 
     private void initView() {
 
-        mList = (ListView) findViewById(R.id.users_list);
+        listView = (ListView) findViewById(R.id.users_list);
 
-        mProgress = (ProgressBar) findViewById(R.id.users_progress);
+        progress = (ProgressBar) findViewById(R.id.users_progress);
 
-        mFooter = (RelativeLayout) mInflater.inflate(R.layout.users_foot, mList, false);
-        mShowMore = (TextView) mFooter.findViewById(R.id.foot_load_more);
+        footerLayout = (RelativeLayout) inflater.inflate(R.layout.users_foot, listView, false);
+        showMore = (TextView) footerLayout.findViewById(R.id.foot_load_more);
 
-        mFootProgress = (ProgressBar) mFooter.findViewById(R.id.footer_progress);
+        footProgress = (ProgressBar) footerLayout.findViewById(R.id.footer_progress);
 
-        mList.addFooterView(mFooter);
+        listView.addFooterView(footerLayout);
 
-        mUsersAdapter = new UserListAdapter(this, mUsers);
-        mList.setAdapter(mUsersAdapter);
-        mList.setDivider(null);
+        usersAdapter = new UserListAdapter(this, users);
+        listView.setAdapter(usersAdapter);
+        listView.setDivider(null);
 
-        String title = getIntent().getStringExtra(USERS_TITLE);
-        if (!TextUtils.isEmpty(title)) {
-            setTitle(title);
-        }
+        requestUsers();
 
-        mUrl = getIntent().getStringExtra(USERS_URL);
-        if (TextUtils.isEmpty(mUrl)) {
-            mUrl = DriRegInfo.REQUEST_USER_URL + 100 + "/followers";
-        }
-
-        requestUsers(mUrl);
-
-        mList.setOnScrollListener(new AbsListView.OnScrollListener() {
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
 
@@ -108,14 +86,14 @@ public class UsersActivity extends BaseActivity {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (!mList.canScrollVertically(1) && firstVisibleItem > 0 && mRelatedLinks.containsKey("next")) {
-                    mShowMore.setVisibility(View.VISIBLE);
-                    mFooter.setOnClickListener(new View.OnClickListener() {
+                if (!listView.canScrollVertically(1) && firstVisibleItem > 0 && canLoadMore && page != 1) {
+                    showMore.setVisibility(View.VISIBLE);
+                    footerLayout.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            mShowMore.setVisibility(View.INVISIBLE);
-                            mFootProgress.setVisibility(View.VISIBLE);
-                            requestUsers(mRelatedLinks.get("next"));
+                            showMore.setVisibility(View.INVISIBLE);
+                            footProgress.setVisibility(View.VISIBLE);
+                            requestUsers();
                         }
                     });
                 }
@@ -123,81 +101,69 @@ public class UsersActivity extends BaseActivity {
         });
     }
 
-    private void requestUsers(String url) {
-        final String accessToken = AuthUtil.getAccessToken(this);
-        if (BuildConfig.DEBUG) {
-            Log.e(TAG, "uses request: url: " + url);
+    private Observer<List<FollowResult>> observable = new Observer<List<FollowResult>>() {
+        @Override
+        public void onCompleted() {
+
         }
 
-        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        mFootProgress.setVisibility(View.INVISIBLE);
-                        parseUsers(response);
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                mFootProgress.setVisibility(View.INVISIBLE);
-            }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> params = new HashMap<>();
-                params.put(DriRegInfo.REQUEST_HEAD_AUTH_FIELD, DriRegInfo.REQUEST_HEAD_BEAR + accessToken);
-                params.putAll(super.getHeaders());
-                return params;
+        @Override
+        public void onError(Throwable e) {
+            footProgress.setVisibility(View.INVISIBLE);
+        }
+
+        @Override
+        public void onNext(List<FollowResult> followResults) {
+            footProgress.setVisibility(View.INVISIBLE);
+            handleUsers(followResults);
+
+            if (!followResults.isEmpty()) {
+                canLoadMore = true;
+            } else {
+                canLoadMore = false;
             }
 
-            @Override
-            protected Response<JSONArray> parseNetworkResponse(NetworkResponse response) {
-                if (response.headers != null && BuildConfig.DEBUG) {
-                    Log.e(TAG, "response: " + response.headers);
-                }
-                if (response.headers != null && response.headers.containsKey(DriRegInfo.RESPONSE_HEADER_LINK)) {
-                    mRelatedLinks = HttpUtils.genNextUrl(response.headers.get(DriRegInfo.RESPONSE_HEADER_LINK));
-                } else {
-                    mRelatedLinks.clear();
-                }
-                return super.parseNetworkResponse(response);
-            }
-        };
+            page++;
+        }
+    };
 
-        request.setShouldCache(false);
-        request.setRetryPolicy(new DefaultRetryPolicy(20000, 3, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        NetworkHandler.getInstance(getApplicationContext()).addToRequestQueue(request);
+    private void resuestFollowing() {
+        ApiFactory.getDribleApi().fetchFollowing(UserHelper.getInstance(this).getDribleUser().id, page)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(observable);
     }
 
-    private void parseUsers(JSONArray jsonArray) {
-        mProgress.setVisibility(View.INVISIBLE);
-        if (jsonArray.length() <= 0) {
+    private void requestFollower() {
+        ApiFactory.getDribleApi().fetchFollowers(UserHelper.getInstance(this).getDribleUser().id, page)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(observable);
+    }
+
+    private void requestUsers() {
+        if (getIntent().getStringExtra(USERS_TITLE).equals(TITLE_FOLLOWING)) {
+            resuestFollowing();
+        } else {
+            requestFollower();
+        }
+    }
+
+    private void handleUsers(List<FollowResult> followResults) {
+        progress.setVisibility(View.INVISIBLE);
+        if (followResults.size() <= 0) {
             return;
         }
 
-        try {
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject json = (JSONObject) jsonArray.get(i);
-                String flag = Uri.parse(mUrl).getLastPathSegment();
-//                Log.e("last str: " + flag);
-                DribleUser user = new DribleUser();
-                if (flag.equals(DriRegInfo.FOLLOWER_URL_FLAG)) {
-                    user = new DribleUser((JSONObject) json.get(DriRegInfo.FOLLOWER_JSON_FLAG));
-                } else if (flag.equals(DriRegInfo.FOLLOWING_URL_FLAG)) {
-                    user = new DribleUser((JSONObject) json.get(DriRegInfo.FOLLOWING_JSON_FLAG));
-                }
-
-                mUsers.add(user);
-            }
-            mUsersAdapter.notifyDataSetChanged();
-        } catch (JSONException e) {
-            e.printStackTrace();
+        for (FollowResult followResult : followResults) {
+            users.add(followResult.getFollow());
         }
+        usersAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onInitToolBar(Toolbar toolbar) {
         super.onInitToolBar(toolbar);
-        setTitle("Users");
+        setTitle(getIntent().getStringExtra(USERS_TITLE));
     }
 }

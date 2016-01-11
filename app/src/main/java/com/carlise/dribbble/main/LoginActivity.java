@@ -21,14 +21,13 @@ import com.carlisle.model.AuthRequest;
 import com.carlisle.model.AuthResult;
 import com.carlisle.model.DribleUser;
 import com.carlisle.provider.ApiFactory;
-import com.carlisle.provider.DriRegInfo;
+import com.carlisle.provider.Domain;
 import com.carlisle.tools.SPUtils;
 import com.google.gson.Gson;
 
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
-
 
 /**
  * Created by chengxin on 16/1/7.
@@ -74,7 +73,7 @@ public class LoginActivity extends BaseActivity {
             loginWeb.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                    if (url.startsWith(DriRegInfo.DRIBLE_CALL_BACK)) {
+                    if (url.startsWith(Domain.DRIBLE_CALL_BACK)) {
                         String returnCode = null;
                         if (url.indexOf("code=") != -1) {
                             // save the code str
@@ -102,8 +101,8 @@ public class LoginActivity extends BaseActivity {
                 }
             });
 
-            loginWeb.loadUrl(DriRegInfo.DRIBLE_LOGIN_URL);
-            Log.i(TAG, DriRegInfo.DRIBLE_LOGIN_URL);
+            loginWeb.loadUrl(Domain.get(Domain.DomainType.LOGIN));
+            Log.i(TAG, Domain.get(Domain.DomainType.LOGIN));
         } else {
             if (BuildConfig.DEBUG) {
                 Toast.makeText(LoginActivity.this, "already login", Toast.LENGTH_SHORT).show();
@@ -123,10 +122,10 @@ public class LoginActivity extends BaseActivity {
     private void requestForAccessToken(String returnCode) {
         AuthRequest authRequest = new AuthRequest();
 
-        authRequest.clientId = DriRegInfo.DRIBLE_CLIENT_ID;
-        authRequest.clientSecret = DriRegInfo.DRIBLE_SECRET;
+        authRequest.clientId = Domain.DRIBLE_CLIENT_ID;
+        authRequest.clientSecret = Domain.DRIBLE_SECRET;
         authRequest.code = returnCode;
-        authRequest.state = DriRegInfo.mState;
+        authRequest.state = Domain.state;
 
         ApiFactory.getDomainApi().auth(authRequest)
                 .subscribeOn(Schedulers.io())
@@ -193,6 +192,7 @@ public class LoginActivity extends BaseActivity {
 
                     @Override
                     public void onNext(DribleUser dribleUser) {
+                        SPUtils.saveString(LoginActivity.this, PreferenceKey.DRIBLE_USER_INFO, new Gson().toJson(dribleUser));
                         AuthUtil.goHome(LoginActivity.this);
                     }
                 });

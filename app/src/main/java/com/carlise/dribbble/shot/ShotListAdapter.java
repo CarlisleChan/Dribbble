@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.users.UserInfoActivity;
@@ -71,13 +72,13 @@ public class ShotListAdapter extends BaseAdapter {
             holder = (ShotViewHolder) convertView.getTag();
         }
         final DribleShot dribleShot = mDribleShots.get(position);
-        if (dribleShot.getTags() != null && dribleShot.getTags().size() > 0 && !TextUtils.isEmpty(dribleShot.getTags().get(0))) {
-            holder.itemHeader.setText(dribleShot.getTags().get(0));
+        if (dribleShot.tags != null && dribleShot.tags.size() > 0 && !TextUtils.isEmpty(dribleShot.tags.get(0))) {
+            holder.itemHeader.setText(dribleShot.tags.get(0));
             holder.itemHeader.setVisibility(View.VISIBLE);
         } else {
             holder.itemHeader.setVisibility(View.INVISIBLE);
         }
-        String imgStr = dribleShot.getImages()[1];
+        String imgStr = dribleShot.images.getUrl();
         Uri imgUri = Uri.parse(imgStr);
         if (imgStr.endsWith(".gif")) {
             setupGif(imgUri, holder.itemImage);
@@ -85,26 +86,26 @@ public class ShotListAdapter extends BaseAdapter {
             holder.itemImage.setImageURI(imgUri);
         }
 
-        holder.itemTitle.setText(dribleShot.getTitle());
-        Uri avatarUri = Uri.parse(dribleShot.getUser().avatar_url);
+        holder.itemTitle.setText(dribleShot.title);
+        Uri avatarUri = Uri.parse(dribleShot.user.avatar_url);
         holder.itemAvatar.setImageURI(avatarUri);
-        holder.itemAuthName.setText(dribleShot.getUser().name);
+        holder.itemAuthName.setText(dribleShot.user.name);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
-        holder.itemCreate.setText(formatter.format(dribleShot.getCreated_at().getTime()));
-        holder.itemLikesCount.setText("" + dribleShot.getLikes_count());
+        holder.itemCreate.setText(formatter.format(dribleShot.created_at.getTime()));
+        holder.itemLikesCount.setText("" + dribleShot.likes_count);
 
-//        holder.itemHeader.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(mContext, "will show list about this tag", Toast.LENGTH_LONG).show();
-//            }
-//        });
+        holder.itemHeader.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(mContext, "will show list about this tag", Toast.LENGTH_LONG).show();
+            }
+        });
 
         holder.itemAuthor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, UserInfoActivity.class);
-                intent.putExtra(UserInfoActivity.USER_ID_EXTRA, dribleShot.getUser().id);
+                intent.putExtra(UserInfoActivity.USER_ID_EXTRA, dribleShot.user.id);
                 mContext.startActivity(intent);
             }
         });

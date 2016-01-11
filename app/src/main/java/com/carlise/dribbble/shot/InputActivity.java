@@ -11,71 +11,60 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.application.BaseActivity;
-import com.carlise.dribbble.utils.AuthUtil;
-import com.carlise.dribbble.utils.NetworkHandler;
-import com.carlisle.provider.DriRegInfo;
+import com.carlisle.model.CommentRequest;
+import com.carlisle.model.PushCommentResult;
+import com.carlisle.provider.ApiFactory;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 /**
- * Created by zhanglei on 15/8/2.
+ * Created by chengxin on 16/1/7.
  */
 public class InputActivity extends BaseActivity {
 
-    private static final int RETRY_COUNT = 5;
+    public static final String INPUT_NAME = "input_extra";
+    public static final String SHOT_ID = "shot_id";
 
-    public static final String INPUT_NAME = "com.tuesda.watch.input.extra";
-    public static final String SHOT_ID = "com.tuesda.watch.shot.id";
-    public static final String INPUT_VALUE = "com.tuesda.watch.input.value";
+    private String name;
+    private int shotId;
 
-    private String mName;
-    private int mShotId;
+    private TextView navPublish;
+    private EditText inputText;
 
-    private TextView mNavPublish;
-    private EditText mInputText;
-
-    private ProgressBar mProgress;
+    private ProgressBar progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_input);
-        mName = getIntent().getStringExtra(INPUT_NAME);
-        mShotId = getIntent().getIntExtra(SHOT_ID, 1);
-        if (TextUtils.isEmpty(mName)) {
-            mName = "Input";
+        name = getIntent().getStringExtra(INPUT_NAME);
+        shotId = getIntent().getIntExtra(SHOT_ID, 1);
+        if (TextUtils.isEmpty(name)) {
+            name = "Input";
         }
         initView();
     }
 
     private void initView() {
-        mNavPublish = (TextView) findViewById(R.id.toolbar_right_text_action);
-        mInputText = (EditText) findViewById(R.id.input_edit);
-        mProgress = (ProgressBar) findViewById(R.id.input_progress);
-        mProgress.setVisibility(View.INVISIBLE);
+        navPublish = (TextView) findViewById(R.id.toolbar_right_text_action);
+        inputText = (EditText) findViewById(R.id.input_edit);
+        progress = (ProgressBar) findViewById(R.id.input_progress);
+        progress.setVisibility(View.INVISIBLE);
 
-        if (mInputText.requestFocus()) {
+        if (inputText.requestFocus()) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         }
 
-        mNavPublish.setText("Publish");
-        mNavPublish.setTextColor(getResources().getColor(R.color.pretty_green));
-        mNavPublish.setOnClickListener(new View.OnClickListener() {
+        navPublish.setText("Publish");
+        navPublish.setTextColor(getResources().getColor(R.color.pretty_green));
+        navPublish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String input = mInputText.getText().toString();
+                String input = inputText.getText().toString();
                 if (TextUtils.isEmpty(input)) {
                     Toast.makeText(InputActivity.this, "comment is empty", Toast.LENGTH_SHORT).show();
                 } else {
@@ -89,50 +78,29 @@ public class InputActivity extends BaseActivity {
     }
 
     private void requestPublishCom(String input) {
-        final String accessToken = AuthUtil.getAccessToken(this);
+        CommentRequest request = new CommentRequest();
+        request.body = input;
 
-        final JSONObject requestParams = new JSONObject();
-        try {
-            requestParams.put("body", input);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        String url = DriRegInfo.REQUEST_ONE_SHOT_URL + mShotId + "/comments";
-
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, requestParams,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Toast.makeText(InputActivity.this, "comment success", Toast.LENGTH_SHORT).show();
-                        mProgress.setVisibility(View.INVISIBLE);
-                        finish();
-                    }
-                }, new Response.ErrorListener() {
+        ApiFactory.getDribleApi().pushComment(shotId, request, new Callback<PushCommentResult>() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                if (error.networkResponse.statusCode == 403) {
+            public void success(PushCommentResult pushCommentResult, Response response) {
+                Toast.makeText(InputActivity.this, "comment success", Toast.LENGTH_SHORT).show();
+                progress.setVisibility(View.INVISIBLE);
+                finish();
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                if (error.getResponse().getStatus() == 403) {
                     Toast.makeText(InputActivity.this, "only Player can comment", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(InputActivity.this, "errors: " + error.networkResponse.statusCode, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(InputActivity.this, "errors: " + error.getResponse().getStatus(), Toast.LENGTH_SHORT).show();
                 }
-                mProgress.setVisibility(View.INVISIBLE);
+                progress.setVisibility(View.INVISIBLE);
             }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> params = new HashMap<>();
-                params.put(DriRegInfo.REQUEST_HEAD_AUTH_FIELD, DriRegInfo.REQUEST_HEAD_BEAR + accessToken);
-                params.putAll(super.getHeaders());
-                return params;
-            }
-        };
+        });
 
-        request.setShouldCache(false);
-        request.setRetryPolicy(new DefaultRetryPolicy(20000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-        NetworkHandler.getInstance(this).addToRequestQueue(request);
-        mProgress.setVisibility(View.VISIBLE);
+        progress.setVisibility(View.VISIBLE);
     }
 
     @Override

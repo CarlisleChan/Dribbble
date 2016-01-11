@@ -21,35 +21,28 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.NetworkResponse;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.carlise.dribbble.BuildConfig;
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.application.BaseActivity;
 import com.carlise.dribbble.shot.ShotDetailActivity;
 import com.carlise.dribbble.shot.ShotListAdapter;
 import com.carlise.dribbble.utils.AuthUtil;
-import com.carlise.dribbble.utils.NetworkHandler;
+import com.carlisle.model.CheckFollowResult;
 import com.carlisle.model.DribleShot;
 import com.carlisle.model.DribleUser;
-import com.carlisle.provider.DriRegInfo;
-import com.carlisle.tools.HttpUtils;
+import com.carlisle.model.FollowResult;
+import com.carlisle.provider.ApiFactory;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by zhanglei on 15/7/24.
@@ -57,15 +50,12 @@ import java.util.Map;
 public class UserInfoActivity extends BaseActivity {
     private static final String TAG = UserInfoActivity.class.getSimpleName();
 
-    private static final int RETRY_COUNT = 5;
-
     private RelativeLayout mFollowZone;
     private TextView mFollowText;
     private boolean mFollowed = false;
     private boolean mCanChangeFollow = false;
 
     private SwipeRefreshLayout mSwipeRefresh;
-    private HashMap<String, String> mRelatedLinks;
     private boolean mCanLoadMore = true;
     private ListView mList;
     private RelativeLayout mHeader;
@@ -88,11 +78,13 @@ public class UserInfoActivity extends BaseActivity {
 
     private int mUserId;
     private DribleUser mDribleUser;
-    public static final String USER_ID_EXTRA = "com.tuesda.watch.userId.extra";
+    public static final String USER_ID_EXTRA = "userId_extra";
 
     private RelativeLayout mProgressZone;
 
     private Handler mHandler = new Handler();
+
+    private int page = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,7 +130,7 @@ public class UserInfoActivity extends BaseActivity {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Intent intent = new Intent(UserInfoActivity.this, ShotDetailActivity.class);
-                    intent.putExtra(ShotDetailActivity.SHOT_ID_EXTRA_FIELD, mShots.get(position - 1).getId());
+                    intent.putExtra(ShotDetailActivity.SHOT_ID_EXTRA_FIELD, mShots.get(position - 1).id);
                     startActivity(intent);
                 }
             });
@@ -147,7 +139,7 @@ public class UserInfoActivity extends BaseActivity {
         mSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                requestUserShots(null, true);
+                requestUserShots();
             }
         });
         mSwipeRefresh.setProgressViewOffset(true, (int) getResources().getDimension(R.dimen.toolbar_height),
@@ -170,12 +162,7 @@ public class UserInfoActivity extends BaseActivity {
                 if (!mList.canScrollVertically(1) && (firstVisibleItem + visibleItemCount == totalItemCount)
                         && firstVisibleItem > 0 && mCanLoadMore) {
                     mCanLoadMore = false;
-                    if (mRelatedLinks == null ||
-                            TextUtils.isEmpty(mRelatedLinks.get("next"))) {
-                        requestUserShots(null, true);
-                    } else {
-                        requestUserShots(mRelatedLinks.get("next"), false);
-                    }
+                    requestUserShots();
                 }
             }
         });
@@ -223,40 +210,30 @@ public class UserInfoActivity extends BaseActivity {
     }
 
     private void requestUserInfo() {
-
-        final String accessToken = AuthUtil.getAccessToken(this);
-        String url = DriRegInfo.REQUEST_USER_URL + mUserId;
-
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url,
-                new Response.Listener<JSONObject>() {
+        ApiFactory.getDribleApi().getUserInfo(mUserId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<DribleUser>() {
                     @Override
-                    public void onResponse(JSONObject response) {
-                        parseUserInfo(response);
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                if (BuildConfig.DEBUG) {
-                    Toast.makeText(UserInfoActivity.this, "userinfo error code: " + (error.networkResponse == null ? "" : error.networkResponse.statusCode), Toast.LENGTH_SHORT).show();
-                }
-            }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> params = new HashMap<>();
-                params.put(DriRegInfo.REQUEST_HEAD_AUTH_FIELD, DriRegInfo.REQUEST_HEAD_BEAR + accessToken);
-                params.putAll(super.getHeaders());
-                return params;
-            }
-        };
+                    public void onCompleted() {
 
-        request.setShouldCache(false);
-        request.setRetryPolicy(new DefaultRetryPolicy(10000, 3, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        NetworkHandler.getInstance(getApplicationContext()).addToRequestQueue(request);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        if (BuildConfig.DEBUG) {
+                            Toast.makeText(UserInfoActivity.this, "get userinfo error", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onNext(DribleUser dribleUser) {
+                        handleUserInfo(dribleUser);
+                    }
+                });
     }
 
-    private void parseUserInfo(JSONObject response) {
-        final DribleUser user = new DribleUser(response);
+    private void handleUserInfo(final DribleUser user) {
         mDribleUser = user;
         // Log.e("userinfo: " + user);
         if (!TextUtils.isEmpty(user.name)) {
@@ -280,8 +257,7 @@ public class UserInfoActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(UserInfoActivity.this, UsersActivity.class);
-                intent.putExtra(UsersActivity.USERS_URL, DriRegInfo.REQUEST_USER_URL + mUserId + "/followers");
-                intent.putExtra(UsersActivity.USERS_TITLE, "Followers");
+                intent.putExtra(UsersActivity.USERS_TITLE, UsersActivity.TITLE_FOLLOWER);
                 startActivity(intent);
             }
         });
@@ -289,8 +265,7 @@ public class UserInfoActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(UserInfoActivity.this, UsersActivity.class);
-                intent.putExtra(UsersActivity.USERS_URL, DriRegInfo.REQUEST_USER_URL + mUserId + "/following");
-                intent.putExtra(UsersActivity.USERS_TITLE, "Following");
+                intent.putExtra(UsersActivity.USERS_TITLE, UsersActivity.TITLE_FOLLOWING);
                 startActivity(intent);
             }
         });
@@ -298,14 +273,10 @@ public class UserInfoActivity extends BaseActivity {
         mUserElseZone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for (Map.Entry entry : user.links.entrySet()) {
-                    String url = (String) entry.getValue();
-                    if (!TextUtils.isEmpty(url) && !url.equals("null")) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse(url));
-                        startActivity(intent);
-                        break;
-                    }
+                if (user.links != null && !TextUtils.isEmpty(user.links.twitter)) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse(user.links.twitter));
+                    startActivity(intent);
                 }
             }
         });
@@ -316,43 +287,16 @@ public class UserInfoActivity extends BaseActivity {
         }
 
         mProgressZone.setVisibility(View.INVISIBLE);
-        requestUserShots(null, true);
+        requestUserShots();
         mSwipeRefresh.setRefreshing(true);
 
     }
 
     private void checkIfFollowing() {
-        final String accessToke = AuthUtil.getAccessToken(this);
-        String url = DriRegInfo.CHECK_IF_ME_FOLLOW_URL + mUserId;
-
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-
-                    }
-                }, new Response.ErrorListener() {
+        ApiFactory.getDribleApi().checkIfMeFollow(mUserId, new Callback<CheckFollowResult>() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                mCanChangeFollow = true;
-                if (error.networkResponse != null && error.networkResponse.statusCode == 404) { // unfollow
-                    updateFollowView(false);
-                }
-                mFollowZone.setVisibility(View.VISIBLE);
-            }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> params = new HashMap<>();
-                params.put(DriRegInfo.REQUEST_HEAD_AUTH_FIELD, DriRegInfo.REQUEST_HEAD_BEAR + accessToke);
-                params.putAll(super.getHeaders());
-                return params;
-            }
-
-            @Override
-            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
-//                Log.e(response.headers.toString());
-                if (response.headers != null && response.headers.get("Status").startsWith("204")) {
+            public void success(CheckFollowResult checkFollowResult, retrofit.client.Response response) {
+                if (response.getStatus() != 0 && response.getStatus() == 204) {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -362,15 +306,19 @@ public class UserInfoActivity extends BaseActivity {
                         }
                     });
                 }
-
-
-                return super.parseNetworkResponse(response);
             }
-        };
 
-        request.setShouldCache(false);
-        request.setRetryPolicy(new DefaultRetryPolicy(10000, 3, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        NetworkHandler.getInstance(getApplicationContext()).addToRequestQueue(request);
+            @Override
+            public void failure(RetrofitError error) {
+                mCanChangeFollow = true;
+                int statusCode = error.getResponse().getStatus();
+                if (statusCode != 0 && statusCode == 404) {
+                    updateFollowView(false);
+                }
+
+                mFollowZone.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     private void updateFollowView(boolean followed) {
@@ -387,108 +335,92 @@ public class UserInfoActivity extends BaseActivity {
         }
     }
 
-    private void requestChangeFollow(final boolean follow) {
-
-        final String accessToken = AuthUtil.getAccessToken(this);
-        String url = DriRegInfo.REQUEST_USER_URL + mUserId + "/follow";
-        // Log.e("change follow url " + url);
-
-        JsonObjectRequest request = new JsonObjectRequest(follow ? Request.Method.PUT : Request.Method.DELETE, url,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-
-                    }
-                }, new Response.ErrorListener() {
+    private void requestFollow() {
+        ApiFactory.getDribleApi().requestFollow(mUserId, new Callback<FollowResult>() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> params = new HashMap<>();
-                params.put(DriRegInfo.REQUEST_HEAD_AUTH_FIELD, DriRegInfo.REQUEST_HEAD_BEAR + accessToken);
-                params.putAll(super.getHeaders());
-                return params;
-            }
-
-            @Override
-            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
+            public void success(FollowResult followResult, retrofit.client.Response response) {
                 mCanChangeFollow = true;
-                final boolean success = response.headers.get("Status").startsWith("204");
+                final boolean success = response.getStatus() == 204;
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        if (success) { // sucesss
-                            Toast.makeText(UserInfoActivity.this, follow ? "follow success" : "unfollow success", Toast.LENGTH_SHORT).show();
-                            if (follow) {
-                                updateFollowView(true);
-                            } else {
-                                updateFollowView(false);
-                            }
-                        } else { // fail
+                        if (success) {
+                            Toast.makeText(UserInfoActivity.this, "follow success", Toast.LENGTH_SHORT).show();
+                            updateFollowView(true);
+                        } else {
                             Toast.makeText(UserInfoActivity.this, "reqeust fail", Toast.LENGTH_SHORT).show();
                             mCanChangeFollow = true;
-                            if (follow) {
-                                updateFollowView(false);
-                            } else {
-                                updateFollowView(true);
-                            }
+                            updateFollowView(false);
                         }
                     }
                 });
-                return super.parseNetworkResponse(response);
             }
-        };
 
-        request.setShouldCache(false);
-        request.setRetryPolicy(new DefaultRetryPolicy(10000, 1, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        NetworkHandler.getInstance(getApplicationContext()).addToRequestQueue(request);
-        mCanChangeFollow = false;
+            @Override
+            public void failure(RetrofitError error) {
 
+            }
+        });
     }
 
-    private void requestUserShots(String url, final boolean first) {
-        final String accessToken = AuthUtil.getAccessToken(this);
-        if (first) {
-            url = DriRegInfo.REQUEST_USER_URL + mUserId + "/shots";
-        }
-
-//        Log.e("user info shots: " + url);
-
-        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url,
-                new Response.Listener<JSONArray>() {
+    private void cancelFollow() {
+        ApiFactory.getDribleApi().cancelFollow(mUserId, new Callback<FollowResult>() {
+            @Override
+            public void success(FollowResult followResult, retrofit.client.Response response) {
+                mCanChangeFollow = true;
+                final boolean success = response.getStatus() == 204;
+                mHandler.post(new Runnable() {
                     @Override
-                    public void onResponse(JSONArray response) {
-                        parseUserShots(response, first);
+                    public void run() {
+                        if (success) {
+                            Toast.makeText(UserInfoActivity.this, "unfollow success", Toast.LENGTH_SHORT).show();
+                            updateFollowView(false);
+                        } else {
+                            Toast.makeText(UserInfoActivity.this, "reqeust fail", Toast.LENGTH_SHORT).show();
+                            mCanChangeFollow = true;
+                            updateFollowView(true);
+                        }
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> params = new HashMap<>();
-                params.put(DriRegInfo.REQUEST_HEAD_AUTH_FIELD, DriRegInfo.REQUEST_HEAD_BEAR + accessToken);
-                params.putAll(super.getHeaders());
-                return params;
+                });
             }
 
             @Override
-            protected Response<JSONArray> parseNetworkResponse(NetworkResponse response) {
-//                Log.i("response headers: " + response.headers);
-                mRelatedLinks = HttpUtils.genNextUrl(response.headers.get(DriRegInfo.RESPONSE_HEADER_LINK));
-                return super.parseNetworkResponse(response);
+            public void failure(RetrofitError error) {
+
             }
-        };
+        });
+    }
 
-        request.setShouldCache(false);
-        request.setRetryPolicy(new DefaultRetryPolicy(20000, RETRY_COUNT, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+    private void requestChangeFollow(final boolean follow) {
+        if (follow) {
+            requestFollow();
+        } else {
+            cancelFollow();
+        }
+        mCanChangeFollow = false;
+    }
 
-        NetworkHandler.getInstance(getApplicationContext()).addToRequestQueue(request);
+    private void requestUserShots() {
+        ApiFactory.getDribleApi().fetchUserShots(mUserId, page)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<DribleShot>>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(List<DribleShot> dribleShots) {
+                        handleUserShots(dribleShots);
+                        page++;
+                    }
+                });
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -497,15 +429,14 @@ public class UserInfoActivity extends BaseActivity {
             }
         }, 30000);
 
-        if (!first) {
+        if (page != 1) {
             mFootProgress.setVisibility(View.VISIBLE);
         }
     }
 
-    private void parseUserShots(JSONArray jsonArray, boolean first) {
+    private void handleUserShots(List<DribleShot> dribleShots) {
         mSwipeRefresh.setRefreshing(false);
-        if (jsonArray.length() <= 0) {
-//            Log.e("userID:" + mUserId + " user info shots is empty!");
+        if (dribleShots.size() <= 0) {
             mCanLoadMore = false;
             mList.setOnItemClickListener(null);
             TextView noShots = new TextView(this);
@@ -519,23 +450,18 @@ public class UserInfoActivity extends BaseActivity {
             return;
         }
 
-        if (first) {
+        if (page == 1) {
             mShots.clear();
         }
-        try {
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject json = (JSONObject) jsonArray.get(i);
-                DribleShot shot = new DribleShot(json);
-                shot.setUser(mDribleUser);
-                mShots.add(shot);
-            }
 
-            mShotAdapter.notifyDataSetChanged();
-            mCanLoadMore = true;
-            mFootProgress.setVisibility(View.INVISIBLE);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        for (DribleShot dribleShot : dribleShots) {
+            dribleShot.user = mDribleUser;
+            mShots.add(dribleShot);
         }
+
+        mShotAdapter.notifyDataSetChanged();
+        mCanLoadMore = true;
+        mFootProgress.setVisibility(View.INVISIBLE);
     }
 
     @Override

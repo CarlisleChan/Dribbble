@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,58 +15,46 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkResponse;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.application.BaseActivity;
-import com.carlise.dribbble.utils.AuthUtil;
-import com.carlise.dribbble.utils.NetworkHandler;
+import com.carlise.dribbble.utils.UserHelper;
 import com.carlisle.model.DribleShot;
-import com.carlisle.provider.DriRegInfo;
-import com.carlisle.tools.HttpUtils;
+import com.carlisle.model.LikesResult;
+import com.carlisle.provider.ApiFactory;
 import com.facebook.drawee.backends.pipeline.Fresco;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
- * Created by zhanglei on 15/8/5.
+ * Created by chengxin on 16/1/7.
  */
 public class ShotsActivity extends BaseActivity {
     private static final String TAG = ShotsActivity.class.getSimpleName();
 
-    public static final String SHOTS_TITLE_EXTRA = "com.tuesda.watch.shots.title.extra";
-    public static final String SHOTS_URL = "com.tuesda.watch.shots.url.extra";
-    public static final String CALL_FROM = "com.tuesda.watch.shot.call.from";
+    public static final String SHOTS_TITLE_EXTRA = "title_extra";
+    public static final String BUCKET_ID = "url_extra";
+    public static final String CALL_FROM = "call_from";
 
-    private String mTitleTxt;
-    private String mUrl;
+    private SwipeRefreshLayout refreshLayout;
+    private ListView listView;
+    private ShotListAdapter shotsAdapter;
+    private ArrayList<DribleShot> shots = new ArrayList<>();
 
-    private SwipeRefreshLayout mSwipeRefresh;
-    private ListView mList;
-    private ShotListAdapter mShotsAdapter;
-    private ArrayList<DribleShot> mShots = new ArrayList<>();
+    private RelativeLayout footerLayout;
+    private ProgressBar footProgress;
 
-    private RelativeLayout mFooter;
-    private ProgressBar mFootProgress;
+    private ProgressBar progress;
+    private LayoutInflater inflater;
 
-    private ProgressBar mProgress;
-    private LayoutInflater mInflater;
+    private String from;
 
-    private HashMap<String, String> mRelatedLinks = new HashMap<>();
-
-    private boolean mCanLoadMore = true;
-
-    private String mFrom;
+    private int page = 1;
+    private boolean canLoadMore = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,49 +62,38 @@ public class ShotsActivity extends BaseActivity {
         Fresco.initialize(this);
         setContentView(R.layout.activity_shots);
         initView();
-
-        mTitleTxt = getIntent().getStringExtra(SHOTS_TITLE_EXTRA);
-        mUrl = getIntent().getStringExtra(SHOTS_URL);
-        mFrom = getIntent().getStringExtra(CALL_FROM);
-        if (TextUtils.isEmpty(mTitleTxt) || TextUtils.isEmpty(mUrl)) {
-            finish();
-        } else {
-            setTitle(mTitleTxt);
-        }
-//        Toast.makeText(this, mUrl, Toast.LENGTH_SHORT).show();
-
         requestForShots(true);
     }
 
     private void initView() {
-        mInflater = LayoutInflater.from(this);
+        inflater = LayoutInflater.from(this);
 
-        mSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.shots_swipe);
-        mSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.shots_swipe);
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 requestForShots(true);
             }
         });
         int toolbarH = (int) getResources().getDimension(R.dimen.toolbar_height);
-        mSwipeRefresh.setProgressViewOffset(true, toolbarH, toolbarH + 200);
+        refreshLayout.setProgressViewOffset(true, toolbarH, toolbarH + 200);
 
-        mList = (ListView) findViewById(R.id.shots_list);
+        listView = (ListView) findViewById(R.id.shots_list);
 
-        mFooter = (RelativeLayout) mInflater.inflate(R.layout.footer_home_list, null, false);
+        footerLayout = (RelativeLayout) inflater.inflate(R.layout.footer_home_list, null, false);
         AbsListView.LayoutParams footParams = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.home_footer_height));
-        mFooter.setLayoutParams(footParams);
-        mList.addFooterView(mFooter);
-        mFootProgress = (ProgressBar) mFooter.findViewById(R.id.footer_progress);
+        footerLayout.setLayoutParams(footParams);
+        listView.addFooterView(footerLayout);
+        footProgress = (ProgressBar) footerLayout.findViewById(R.id.footer_progress);
 
-        mProgress = (ProgressBar) findViewById(R.id.shots_progress);
-        mProgress.setVisibility(View.VISIBLE);
+        progress = (ProgressBar) findViewById(R.id.shots_progress);
+        progress.setVisibility(View.VISIBLE);
 
-        mShotsAdapter = new ShotListAdapter(this, mShots);
-        mList.setAdapter(mShotsAdapter);
-        mList.setDivider(null);
+        shotsAdapter = new ShotListAdapter(this, shots);
+        listView.setAdapter(shotsAdapter);
+        listView.setDivider(null);
 
-        mList.setOnScrollListener(new AbsListView.OnScrollListener() {
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
 
@@ -127,22 +102,20 @@ public class ShotsActivity extends BaseActivity {
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
-                if (!mList.canScrollVertically(1) && firstVisibleItem > 0 &&
-                        (firstVisibleItem + visibleItemCount == totalItemCount
-                                && mCanLoadMore && mRelatedLinks != null && mRelatedLinks.containsKey("next"))) {
-                    mCanLoadMore = false;
-                    mFootProgress.setVisibility(View.VISIBLE);
+                if (!listView.canScrollVertically(1) && firstVisibleItem > 0 &&
+                        (firstVisibleItem + visibleItemCount == totalItemCount && canLoadMore && page != 1)) {
+                    footProgress.setVisibility(View.VISIBLE);
                     requestForShots(false);
 
                 }
             }
         });
 
-        mList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(ShotsActivity.this, ShotDetailActivity.class);
-                intent.putExtra(ShotDetailActivity.SHOT_ID_EXTRA_FIELD, mShots.get(position - 1).getId());
+                intent.putExtra(ShotDetailActivity.SHOT_ID_EXTRA_FIELD, shots.get(position).id);
                 startActivity(intent);
             }
         });
@@ -150,87 +123,115 @@ public class ShotsActivity extends BaseActivity {
     }
 
     private void requestForShots(final boolean isFirst) {
-        final String accessToken = AuthUtil.getAccessToken(this);
-        String url = isFirst ? mUrl : mRelatedLinks.get("next");
-        Log.i(TAG, "shots url: " + url);
+        if (from.equals("like")) {
+            fetchShotsFromLike(isFirst);
+        } else {
+            fetchShotsFromBuckets(isFirst);
+        }
+    }
 
-        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url,
-                new Response.Listener<JSONArray>() {
+    private void fetchShotsFromLike(final boolean isFirst) {
+        ApiFactory.getDribleApi().fetchShotsFromLike(UserHelper.getInstance(this).getDribleUser().id, page)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<LikesResult>>() {
                     @Override
-                    public void onResponse(JSONArray response) {
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        whenReuestDone();
+                    }
+
+                    @Override
+                    public void onNext(List<LikesResult> likesResults) {
                         whenReuestDone();
 
-                        parseShots(response, isFirst);
+                        List<DribleShot> dribleShots = new ArrayList<DribleShot>();
+
+                        for (LikesResult likesResult : likesResults) {
+                            dribleShots.add(likesResult.shot);
+                        }
+
+                        handleShots(dribleShots, isFirst);
+
+                        if (likesResults.isEmpty()) {
+                            canLoadMore = false;
+                        } else {
+                            canLoadMore = true;
+                        }
+
+                        page++;
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                whenReuestDone();
-            }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> params = new HashMap<>();
-                params.put(DriRegInfo.REQUEST_HEAD_AUTH_FIELD, DriRegInfo.REQUEST_HEAD_BEAR + accessToken);
-                params.putAll(super.getHeaders());
-                return params;
-            }
+                });
+    }
 
-            @Override
-            protected Response<JSONArray> parseNetworkResponse(NetworkResponse response) {
-                Log.e(TAG, "shots response: " + (response.headers != null ? response.headers : ""));
-                mRelatedLinks = HttpUtils.genNextUrl(response.headers.get(DriRegInfo.RESPONSE_HEADER_LINK));
-                return super.parseNetworkResponse(response);
-            }
-        };
+    private void fetchShotsFromBuckets(final boolean isFirst) {
+        ApiFactory.getDribleApi().fetchShotsFromBuckets(getIntent().getLongExtra(BUCKET_ID, 0), page)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<DribleShot>>() {
+                    @Override
+                    public void onCompleted() {
 
-        NetworkHandler.getInstance(getApplicationContext()).addToRequestQueue(request);
+                    }
 
+                    @Override
+                    public void onError(Throwable e) {
+                        whenReuestDone();
+                    }
+
+                    @Override
+                    public void onNext(List<DribleShot> dribleShots) {
+                        whenReuestDone();
+
+                        handleShots(dribleShots, isFirst);
+
+                        if (dribleShots.isEmpty()) {
+                            canLoadMore = false;
+                        } else {
+                            canLoadMore = true;
+                        }
+
+                        page++;
+                    }
+                });
     }
 
     private void whenReuestDone() {
-        mProgress.setVisibility(View.INVISIBLE);
-        mSwipeRefresh.setRefreshing(false);
-        mCanLoadMore = true;
-        mFootProgress.setVisibility(View.INVISIBLE);
+        progress.setVisibility(View.INVISIBLE);
+        refreshLayout.setRefreshing(false);
+        footProgress.setVisibility(View.INVISIBLE);
     }
 
-    private void parseShots(JSONArray jsonArray, boolean isFirst) {
-        if (jsonArray.length() <= 0) {
-            mList.setOnItemClickListener(null);
+    private void handleShots(List<DribleShot> dribleShots, boolean isFirst) {
+        if (dribleShots.size() <= 0) {
+            listView.setOnItemClickListener(null);
             TextView noShots = new TextView(this);
             noShots.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-            noShots.setText("No shots yet");
+            noShots.setText("Load finished.");
             noShots.setTextColor(getResources().getColor(R.color.grey_text));
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             params.addRule(RelativeLayout.CENTER_IN_PARENT);
             noShots.setLayoutParams(params);
-            mFooter.addView(noShots);
+            footerLayout.addView(noShots);
         }
 
         if (isFirst) {
-            mShots.clear();
+            shots.clear();
         }
 
-        try {
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject json = (JSONObject) jsonArray.get(i);
-                DribleShot shot = mFrom.equals("like") ? (new DribleShot((JSONObject) json.get("shot")))
-                        : (new DribleShot(json));
-                mShots.add(shot);
-            }
-
-            mShotsAdapter.notifyDataSetChanged();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        shots.addAll(dribleShots);
+        shotsAdapter.notifyDataSetChanged();
 
     }
 
     @Override
     public void onInitToolBar(Toolbar toolbar) {
         super.onInitToolBar(toolbar);
-        setTitle("Shots");
+        setTitle(getIntent().getStringExtra(SHOTS_TITLE_EXTRA));
 
     }
 }

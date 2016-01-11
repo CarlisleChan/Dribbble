@@ -64,17 +64,17 @@ public class CommentAdapter extends BaseAdapter {
             holder = (HolderView) convertView.getTag();
         }
         final DribleComment comment = mComments.get(position);
-        holder.commentBody.setText(Html.fromHtml(comment.getBody()));
+        holder.commentBody.setText(Html.fromHtml(comment.body));
         holder.commentBody.setMovementMethod(LinkMovementMethod.getInstance());
 
-        Uri uri = Uri.parse(comment.getUser().avatar_url);
+        Uri uri = Uri.parse(comment.user.avatar_url);
         holder.avatar.setImageURI(uri);
-        holder.authorName.setText(comment.getUser().name);
+        holder.authorName.setText(comment.user.name);
         holder.avatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, UserInfoActivity.class);
-                intent.putExtra(UserInfoActivity.USER_ID_EXTRA, comment.getUser().id);
+                intent.putExtra(UserInfoActivity.USER_ID_EXTRA, comment.user.id);
                 mContext.startActivity(intent);
             }
         });
@@ -83,13 +83,13 @@ public class CommentAdapter extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, UserInfoActivity.class);
-                intent.putExtra(UserInfoActivity.USER_ID_EXTRA, comment.getUser().id);
+                intent.putExtra(UserInfoActivity.USER_ID_EXTRA, comment.user.id);
                 mContext.startActivity(intent);
             }
         });
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
-        holder.created_at.setText(formatter.format(comment.getCreated_at().getTime()));
+        holder.created_at.setText(formatter.format(comment.created_at.getTime()));
         return convertView;
     }
 

@@ -19,94 +19,85 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.NetworkResponse;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.carlise.dribbble.BuildConfig;
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.shot.ShotDetailActivity;
 import com.carlise.dribbble.shot.ShotListAdapter;
 import com.carlise.dribbble.utils.AuthUtil;
-import com.carlise.dribbble.utils.NetworkHandler;
+import com.carlise.dribbble.utils.PreferenceKey;
 import com.carlisle.model.DribleShot;
-import com.carlisle.provider.DriRegInfo;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.carlisle.provider.ApiFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
- * Created by zhanglei on 15/7/27.
+ * Created by chengxin on 16/1/7.
  */
 public class HomeFragment extends Fragment {
     private static final String TAG = HomeFragment.class.getSimpleName();
 
-    public static final String TAB_INDEX_FIELD = "tab.index";
+    public static final String TAB_INDEX_FIELD = "tab_index";
     private static final int RETRY_COUNT = 5;
 
-    private int mIndex;
-    private SwipeRefreshLayout mRefreshLayout;
-    private ListView mList;
-    private RelativeLayout mFooter;
-    private ProgressBar mFootProgress;
+    private int index;
+    private SwipeRefreshLayout refreshLayout;
+    private ListView listView;
+    private RelativeLayout footerLayout;
+    private ProgressBar footProgress;
 
-    private ShotListAdapter mListAdapter;
-    private ArrayList<DribleShot> mShotList;
+    private ShotListAdapter listAdapter;
+    private ArrayList<DribleShot> shotList;
 
     private HashMap<Integer, Integer> leftItemsH = new HashMap<Integer, Integer>();
     private HashMap<Integer, Integer> midItemsH = new HashMap<Integer, Integer>();
     private HashMap<Integer, Integer> rigItemsH = new HashMap<Integer, Integer>();
-    private int mLastScrollY;
+    private int lastScrollY;
 
-    private Runnable mTimeOut = new Runnable() {
+    private Runnable timeOut = new Runnable() {
         @Override
         public void run() {
-            mRefreshLayout.setRefreshing(false);
+            refreshLayout.setRefreshing(false);
         }
     };
 
-    private HashMap<String, String> mRelatedLinks;
-    private boolean mCanScroll = true;
-    private boolean mCanLoadMore = true;
+    private boolean canScroll = true;
+    private boolean canLoadMore = true;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        mIndex = getArguments().getInt(TAB_INDEX_FIELD);
+        index = getArguments().getInt(TAB_INDEX_FIELD);
 
-        if (mList == null) {
-            mRefreshLayout = (SwipeRefreshLayout) inflater.inflate(R.layout.home_content_fragment, container, false);
-            mList = (ListView) mRefreshLayout.findViewById(R.id.home_content_fragment);
+        if (listView == null) {
+            refreshLayout = (SwipeRefreshLayout) inflater.inflate(R.layout.home_content_fragment, container, false);
+            listView = (ListView) refreshLayout.findViewById(R.id.home_content_fragment);
 
-            mFooter = (RelativeLayout) inflater.inflate(R.layout.footer_home_list, null, false);
+            footerLayout = (RelativeLayout) inflater.inflate(R.layout.footer_home_list, null, false);
             AbsListView.LayoutParams footParams = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.home_footer_height));
-            mFooter.setLayoutParams(footParams);
-            mList.addFooterView(mFooter);
-            mFootProgress = (ProgressBar) mFooter.findViewById(R.id.footer_progress);
+            footerLayout.setLayoutParams(footParams);
+            listView.addFooterView(footerLayout);
+            footProgress = (ProgressBar) footerLayout.findViewById(R.id.footer_progress);
 
-            mList.setDivider(null);
-            mList.setFriction(ViewConfiguration.getScrollFriction() /** 0.7f*/);
+            listView.setDivider(null);
+            listView.setFriction(ViewConfiguration.getScrollFriction() /** 0.7f*/);
 
-            String url = genRequestUrl();
-            requestForList(url, true);
+            requestForList();
 
-            mRefreshLayout.post(new Runnable() {
+            refreshLayout.post(new Runnable() {
                 @Override
                 public void run() {
-                    mRefreshLayout.setRefreshing(true);
+                    refreshLayout.setRefreshing(true);
                 }
             });
 
-            mList.setOnScrollListener(new AbsListView.OnScrollListener() {
+            listView.setOnScrollListener(new AbsListView.OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(AbsListView view, int scrollState) {
 
@@ -116,16 +107,16 @@ public class HomeFragment extends Fragment {
                 public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                     int index = getArguments().getInt(TAB_INDEX_FIELD);
                     int scrollHeight = 0;
-                    if (mList.getChildAt(0) != null) {
+                    if (listView.getChildAt(0) != null) {
                         switch (index) {
                             case 0:
-                                leftItemsH.put(firstVisibleItem, mList.getChildAt(0).getHeight());
+                                leftItemsH.put(firstVisibleItem, listView.getChildAt(0).getHeight());
                                 break;
                             case 1:
-                                midItemsH.put(firstVisibleItem, mList.getChildAt(0).getHeight());
+                                midItemsH.put(firstVisibleItem, listView.getChildAt(0).getHeight());
                                 break;
                             case 2:
-                                rigItemsH.put(firstVisibleItem, mList.getChildAt(0).getHeight());
+                                rigItemsH.put(firstVisibleItem, listView.getChildAt(0).getHeight());
                                 break;
                         }
 
@@ -140,41 +131,33 @@ public class HomeFragment extends Fragment {
                                 scrollHeight += heights.get(i);
                             }
                         }
-                        scrollHeight += -mList.getChildAt(0).getTop();
+                        scrollHeight += -listView.getChildAt(0).getTop();
                     }
 
-                    if (onScrollListListener != null && mCanScroll) {
-                        onScrollListListener.onListScroll(scrollHeight - mLastScrollY);
+                    if (onScrollListListener != null && canScroll) {
+                        onScrollListListener.onListScroll(scrollHeight - lastScrollY);
                     }
-                    mLastScrollY = scrollHeight;
-                    if (firstVisibleItem + visibleItemCount == totalItemCount && !mList.canScrollVertically(1)
-                            && mList.getAdapter() != null && mCanLoadMore) {
-                        mCanLoadMore = false;
-//                        Toast.makeText(getActivity(), "foot comming! index: " + mIndex, Toast.LENGTH_LONG).show();
-                        if (mRelatedLinks == null ||
-                                TextUtils.isEmpty(mRelatedLinks.get("next"))) {
-                            requestForList(genRequestUrl(), true);
-                        } else {
-                            requestForList(mRelatedLinks.get("next"), false);
-                        }
-
-
+                    lastScrollY = scrollHeight;
+                    if (firstVisibleItem + visibleItemCount == totalItemCount && !listView.canScrollVertically(1)
+                            && listView.getAdapter() != null && canLoadMore) {
+                        canLoadMore = false;
+                        requestForList();
                     }
                 }
             });
-            mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                    String url = genRequestUrl();
-                    requestForList(url, true);
+                    requestForList();
+                    page = 1;
                 }
             });
-            mRefreshLayout.setColorSchemeResources(R.color.pretty_blue,
+            refreshLayout.setColorSchemeResources(R.color.pretty_blue,
                     R.color.pretty_green);
 
         }
 
-        return mRefreshLayout;
+        return refreshLayout;
     }
 
     @Override
@@ -192,92 +175,96 @@ public class HomeFragment extends Fragment {
         void onListScroll(int scrollDisY);
     }
 
-    private void requestForList(String url, final boolean isFirst) {
-        if (BuildConfig.DEBUG) {
-            Log.i(TAG, "request url: " + url);
-        }
+    String sort = null;
+    String list = null;
+    int page = 1;
+
+    private void requestForList() {
         final String accessToken = AuthUtil.getAccessToken(getActivity());
         if (TextUtils.isEmpty(accessToken)) {
-            mRefreshLayout.setRefreshing(false);
+            refreshLayout.setRefreshing(false);
             return;
         }
 
-        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        mRefreshLayout.setRefreshing(false);
-                        parseResponse(response, isFirst);
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                mRefreshLayout.setRefreshing(false);
-                if (getActivity() != null) {
-                    Toast.makeText(getActivity(), "errors", Toast.LENGTH_LONG).show();
-                }
-            }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> params = new HashMap<String, String>();
-                params.put(DriRegInfo.REQUEST_HEAD_AUTH_FIELD, DriRegInfo.REQUEST_HEAD_BEAR + accessToken);
-                params.putAll(super.getHeaders());
-                return params;
-            }
-
-            @Override
-            protected Response<JSONArray> parseNetworkResponse(NetworkResponse response) {
-                Log.i(TAG, "response headers: " + response.headers);
-                mRelatedLinks = genNextUrl(response.headers.get(DriRegInfo.RESPONSE_HEADER_LINK));
-                return super.parseNetworkResponse(response);
-            }
-
-        };
-
-        request.setRetryPolicy(new DefaultRetryPolicy(10000, RETRY_COUNT, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-        request.setShouldCache(false);
-        NetworkHandler.getInstance(getActivity().getApplicationContext()).addToRequestQueue(request);
-
-        if (!isFirst) {
-            mFootProgress.setVisibility(View.VISIBLE);
+        switch (index) {
+            case 0:
+                // url += ("?" + "page=2");
+                break;
+            case 1:
+                sort = PreferenceKey.REQUEST_SORT_RECENT;
+                break;
+            case 2:
+                sort = PreferenceKey.REQUEST_SORT_RECENT;
+                list = PreferenceKey.REQUEST_LIST_ANIMATED;
+                break;
         }
 
-        new Handler().removeCallbacks(mTimeOut);
-        new Handler().postDelayed(mTimeOut, 10000);
+        ApiFactory.getDribleApi().fetchOneShots(page, sort, list)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<DribleShot>>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        refreshLayout.setRefreshing(false);
+                        if (getActivity() != null) {
+                            Toast.makeText(getActivity(), "errors", Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void onNext(List<DribleShot> dribleShots) {
+                        refreshLayout.setRefreshing(false);
+                        handleResponse(dribleShots);
+
+                        if (dribleShots.isEmpty()) {
+                            canLoadMore = false;
+                        } else {
+                            canLoadMore = true;
+                        }
+                        page++;
+                    }
+                });
+
+        if (canLoadMore) {
+            footProgress.setVisibility(View.VISIBLE);
+        }
+
+        new Handler().removeCallbacks(timeOut);
+        new Handler().postDelayed(timeOut, 10000);
     }
 
-    private void parseResponse(JSONArray response, boolean isFirst) {
+    private void handleResponse(List<DribleShot> dribleShots) {
         try {
-            if (mShotList == null) {
-                mShotList = new ArrayList<DribleShot>();
+            if (shotList == null) {
+                shotList = new ArrayList<>();
             }
-            if (mListAdapter == null) {
-                mListAdapter = new ShotListAdapter(getActivity(), mShotList);
-                mList.setAdapter(mListAdapter);
-                mList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            if (listAdapter == null) {
+                listAdapter = new ShotListAdapter(getActivity(), shotList);
+                listView.setAdapter(listAdapter);
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        if (position > 0) {
-                            Intent intent = new Intent(getActivity(), ShotDetailActivity.class);
-                            intent.putExtra(ShotDetailActivity.SHOT_ID_EXTRA_FIELD, mShotList.get(position - 1).getId());
-                            startActivity(intent);
-                            getActivity().overridePendingTransition(0, 0);
-                        }
+                        Intent intent = new Intent(getActivity(), ShotDetailActivity.class);
+                        intent.putExtra(ShotDetailActivity.SHOT_ID_EXTRA_FIELD, shotList.get(position).id);
+                        startActivity(intent);
+                        getActivity().overridePendingTransition(0, 0);
                     }
                 });
             }
-            if (isFirst) {
-                mShotList.clear();
+
+            if (page == 1) {
+                shotList.clear();
             }
-            for (int i = 0; i < response.length(); i++) {
-                DribleShot shot = new DribleShot((JSONObject) response.get(i));
-                mShotList.add(shot);
-            }
-            mListAdapter.notifyDataSetChanged();
-            mCanLoadMore = true;
-            mFootProgress.setVisibility(View.INVISIBLE);
+
+            shotList.addAll(dribleShots);
+            listAdapter.notifyDataSetChanged();
+            canLoadMore = true;
+            footProgress.setVisibility(View.INVISIBLE);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -287,44 +274,12 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mRefreshLayout.setRefreshing(false);
-    }
-
-    private String genRequestUrl() {
-        String url = DriRegInfo.REQUEST_ONE_SHOT_URL;
-        switch (mIndex) {
-            case 0:
-                // url += ("?" + "page=2");
-                break;
-            case 1:
-                url += ("?" + DriRegInfo.REQUEST_SHOTS_FIELD_SORT + "=" + DriRegInfo.REQUEST_SORT_RECENT);
-                break;
-            case 2:
-                url += ("?" + DriRegInfo.REQUEST_SHOTS_FIELD_LIST + "=" + DriRegInfo.REQUEST_LIST_ANIMATED
-                        + "&" + DriRegInfo.REQUEST_SHOTS_FIELD_SORT + "=" + DriRegInfo.REQUEST_SORT_RECENT);
-                break;
-        }
-        return url;
+        refreshLayout.setRefreshing(false);
     }
 
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-    }
-
-    private HashMap<String, String> genNextUrl(String link) {
-        HashMap<String, String> result = new HashMap<String, String>();
-        if (TextUtils.isEmpty(link)) {
-            return null;
-        }
-        String[] links = link.split(",");
-        for (int i = 0; i < links.length; i++) {
-            String str = links[i];
-            String url = str.substring(str.indexOf("<") + 1, str.lastIndexOf(">"));
-            String flag = str.substring(str.indexOf("rel=\"") + 5, str.lastIndexOf("\""));
-            result.put(flag, url);
-        }
-        return result;
     }
 
 }

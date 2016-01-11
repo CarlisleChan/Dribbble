@@ -19,14 +19,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.NetworkResponse;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.carlise.dribbble.BuildConfig;
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.application.BaseActivity;
@@ -34,73 +26,69 @@ import com.carlise.dribbble.users.UserInfoActivity;
 import com.carlise.dribbble.utils.AnimatorHelp;
 import com.carlise.dribbble.utils.AuthUtil;
 import com.carlise.dribbble.utils.ImageHelper;
-import com.carlise.dribbble.utils.NetworkHandler;
 import com.carlisle.model.DribleComment;
 import com.carlisle.model.DribleShot;
-import com.carlisle.provider.DriRegInfo;
+import com.carlisle.model.MarkResult;
+import com.carlisle.provider.ApiFactory;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
- * Created by zhanglei on 15/7/30.
+ * Created by chengxin on 16/1/7.
  */
 public class ShotDetailActivity extends BaseActivity {
     private static final String TAG = ShotDetailActivity.class.getSimpleName();
 
-    private static int RETRY_COUNT = 5;
+    public static final String SHOT_ID_EXTRA_FIELD = "shot_extra";
 
-    public static final String SHOT_ID_EXTRA_FIELD = "com.tuesda.watch.detail.shot.extra";
-
-    private DribleShot mDribleShot;
-    private int mShotId;
+    private int shotId;
 
     private LayoutInflater inflater;
 
-    private SimpleDraweeView mAvatar;
-    private TextView mAuthorName;
-    private RelativeLayout mNavShare;
-    private RelativeLayout mNavLike;
-    private ImageView mNavLikeImg;
-    private boolean mLiked;
-    private RelativeLayout mProgress;
+    private SimpleDraweeView avatar;
+    private TextView authorName;
+    private RelativeLayout navShare;
+    private RelativeLayout navLike;
+    private ImageView navLikeImg;
+    private boolean liked;
+    private RelativeLayout progressLayout;
 
-    private View mHeader;
+    private View header;
 
-    private ListView mCommentsList;
-    private CommentAdapter mCommentAdapter;
+    private ListView commentsList;
+    private CommentAdapter commentAdapter;
 
-    private LinearLayout mCommentsHeader;
-    private SimpleDraweeView mDetailImage;
-    private TextView mShotTitle;
-    private TextView mShotDescription;
+    private LinearLayout commentsHeader;
+    private SimpleDraweeView detailImage;
+    private TextView shotTitle;
+    private TextView shotDescription;
 
-    private ImageView mShotInfoLikeImg;
-    private TextView mShotInfoLikeText;
-    private ImageView mShotInfoCommentImg;
-    private TextView mShotInfoCommentText;
-    private ImageView mShotInfoViewImg;
-    private TextView mShotInfoViewText;
+    private ImageView shotInfoLikeImg;
+    private TextView shotInfoLikeText;
+    private ImageView shotInfoCommentImg;
+    private TextView shotInfoCommentText;
+    private ImageView shotInfoViewImg;
+    private TextView shotInfoViewText;
 
-    private LinearLayout mShotTag;
-    private TextView mShotTagText;
-    private RelativeLayout mShotComment;
-    private ImageView mShotComImg;
-    private RelativeLayout mShotBucket;
-    private ImageView mShotBucketImg;
+    private LinearLayout shotTag;
+    private TextView shotTagText;
+    private RelativeLayout shotComment;
+    private ImageView shotComImg;
+    private RelativeLayout shotBucket;
+    private ImageView shotBucketImg;
 
-    private LinearLayout mShotScrollWall;
+    private LinearLayout shotScrollWall;
 
-    private ArrayList<DribleComment> mComments = new ArrayList<DribleComment>();
+    private ArrayList<DribleComment> somments = new ArrayList<>();
 
-    private boolean mFirstTime = true;
+    private boolean firstTime = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,8 +96,8 @@ public class ShotDetailActivity extends BaseActivity {
         Fresco.initialize(this);
         setContentView(R.layout.activity_shot_detail);
 
-        mShotId = getIntent().getIntExtra(SHOT_ID_EXTRA_FIELD, -1);
-        if (mShotId == -1) {
+        shotId = getIntent().getIntExtra(SHOT_ID_EXTRA_FIELD, -1);
+        if (shotId == -1) {
             if (BuildConfig.DEBUG) {
                 Log.i(TAG, "didn't deliver the shot ID");
             }
@@ -117,175 +105,150 @@ public class ShotDetailActivity extends BaseActivity {
         }
 
         initView();
-
-        String url = DriRegInfo.REQUEST_ONE_SHOT_URL + mShotId;
-        requestShot(url);
+        requestShot();
         requestComments();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (!mFirstTime) {
-//            Log.e("resume!");
+        if (!firstTime) {
             requestComments();
         } else {
-            mFirstTime = false;
+            firstTime = false;
         }
     }
 
     private void initView() {
         inflater = LayoutInflater.from(this);
 
-        mAvatar = (SimpleDraweeView) findViewById(R.id.shot_detail_avatar);
-        mAuthorName = (TextView) findViewById(R.id.shot_detail_author);
-        mNavShare = (RelativeLayout) findViewById(R.id.nav_share);
-        mNavLike = (RelativeLayout) findViewById(R.id.nav_like);
-        mNavLikeImg = (ImageView) findViewById(R.id.nav_like_img);
-        mNavLike.setVisibility(View.INVISIBLE);
-        mProgress = (RelativeLayout) findViewById(R.id.shot_progress);
+        avatar = (SimpleDraweeView) findViewById(R.id.shot_detail_avatar);
+        authorName = (TextView) findViewById(R.id.shot_detail_author);
+        navShare = (RelativeLayout) findViewById(R.id.nav_share);
+        navLike = (RelativeLayout) findViewById(R.id.nav_like);
+        navLikeImg = (ImageView) findViewById(R.id.nav_like_img);
+        navLike.setVisibility(View.INVISIBLE);
+        progressLayout = (RelativeLayout) findViewById(R.id.shot_progress);
 
-        mCommentsList = (ListView) findViewById(R.id.shot_detail_comments_list);
+        commentsList = (ListView) findViewById(R.id.shot_detail_comments_list);
 
-        mCommentsHeader = (LinearLayout) inflater.inflate(R.layout.header_shot_detail_comments, mCommentsList, false);
+        commentsHeader = (LinearLayout) inflater.inflate(R.layout.header_shot_detail_comments, commentsList, false);
 
-        mShotScrollWall = (LinearLayout) mCommentsHeader.findViewById(R.id.shot_detail_scroll_wall);
+        shotScrollWall = (LinearLayout) commentsHeader.findViewById(R.id.shot_detail_scroll_wall);
 
         //mHeader = findViewById(R.id.shot_detail_header);
-        mDetailImage = (SimpleDraweeView) findViewById(R.id.shot_detail_img);
-        mShotTitle = (TextView) mCommentsHeader.findViewById(R.id.shot_detail_title);
-        mShotDescription = (TextView) mCommentsHeader.findViewById(R.id.shot_detail_description);
+        detailImage = (SimpleDraweeView) findViewById(R.id.shot_detail_img);
+        shotTitle = (TextView) commentsHeader.findViewById(R.id.shot_detail_title);
+        shotDescription = (TextView) commentsHeader.findViewById(R.id.shot_detail_description);
 
-        mShotInfoLikeImg = (ImageView) mCommentsHeader.findViewById(R.id.shot_detail_info_like_img);
-        mShotInfoLikeImg.setColorFilter(getResources().getColor(R.color.text_default_color));
-        mShotInfoLikeText = (TextView) mCommentsHeader.findViewById(R.id.shot_detail_info_like_text);
-        mShotInfoCommentImg = (ImageView) mCommentsHeader.findViewById(R.id.shot_detail_info_comment_img);
-        mShotInfoCommentImg.setColorFilter(getResources().getColor(R.color.text_default_color));
-        mShotInfoCommentText = (TextView) mCommentsHeader.findViewById(R.id.shot_detail_info_comment_text);
-        mShotInfoViewImg = (ImageView) mCommentsHeader.findViewById(R.id.shot_detail_info_view_img);
-        mShotInfoViewImg.setColorFilter(getResources().getColor(R.color.text_default_color));
-        mShotInfoViewText = (TextView) mCommentsHeader.findViewById(R.id.shot_detail_info_view_text);
+        shotInfoLikeImg = (ImageView) commentsHeader.findViewById(R.id.shot_detail_info_like_img);
+        shotInfoLikeImg.setColorFilter(getResources().getColor(R.color.text_default_color));
+        shotInfoLikeText = (TextView) commentsHeader.findViewById(R.id.shot_detail_info_like_text);
+        shotInfoCommentImg = (ImageView) commentsHeader.findViewById(R.id.shot_detail_info_comment_img);
+        shotInfoCommentImg.setColorFilter(getResources().getColor(R.color.text_default_color));
+        shotInfoCommentText = (TextView) commentsHeader.findViewById(R.id.shot_detail_info_comment_text);
+        shotInfoViewImg = (ImageView) commentsHeader.findViewById(R.id.shot_detail_info_view_img);
+        shotInfoViewImg.setColorFilter(getResources().getColor(R.color.text_default_color));
+        shotInfoViewText = (TextView) commentsHeader.findViewById(R.id.shot_detail_info_view_text);
 
-        mShotTag = (LinearLayout) mCommentsHeader.findViewById(R.id.shot_detail_tag_zone);
-        mShotTagText = (TextView) mCommentsHeader.findViewById(R.id.shot_detail_tag_text);
+        shotTag = (LinearLayout) commentsHeader.findViewById(R.id.shot_detail_tag_zone);
+        shotTagText = (TextView) commentsHeader.findViewById(R.id.shot_detail_tag_text);
 
-        mShotComment = (RelativeLayout) mCommentsHeader.findViewById(R.id.shot_detail_comment_zone);
-        mShotComImg = (ImageView) mCommentsHeader.findViewById(R.id.shot_detail_comment_zone_img);
-        mShotComImg.setColorFilter(getResources().getColor(R.color.grey_text));
+        shotComment = (RelativeLayout) commentsHeader.findViewById(R.id.shot_detail_comment_zone);
+        shotComImg = (ImageView) commentsHeader.findViewById(R.id.shot_detail_comment_zone_img);
+        shotComImg.setColorFilter(getResources().getColor(R.color.grey_text));
 
-        mShotBucket = (RelativeLayout) mCommentsHeader.findViewById(R.id.shot_detail_bucket_zone);
-        mShotBucketImg = (ImageView) mCommentsHeader.findViewById(R.id.shot_detail_bucket_zone_img);
-        mShotBucketImg.setColorFilter(getResources().getColor(R.color.grey_text));
+        shotBucket = (RelativeLayout) commentsHeader.findViewById(R.id.shot_detail_bucket_zone);
+        shotBucketImg = (ImageView) commentsHeader.findViewById(R.id.shot_detail_bucket_zone_img);
+        shotBucketImg.setColorFilter(getResources().getColor(R.color.grey_text));
 
-        mCommentsList.addHeaderView(mCommentsHeader);
+        commentsList.addHeaderView(commentsHeader);
 
         View footer = new View(this);
-        AbsListView.LayoutParams footParams = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                (int) getResources().getDimension(R.dimen.comments_list_foot_height));
+        AbsListView.LayoutParams footParams = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.comments_list_foot_height));
         footer.setLayoutParams(footParams);
-        mCommentsList.addFooterView(footer);
+        commentsList.addFooterView(footer);
 
-        mCommentAdapter = new CommentAdapter(this, mComments);
-        mCommentsList.setAdapter(mCommentAdapter);
-        mCommentsList.setDivider(null);
+        commentAdapter = new CommentAdapter(this, somments);
+        commentsList.setAdapter(commentAdapter);
+        commentsList.setDivider(null);
 
-        mProgress.setVisibility(View.VISIBLE);
+        progressLayout.setVisibility(View.VISIBLE);
     }
 
     private int mLoadShotRetryCount = 5;
 
-    private void requestShot(final String url) {
-        if (TextUtils.isEmpty(url)) {
-            return;
-        }
-
-        if (BuildConfig.DEBUG) {
-            Log.i(TAG, "Shot detail request url: " + url);
-        }
+    private void requestShot() {
 
         final String accessToken = AuthUtil.getAccessToken(this);
         if (TextUtils.isEmpty(accessToken)) { // because we examine the accesstoken, so will never in this switch
             return;
         }
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url,
-                new Response.Listener<JSONObject>() {
+        ApiFactory.getDribleApi().fetchShotDetail(shotId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<DribleShot>() {
                     @Override
-                    public void onResponse(JSONObject response) {
-                        parseResponse(response);
+                    public void onCompleted() {
+
                     }
-                },
-                new Response.ErrorListener() {
+
                     @Override
-                    public void onErrorResponse(VolleyError error) {
+                    public void onError(Throwable e) {
                         if (mLoadShotRetryCount > 0) {
                             mLoadShotRetryCount--;
-                            requestShot(url);
+                            requestShot();
                         } else {
                             Toast.makeText(ShotDetailActivity.this, "network errors", Toast.LENGTH_SHORT).show();
                             finish();
                         }
                     }
-                }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> params = new HashMap<String, String>();
-                params.put(DriRegInfo.REQUEST_HEAD_AUTH_FIELD, DriRegInfo.REQUEST_HEAD_BEAR + accessToken);
-                params.putAll(super.getHeaders());
-                return params;
-            }
 
-            @Override
-            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
-                Log.i(TAG, "shot detail: response headers: " + response.headers);
-                return super.parseNetworkResponse(response);
-            }
-        };
-
-        request.setRetryPolicy(new DefaultRetryPolicy(10000, RETRY_COUNT, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        request.setShouldCache(false);
-
-        NetworkHandler.getInstance(getApplicationContext()).addToRequestQueue(request);
+                    @Override
+                    public void onNext(DribleShot dribleShot) {
+                        handleResponse(dribleShot);
+                    }
+                });
     }
 
-    private void parseResponse(JSONObject response) {
-        mProgress.setVisibility(View.INVISIBLE);
-        DribleShot dribleShot = new DribleShot(response);
+    private void handleResponse(DribleShot dribleShot) {
+        progressLayout.setVisibility(View.INVISIBLE);
         fillData(dribleShot);
     }
 
     private void fillData(final DribleShot shot) {
 
-        if (!TextUtils.isEmpty(shot.getUser().avatar_url)) {
-            Uri uri = Uri.parse(shot.getUser().avatar_url);
-            mAvatar.setImageURI(uri);
-            mAvatar.setOnClickListener(new View.OnClickListener() {
+        if (!TextUtils.isEmpty(shot.user.avatar_url)) {
+            Uri uri = Uri.parse(shot.user.avatar_url);
+            avatar.setImageURI(uri);
+            avatar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(ShotDetailActivity.this, UserInfoActivity.class);
-                    intent.putExtra(UserInfoActivity.USER_ID_EXTRA, shot.getUser().id);
+                    intent.putExtra(UserInfoActivity.USER_ID_EXTRA, shot.user.id);
                     startActivity(intent);
                 }
             });
         }
 
-        if (!TextUtils.isEmpty(shot.getUser().name)) {
-            mAuthorName.setText(shot.getUser().name);
-            mAuthorName.setOnClickListener(new View.OnClickListener() {
+        if (!TextUtils.isEmpty(shot.user.name)) {
+            authorName.setText(shot.user.name);
+            authorName.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(ShotDetailActivity.this, UserInfoActivity.class);
-                    intent.putExtra(UserInfoActivity.USER_ID_EXTRA, shot.getUser().id);
+                    intent.putExtra(UserInfoActivity.USER_ID_EXTRA, shot.user.id);
                     startActivity(intent);
                 }
             });
         }
 
-        if (!TextUtils.isEmpty(shot.getHtml_url())) {
-            mNavShare.setOnClickListener(new View.OnClickListener() {
+        if (!TextUtils.isEmpty(shot.html_url)) {
+            navShare.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String shareUrl = shot.getHtml_url();
+                    String shareUrl = shot.html_url;
                     Intent shareIntent = new Intent(Intent.ACTION_SEND);
                     shareIntent.setType("text/plain");
                     shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Sharing URL");
@@ -295,17 +258,17 @@ public class ShotDetailActivity extends BaseActivity {
             });
         }
         checkIfLike();
-        mNavLike.setOnClickListener(new View.OnClickListener() {
+        navLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mCanChangeLike) {
-                    if (!mLiked) {
-                        requestLike(true);
-                        AnimatorHelp.btnClick(mNavLikeImg, 300);
+                if (canChangeLike) {
+                    if (!liked) {
+                        requestLike();
+                        AnimatorHelp.btnClick(navLikeImg, 300);
                         Toast.makeText(ShotDetailActivity.this, "requesting", Toast.LENGTH_SHORT).show();
                     } else {
-                        requestLike(false);
-                        AnimatorHelp.btnClick(mNavLikeImg, 300);
+                        requestUnLike();
+                        AnimatorHelp.btnClick(navLikeImg, 300);
                         Toast.makeText(ShotDetailActivity.this, "requesting", Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -313,56 +276,45 @@ public class ShotDetailActivity extends BaseActivity {
             }
         });
 
-        for (int i = 0; i < 3; i++) {
-            if (!TextUtils.isEmpty(shot.getImages()[i])) {
-                String imgStr = shot.getImages()[i];
-                Uri uri = Uri.parse(imgStr);
-                Uri placeUri = null;
-                if (!TextUtils.isEmpty(shot.getImages()[2])) {
-                    placeUri = Uri.parse(shot.getImages()[2]);
-                }
+        Uri uri = Uri.parse(shot.images.getUrl());
+        ImageHelper.setupImage(getResources(), uri, uri, detailImage);
 
-                ImageHelper.setupImage(getResources(), uri, placeUri, mDetailImage);
-                break;
-            }
+        if (!TextUtils.isEmpty(shot.title)) {
+            shotTitle.setText(shot.title);
         }
 
-        if (!TextUtils.isEmpty(shot.getTitle())) {
-            mShotTitle.setText(shot.getTitle());
+        if (!TextUtils.isEmpty(shot.description) && !shot.description.equals("null")) {
+            shotDescription.setText(Html.fromHtml(shot.description));
+            shotDescription.setMovementMethod(LinkMovementMethod.getInstance());
         }
 
-        if (!TextUtils.isEmpty(shot.getDescription()) && !shot.getDescription().equals("null")) {
-            mShotDescription.setText(Html.fromHtml(shot.getDescription()));
-            mShotDescription.setMovementMethod(LinkMovementMethod.getInstance());
-        }
+        shotInfoLikeText.setText(String.valueOf(shot.likes_count));
+        shotInfoCommentText.setText(String.valueOf(shot.comments_count));
+        shotInfoViewText.setText(String.valueOf(shot.views_count));
 
-        mShotInfoLikeText.setText(String.valueOf(shot.getLikes_count()));
-        mShotInfoCommentText.setText(String.valueOf(shot.getComments_count()));
-        mShotInfoViewText.setText(String.valueOf(shot.getViews_count()));
-
-        ArrayList<String> tags = shot.getTags();
+        ArrayList<String> tags = shot.tags;
         if (tags.size() > 0) {
             StringBuilder stringBuilder = new StringBuilder();
             for (String s : tags) {
                 stringBuilder.append(s + ", ");
             }
 
-            mShotTagText.setText(stringBuilder.toString().substring(0, stringBuilder.length() - 2));
+            shotTagText.setText(stringBuilder.toString().substring(0, stringBuilder.length() - 2));
         } else {
-            mShotTagText.setText("No one tag");
+            shotTagText.setText("No one tag");
         }
 
-        mShotComment.setOnClickListener(new View.OnClickListener() {
+        shotComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ShotDetailActivity.this, InputActivity.class);
                 intent.putExtra(InputActivity.INPUT_NAME, "Comment");
-                intent.putExtra(InputActivity.SHOT_ID, mShotId);
+                intent.putExtra(InputActivity.SHOT_ID, shotId);
                 startActivity(intent);
             }
         });
 
-        mShotBucket.setOnClickListener(new View.OnClickListener() {
+        shotBucket.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(ShotDetailActivity.this, "developing...", Toast.LENGTH_SHORT).show();
@@ -371,146 +323,129 @@ public class ShotDetailActivity extends BaseActivity {
     }
 
     private void checkIfLike() {
-
         final String accessToken = AuthUtil.getAccessToken(this);
         if (TextUtils.isEmpty(accessToken)) {
-            mNavLikeImg.clearColorFilter();
-            mLiked = false;
+            navLikeImg.clearColorFilter();
+            liked = false;
             return;
         }
 
-        String url = DriRegInfo.REQUEST_ONE_SHOT_URL + mShotId + "/" + "like";
-
-//        Log.e("check like url: " + url);
-
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url,
-                new Response.Listener<JSONObject>() {
+        ApiFactory.getDribleApi().checkIfLike(shotId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<MarkResult>() {
                     @Override
-                    public void onResponse(JSONObject response) {
-                        updateLikeView(true);
-                        mNavLike.setVisibility(View.VISIBLE);
+                    public void onCompleted() {
+
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                updateLikeView(false);
-                mNavLike.setVisibility(View.VISIBLE);
-            }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> params = new HashMap<>();
-                params.put(DriRegInfo.REQUEST_HEAD_AUTH_FIELD, DriRegInfo.REQUEST_HEAD_BEAR + accessToken);
-                params.putAll(super.getHeaders());
-                return params;
-            }
 
+                    @Override
+                    public void onError(Throwable e) {
+                        updateLikeView(false);
+                        navLike.setVisibility(View.VISIBLE);
+                    }
 
-        };
-
-        request.setShouldCache(false);
-        NetworkHandler.getInstance(getApplicationContext()).addToRequestQueue(request);
+                    @Override
+                    public void onNext(MarkResult markResult) {
+                        updateLikeView(true);
+                        navLike.setVisibility(View.VISIBLE);
+                    }
+                });
     }
 
-    private boolean mCanChangeLike = true;
+    private boolean canChangeLike = true;
 
-    private void requestLike(boolean like) {
-
-        String url = DriRegInfo.REQUEST_ONE_SHOT_URL + mShotId + "/" + "like";
-
-        final String accessToken = AuthUtil.getAccessToken(this);
-//        Log.e("change like: " + url);
-
-        JsonObjectRequest request = new JsonObjectRequest(like ? Request.Method.POST : Request.Method.DELETE, url,
-                new Response.Listener<JSONObject>() {
+    private void requestLike() {
+        ApiFactory.getDribleApi().requestLike(shotId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<MarkResult>() {
                     @Override
-                    public void onResponse(JSONObject response) {
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(MarkResult markResult) {
                         updateLikeView(true);
-                        mCanChangeLike = true;
+                        canChangeLike = true;
                         Toast.makeText(ShotDetailActivity.this, "Liked", Toast.LENGTH_SHORT).show();
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                updateLikeView(false);
-                mCanChangeLike = true;
-                Toast.makeText(ShotDetailActivity.this, "Unliked", Toast.LENGTH_SHORT).show();
-            }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> params = new HashMap<>();
-                params.put(DriRegInfo.REQUEST_HEAD_AUTH_FIELD, DriRegInfo.REQUEST_HEAD_BEAR + accessToken);
-                params.putAll(super.getHeaders());
-                return params;
-            }
-        };
+                });
 
-        request.setShouldCache(false);
-        NetworkHandler.getInstance(getApplicationContext()).addToRequestQueue(request);
-        mCanChangeLike = false;
+        canChangeLike = false;
+    }
+
+    private void requestUnLike() {
+        ApiFactory.getDribleApi().requestUnLike(shotId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<MarkResult>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(MarkResult markResult) {
+                        updateLikeView(false);
+                        canChangeLike = true;
+                        Toast.makeText(ShotDetailActivity.this, "Unliked", Toast.LENGTH_SHORT).show();
+                    }
+                });
+        canChangeLike = false;
     }
 
     private void updateLikeView(boolean like) {
         if (like) {
-            mNavLikeImg.setColorFilter(getResources().getColor(R.color.pretty_red));
-            mLiked = true;
+            navLikeImg.setColorFilter(getResources().getColor(R.color.pretty_red));
+            liked = true;
         } else {
-            mNavLikeImg.clearColorFilter();
-            mLiked = false;
+            navLikeImg.clearColorFilter();
+            liked = false;
         }
     }
 
     private void requestComments() {
-        final String accessToken = AuthUtil.getAccessToken(this);
-        String url = DriRegInfo.REQUEST_ONE_SHOT_URL + mShotId + "/comments";
-
-        Log.e(TAG, "request comments: " + url);
-
-        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url,
-                new Response.Listener<JSONArray>() {
+        ApiFactory.getDribleApi().fetchComments(shotId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<DribleComment>>() {
                     @Override
-                    public void onResponse(JSONArray response) {
-                        parseComments(response);
-//                        Toast.makeText(ShotDetailActivity.this, "comments coming", Toast.LENGTH_SHORT).show();
+                    public void onCompleted() {
+
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-//                Toast.makeText(ShotDetailActivity.this, "error when get comments", Toast.LENGTH_SHORT).show();
-            }
-        }) {
 
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> params = new HashMap<>();
-                params.put(DriRegInfo.REQUEST_HEAD_AUTH_FIELD, DriRegInfo.REQUEST_HEAD_BEAR + accessToken);
-                params.putAll(super.getHeaders());
-                return params;
-            }
-        };
+                    @Override
+                    public void onError(Throwable e) {
+                        Toast.makeText(ShotDetailActivity.this, "error when get comments", Toast.LENGTH_SHORT).show();
+                    }
 
-        request.setShouldCache(false);
-        request.setRetryPolicy(new DefaultRetryPolicy(10000, RETRY_COUNT, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        NetworkHandler.getInstance(getApplicationContext()).addToRequestQueue(request);
+                    @Override
+                    public void onNext(List<DribleComment> dribleComments) {
+                        handleComments(dribleComments);
+                    }
+                });
 
     }
 
-    private void parseComments(JSONArray jsonArray) {
-        if (jsonArray != null && jsonArray.length() <= 0) {
+    private void handleComments(List<DribleComment> dribleComments) {
+        if (dribleComments != null && dribleComments.size() <= 0) {
             return;
         }
-        mComments.clear();
-
-        try {
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject json = (JSONObject) jsonArray.get(i);
-                mComments.add(new DribleComment(json));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        mCommentAdapter.notifyDataSetChanged();
+        somments.clear();
+        somments.addAll(dribleComments);
+        commentAdapter.notifyDataSetChanged();
     }
 
     @Override

@@ -9,7 +9,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 
 /**
- * Created by zhanglei on 15/8/5.
+ * Created by chengxin on 16/1/7.
  */
 public class DribleBucket {
 
@@ -20,23 +20,14 @@ public class DribleBucket {
     public static final String BUCKET_CREATED_AT = "created_at";
     public static final String BUCKET_UPDATED_AT = "updated_at";
 
-    private int id;
-    private String name;
-    private String description;
-    private int shots_count;
-    private Calendar created_at;
-    private Calendar updated_at;
+    public long id;
+    public String name;
+    public String description;
+    public int shots_count;
+    public Calendar created_at;
+    public Calendar updated_at;
 
     public DribleBucket() {
-    }
-
-    public DribleBucket(int id, String name, String description, int shots_count, Calendar created_at, Calendar updated_at) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.shots_count = shots_count;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
     }
 
     public DribleBucket(JSONObject data) {
@@ -70,87 +61,4 @@ public class DribleBucket {
         }
     }
 
-    public static String getBucketId() {
-        return BUCKET_ID;
-    }
-
-    public static String getBucketName() {
-        return BUCKET_NAME;
-    }
-
-    public static String getBucketDescription() {
-        return BUCKET_DESCRIPTION;
-    }
-
-    public static String getBucketShotsCount() {
-        return BUCKET_SHOTS_COUNT;
-    }
-
-    public static String getBucketCreatedAt() {
-        return BUCKET_CREATED_AT;
-    }
-
-    public static String getBucketUpdatedAt() {
-        return BUCKET_UPDATED_AT;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public int getShots_count() {
-        return shots_count;
-    }
-
-    public void setShots_count(int shots_count) {
-        this.shots_count = shots_count;
-    }
-
-    public Calendar getCreated_at() {
-        return created_at;
-    }
-
-    public void setCreated_at(Calendar created_at) {
-        this.created_at = created_at;
-    }
-
-    public Calendar getUpdated_at() {
-        return updated_at;
-    }
-
-    public void setUpdated_at(Calendar updated_at) {
-        this.updated_at = updated_at;
-    }
-
-    @Override
-    public String toString() {
-        return "DribleBucket{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", shots_count=" + shots_count +
-                ", created_at=" + DateUtils.SIMPLE_DATE_FORMAT.format(created_at.getTime()) +
-                ", updated_at=" + DateUtils.SIMPLE_DATE_FORMAT.format(updated_at.getTime()) +
-                '}';
-    }
 }

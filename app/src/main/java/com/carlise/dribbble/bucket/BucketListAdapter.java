@@ -54,7 +54,7 @@ public class BucketListAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        holder.name.setText(mBuckets.get(position).getName());
+        holder.name.setText(mBuckets.get(position).name);
 
         return convertView;
     }

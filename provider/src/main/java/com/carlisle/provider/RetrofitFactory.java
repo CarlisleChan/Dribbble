@@ -6,8 +6,10 @@ import com.squareup.okhttp.OkHttpClient;
 
 import java.util.concurrent.TimeUnit;
 
+import retrofit.ErrorHandler;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
+import retrofit.RetrofitError;
 import retrofit.client.OkClient;
 
 /**
@@ -40,8 +42,13 @@ class RetrofitFactory {
             public void intercept(RequestFacade request) {
                 String accessToken = tokenGetter.get();
                 if (!TextUtils.isEmpty(accessToken)) {
-                    request.addHeader("Authorization", DriRegInfo.REQUEST_HEAD_BEAR + accessToken);
+                    request.addHeader("Authorization", " Bearer " + accessToken);
                 }
+            }
+        }).setErrorHandler(new ErrorHandler() {
+            @Override
+            public Throwable handleError(RetrofitError cause) {
+                return cause;
             }
         });
 

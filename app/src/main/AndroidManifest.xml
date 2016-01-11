@@ -28,7 +28,6 @@
             android:noHistory="true" />
         <activity android:name=".users.UserInfoActivity" />
         <activity android:name=".main.HomeActivity" />
-        <activity android:name=".shot.OneShotInListActivity" />
         <activity android:name=".shot.ShotDetailActivity" />
         <activity android:name=".shot.InputActivity" />
         <activity android:name=".users.UsersActivity" />

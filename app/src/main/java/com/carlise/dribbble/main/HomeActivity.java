@@ -28,7 +28,7 @@ import com.carlise.dribbble.users.UserInfoActivity;
 import com.carlise.dribbble.utils.AuthUtil;
 import com.carlise.dribbble.utils.UserHelper;
 import com.carlisle.model.DribleUser;
-import com.carlisle.provider.DriRegInfo;
+import com.carlisle.provider.Domain;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
 
@@ -90,15 +90,11 @@ public class HomeActivity extends AppCompatActivity implements Toolbar.OnMenuIte
                     case R.id.item_liked_shots:
                         String like_url = UserHelper.getInstance(HomeActivity.this).getDribleUser().likes_url;
                         intent = new Intent(HomeActivity.this, ShotsActivity.class);
-                        intent.putExtra(ShotsActivity.SHOTS_URL, like_url);
                         intent.putExtra(ShotsActivity.SHOTS_TITLE_EXTRA, "My liked");
                         intent.putExtra(ShotsActivity.CALL_FROM, "like");
                         break;
                     case R.id.item_buckets:
-                        String buckets_url = UserHelper.getInstance(HomeActivity.this).getDribleUser().buckets_url;
                         intent = new Intent(HomeActivity.this, BucketsActivity.class);
-                        intent.putExtra(BucketsActivity.BUCKET_URL, buckets_url);
-                        intent.putExtra(BucketsActivity.BUCKET_TITLE, "My buckets");
                         break;
                     case R.id.item_dev:
                         intent = new Intent(HomeActivity.this, AboutActivity.class);
@@ -233,7 +229,7 @@ public class HomeActivity extends AppCompatActivity implements Toolbar.OnMenuIte
         switch (item.getItemId()) {
             case R.id.action_edit:
                 Intent searchIntent = new Intent(Intent.ACTION_VIEW);
-                searchIntent.setData(Uri.parse(DriRegInfo.DRIBLE_SEARCH_URL));
+                searchIntent.setData(Uri.parse(Domain.get(Domain.DomainType.SEARCH)));
                 startActivity(searchIntent);
                 break;
         }
