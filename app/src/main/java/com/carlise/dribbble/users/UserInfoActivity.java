@@ -50,39 +50,39 @@ import rx.schedulers.Schedulers;
 public class UserInfoActivity extends BaseActivity {
     private static final String TAG = UserInfoActivity.class.getSimpleName();
 
-    private RelativeLayout mFollowZone;
-    private TextView mFollowText;
-    private boolean mFollowed = false;
-    private boolean mCanChangeFollow = false;
+    private RelativeLayout followZone;
+    private TextView followText;
+    private boolean followed = false;
+    private boolean canChangeFollow = false;
 
-    private SwipeRefreshLayout mSwipeRefresh;
-    private boolean mCanLoadMore = true;
-    private ListView mList;
-    private RelativeLayout mHeader;
-    private RelativeLayout mFooter;
-    private ProgressBar mFootProgress;
-    private ArrayList<DribleShot> mShots = new ArrayList<DribleShot>();
-    private ShotListAdapter mShotAdapter;
-    private LayoutInflater mInflater;
+    private SwipeRefreshLayout refreshLayout;
+    private boolean canLoadMore = true;
+    private ListView listView;
+    private RelativeLayout headerLayout;
+    private RelativeLayout footerLayout;
+    private ProgressBar footProgress;
+    private ArrayList<DribleShot> dribleShots = new ArrayList<DribleShot>();
+    private ShotListAdapter shotAdapter;
+    private LayoutInflater inflater;
 
-    private TextView mNavName;
-    private SimpleDraweeView mUserAvatar;
-    private TextView mUserName;
-    private TextView mUserFollowerC;
-    private RelativeLayout mUserFollowerZone;
-    private TextView mUserFollowingC;
-    private RelativeLayout mUserFollowingZone;
-    private RelativeLayout mUserElseZone;
+    private TextView navName;
+    private SimpleDraweeView userAvatar;
+    private TextView userName;
+    private TextView userFollowerC;
+    private RelativeLayout userFollowerZone;
+    private TextView userFollowingC;
+    private RelativeLayout userFollowingZone;
+    private RelativeLayout userElseZone;
 
-    private TextView mUserBio;
+    private TextView userBio;
 
-    private int mUserId;
-    private DribleUser mDribleUser;
+    private int userId;
+    private DribleUser dribleUser;
     public static final String USER_ID_EXTRA = "userId_extra";
 
-    private RelativeLayout mProgressZone;
+    private RelativeLayout progressZone;
 
-    private Handler mHandler = new Handler();
+    private Handler handler = new Handler();
 
     private int page = 1;
 
@@ -91,64 +91,64 @@ public class UserInfoActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         Fresco.initialize(this);
         setContentView(R.layout.activity_user_info);
-        mInflater = LayoutInflater.from(this);
-        mUserId = getIntent().getIntExtra(USER_ID_EXTRA, 69311);
+        inflater = LayoutInflater.from(this);
+        userId = getIntent().getIntExtra(USER_ID_EXTRA, 69311);
         initView();
 
         requestUserInfo();
-        if (AuthUtil.getMe(this).id != mUserId) {
+        if (AuthUtil.getMe(this).id != userId) {
             checkIfFollowing();
         }
     }
 
     private void initView() {
-        mNavName = (TextView) findViewById(R.id.user_info_nav_name);
-        mNavName.setAlpha(0x0);
+        navName = (TextView) findViewById(R.id.user_info_nav_name);
+        navName.setAlpha(0x0);
 
-        mFollowZone = (RelativeLayout) findViewById(R.id.nav_follow);
-        mFollowText = (TextView) findViewById(R.id.nav_follow_text);
-        mFollowZone.setVisibility(View.INVISIBLE);
+        followZone = (RelativeLayout) findViewById(R.id.nav_follow);
+        followText = (TextView) findViewById(R.id.nav_follow_text);
+        followZone.setVisibility(View.INVISIBLE);
 
-        mSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.user_info_swipe);
-        mList = (ListView) findViewById(R.id.user_info_list);
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.user_info_swipe);
+        listView = (ListView) findViewById(R.id.user_info_list);
 
-        mHeader = (RelativeLayout) mInflater.inflate(R.layout.drawer_user_info_header, mList, false);
-        mList.addHeaderView(mHeader);
-        mList.setDivider(null);
+        headerLayout = (RelativeLayout) inflater.inflate(R.layout.drawer_user_info_header, listView, false);
+        listView.addHeaderView(headerLayout);
+        listView.setDivider(null);
 
-        mFooter = (RelativeLayout) mInflater.inflate(R.layout.footer_home_list, mList, false);
-        mFootProgress = (ProgressBar) mFooter.findViewById(R.id.footer_progress);
+        footerLayout = (RelativeLayout) inflater.inflate(R.layout.footer_home_list, listView, false);
+        footProgress = (ProgressBar) footerLayout.findViewById(R.id.footer_progress);
         AbsListView.LayoutParams footParams = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 200);
-        mFooter.setLayoutParams(footParams);
-        mList.addFooterView(mFooter);
+        footerLayout.setLayoutParams(footParams);
+        listView.addFooterView(footerLayout);
 
-        mShotAdapter = new ShotListAdapter(this, mShots);
-        mList.setAdapter(mShotAdapter);
+        shotAdapter = new ShotListAdapter(this, dribleShots);
+        listView.setAdapter(shotAdapter);
 
-        if (AuthUtil.getMe(this).id != mUserId) {
-            mList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        if (AuthUtil.getMe(this).id != userId) {
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Intent intent = new Intent(UserInfoActivity.this, ShotDetailActivity.class);
-                    intent.putExtra(ShotDetailActivity.SHOT_ID_EXTRA_FIELD, mShots.get(position - 1).id);
+                    intent.putExtra(ShotDetailActivity.SHOT_ID_EXTRA_FIELD, dribleShots.get(position - 1).id);
                     startActivity(intent);
                 }
             });
         }
 
-        mSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 requestUserShots();
             }
         });
-        mSwipeRefresh.setProgressViewOffset(true, (int) getResources().getDimension(R.dimen.toolbar_height),
+        refreshLayout.setProgressViewOffset(true, (int) getResources().getDimension(R.dimen.toolbar_height),
                 (int) (getResources().getDimension(R.dimen.toolbar_height) + 150));
 
-        mSwipeRefresh.setColorSchemeResources(R.color.pretty_blue,
+        refreshLayout.setColorSchemeResources(R.color.pretty_blue,
                 R.color.pretty_green);
 
-        mList.setOnScrollListener(new AbsListView.OnScrollListener() {
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
 
@@ -159,31 +159,31 @@ public class UserInfoActivity extends BaseActivity {
                 handleNavNameAlpha(firstVisibleItem);
 
 
-                if (!mList.canScrollVertically(1) && (firstVisibleItem + visibleItemCount == totalItemCount)
-                        && firstVisibleItem > 0 && mCanLoadMore) {
-                    mCanLoadMore = false;
+                if (!listView.canScrollVertically(1) && (firstVisibleItem + visibleItemCount == totalItemCount)
+                        && firstVisibleItem > 0 && canLoadMore) {
+                    canLoadMore = false;
                     requestUserShots();
                 }
             }
         });
 
-        mUserAvatar = (SimpleDraweeView) findViewById(R.id.user_info_avatar);
-        mUserName = (TextView) findViewById(R.id.user_info_name);
-        mUserFollowerZone = (RelativeLayout) findViewById(R.id.user_info_follower_zone);
-        mUserFollowerC = (TextView) findViewById(R.id.follower_count);
-        mUserFollowingZone = (RelativeLayout) findViewById(R.id.user_info_following_zone);
-        mUserFollowingC = (TextView) findViewById(R.id.following_count);
-        mUserElseZone = (RelativeLayout) findViewById(R.id.user_info_else);
-        mUserBio = (TextView) findViewById(R.id.user_info_bio_text);
+        userAvatar = (SimpleDraweeView) findViewById(R.id.user_info_avatar);
+        userName = (TextView) findViewById(R.id.user_info_name);
+        userFollowerZone = (RelativeLayout) findViewById(R.id.user_info_follower_zone);
+        userFollowerC = (TextView) findViewById(R.id.follower_count);
+        userFollowingZone = (RelativeLayout) findViewById(R.id.user_info_following_zone);
+        userFollowingC = (TextView) findViewById(R.id.following_count);
+        userElseZone = (RelativeLayout) findViewById(R.id.user_info_else);
+        userBio = (TextView) findViewById(R.id.user_info_bio_text);
 
-        mProgressZone = (RelativeLayout) findViewById(R.id.progress_zone);
-        mProgressZone.setVisibility(View.VISIBLE);
+        progressZone = (RelativeLayout) findViewById(R.id.progress_zone);
+        progressZone.setVisibility(View.VISIBLE);
 
-        mFollowZone.setOnClickListener(new View.OnClickListener() {
+        followZone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mCanChangeFollow) {
-                    if (mFollowed) {
+                if (canChangeFollow) {
+                    if (followed) {
                         requestChangeFollow(false);
                         updateFollowView(false);
                     } else {
@@ -196,21 +196,21 @@ public class UserInfoActivity extends BaseActivity {
     }
 
     private void handleNavNameAlpha(int firstVisibleItem) {
-        int height = mHeader.getHeight();
-        int delta = height - mHeader.getBottom();
+        int height = headerLayout.getHeight();
+        int delta = height - headerLayout.getBottom();
         if (delta >= height / 2 && delta < height * 3 / 4) {
             float ratio = (delta - height / 2) / (float) (height / 4);
             ratio = Math.min(ratio, 1);
-            mNavName.setAlpha(ratio);
+            navName.setAlpha(ratio);
         } else if (delta < height / 2) {
-            mNavName.setAlpha(0);
+            navName.setAlpha(0);
         } else {
-            mNavName.setAlpha(1);
+            navName.setAlpha(1);
         }
     }
 
     private void requestUserInfo() {
-        ApiFactory.getDribleApi().getUserInfo(mUserId)
+        ApiFactory.getDribleApi().getUserInfo(userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<DribleUser>() {
@@ -234,26 +234,26 @@ public class UserInfoActivity extends BaseActivity {
     }
 
     private void handleUserInfo(final DribleUser user) {
-        mDribleUser = user;
+        dribleUser = user;
         // Log.e("userinfo: " + user);
         if (!TextUtils.isEmpty(user.name)) {
-            mNavName.setText(user.name);
-            mUserName.setText(user.name);
+            navName.setText(user.name);
+            userName.setText(user.name);
         }
 
         if (!TextUtils.isEmpty(user.avatar_url)) {
             Uri avatarUri = Uri.parse(user.avatar_url);
-            mUserAvatar.setImageURI(avatarUri);
+            userAvatar.setImageURI(avatarUri);
         }
 
         int followerCount = user.followers_count;
         String followerCStr = followerCount > 1000 ? (String.valueOf(followerCount / 1000) + "K") : String.valueOf(followerCount);
-        mUserFollowerC.setText(followerCStr);
+        userFollowerC.setText(followerCStr);
         int followingCount = user.followings_count;
         String followingCStr = followingCount > 1000 ? (String.valueOf(followingCount / 1000) + "K") : String.valueOf(followingCount);
-        mUserFollowingC.setText(followingCStr);
+        userFollowingC.setText(followingCStr);
 
-        mUserFollowerZone.setOnClickListener(new View.OnClickListener() {
+        userFollowerZone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(UserInfoActivity.this, UsersActivity.class);
@@ -261,7 +261,7 @@ public class UserInfoActivity extends BaseActivity {
                 startActivity(intent);
             }
         });
-        mUserFollowingZone.setOnClickListener(new View.OnClickListener() {
+        userFollowingZone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(UserInfoActivity.this, UsersActivity.class);
@@ -270,7 +270,7 @@ public class UserInfoActivity extends BaseActivity {
             }
         });
 
-        mUserElseZone.setOnClickListener(new View.OnClickListener() {
+        userElseZone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (user.links != null && !TextUtils.isEmpty(user.links.twitter)) {
@@ -282,27 +282,27 @@ public class UserInfoActivity extends BaseActivity {
         });
 
         if (!TextUtils.isEmpty(user.bio)) {
-            mUserBio.setText(Html.fromHtml(user.bio));
-            mUserBio.setMovementMethod(LinkMovementMethod.getInstance());
+            userBio.setText(Html.fromHtml(user.bio));
+            userBio.setMovementMethod(LinkMovementMethod.getInstance());
         }
 
-        mProgressZone.setVisibility(View.INVISIBLE);
+        progressZone.setVisibility(View.INVISIBLE);
         requestUserShots();
-        mSwipeRefresh.setRefreshing(true);
+        refreshLayout.setRefreshing(true);
 
     }
 
     private void checkIfFollowing() {
-        ApiFactory.getDribleApi().checkIfMeFollow(mUserId, new Callback<CheckFollowResult>() {
+        ApiFactory.getDribleApi().checkIfMeFollow(userId, new Callback<CheckFollowResult>() {
             @Override
             public void success(CheckFollowResult checkFollowResult, retrofit.client.Response response) {
                 if (response.getStatus() != 0 && response.getStatus() == 204) {
-                    mHandler.post(new Runnable() {
+                    handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            mCanChangeFollow = true;
+                            canChangeFollow = true;
                             updateFollowView(true);
-                            mFollowZone.setVisibility(View.VISIBLE);
+                            followZone.setVisibility(View.VISIBLE);
                         }
                     });
                 }
@@ -310,38 +310,38 @@ public class UserInfoActivity extends BaseActivity {
 
             @Override
             public void failure(RetrofitError error) {
-                mCanChangeFollow = true;
+                canChangeFollow = true;
                 int statusCode = error.getResponse().getStatus();
                 if (statusCode != 0 && statusCode == 404) {
                     updateFollowView(false);
                 }
 
-                mFollowZone.setVisibility(View.VISIBLE);
+                followZone.setVisibility(View.VISIBLE);
             }
         });
     }
 
     private void updateFollowView(boolean followed) {
         if (followed) {
-            mFollowed = true;
-            mFollowText.setText("Following");
-            mFollowText.setTextColor(getResources().getColor(R.color.content_back));
-            mFollowText.setBackgroundResource(R.drawable.following_btn_back);
+            this.followed = true;
+            followText.setText("Following");
+            followText.setTextColor(getResources().getColor(R.color.content_back));
+            followText.setBackgroundResource(R.drawable.following_btn_back);
         } else {
-            mFollowed = false;
-            mFollowText.setText("Follow");
-            mFollowText.setTextColor(getResources().getColor(R.color.pretty_green));
-            mFollowText.setBackgroundResource(R.drawable.unfollow_btn_back);
+            this.followed = false;
+            followText.setText("Follow");
+            followText.setTextColor(getResources().getColor(R.color.pretty_green));
+            followText.setBackgroundResource(R.drawable.unfollow_btn_back);
         }
     }
 
     private void requestFollow() {
-        ApiFactory.getDribleApi().requestFollow(mUserId, new Callback<FollowResult>() {
+        ApiFactory.getDribleApi().requestFollow(userId, new Callback<FollowResult>() {
             @Override
             public void success(FollowResult followResult, retrofit.client.Response response) {
-                mCanChangeFollow = true;
+                canChangeFollow = true;
                 final boolean success = response.getStatus() == 204;
-                mHandler.post(new Runnable() {
+                handler.post(new Runnable() {
                     @Override
                     public void run() {
                         if (success) {
@@ -349,7 +349,7 @@ public class UserInfoActivity extends BaseActivity {
                             updateFollowView(true);
                         } else {
                             Toast.makeText(UserInfoActivity.this, "reqeust fail", Toast.LENGTH_SHORT).show();
-                            mCanChangeFollow = true;
+                            canChangeFollow = true;
                             updateFollowView(false);
                         }
                     }
@@ -364,12 +364,12 @@ public class UserInfoActivity extends BaseActivity {
     }
 
     private void cancelFollow() {
-        ApiFactory.getDribleApi().cancelFollow(mUserId, new Callback<FollowResult>() {
+        ApiFactory.getDribleApi().cancelFollow(userId, new Callback<FollowResult>() {
             @Override
             public void success(FollowResult followResult, retrofit.client.Response response) {
-                mCanChangeFollow = true;
+                canChangeFollow = true;
                 final boolean success = response.getStatus() == 204;
-                mHandler.post(new Runnable() {
+                handler.post(new Runnable() {
                     @Override
                     public void run() {
                         if (success) {
@@ -377,7 +377,7 @@ public class UserInfoActivity extends BaseActivity {
                             updateFollowView(false);
                         } else {
                             Toast.makeText(UserInfoActivity.this, "reqeust fail", Toast.LENGTH_SHORT).show();
-                            mCanChangeFollow = true;
+                            canChangeFollow = true;
                             updateFollowView(true);
                         }
                     }
@@ -397,11 +397,11 @@ public class UserInfoActivity extends BaseActivity {
         } else {
             cancelFollow();
         }
-        mCanChangeFollow = false;
+        canChangeFollow = false;
     }
 
     private void requestUserShots() {
-        ApiFactory.getDribleApi().fetchUserShots(mUserId, page)
+        ApiFactory.getDribleApi().fetchUserShots(userId, page)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<List<DribleShot>>() {
@@ -425,20 +425,20 @@ public class UserInfoActivity extends BaseActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                mSwipeRefresh.setRefreshing(false);
+                refreshLayout.setRefreshing(false);
             }
         }, 30000);
 
         if (page != 1) {
-            mFootProgress.setVisibility(View.VISIBLE);
+            footProgress.setVisibility(View.VISIBLE);
         }
     }
 
     private void handleUserShots(List<DribleShot> dribleShots) {
-        mSwipeRefresh.setRefreshing(false);
+        refreshLayout.setRefreshing(false);
         if (dribleShots.size() <= 0) {
-            mCanLoadMore = false;
-            mList.setOnItemClickListener(null);
+            canLoadMore = false;
+            listView.setOnItemClickListener(null);
             TextView noShots = new TextView(this);
             noShots.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
             noShots.setText("No shots yet");
@@ -446,22 +446,23 @@ public class UserInfoActivity extends BaseActivity {
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             params.addRule(RelativeLayout.CENTER_IN_PARENT);
             noShots.setLayoutParams(params);
-            mFooter.addView(noShots);
+            footProgress.setVisibility(View.INVISIBLE);
+            footerLayout.addView(noShots);
             return;
         }
 
         if (page == 1) {
-            mShots.clear();
+            this.dribleShots.clear();
         }
 
         for (DribleShot dribleShot : dribleShots) {
-            dribleShot.user = mDribleUser;
-            mShots.add(dribleShot);
+            dribleShot.user = dribleUser;
+            this.dribleShots.add(dribleShot);
         }
 
-        mShotAdapter.notifyDataSetChanged();
-        mCanLoadMore = true;
-        mFootProgress.setVisibility(View.INVISIBLE);
+        shotAdapter.notifyDataSetChanged();
+        footProgress.setVisibility(View.INVISIBLE);
+        canLoadMore = true;
     }
 
     @Override
