@@ -51,8 +51,6 @@ public class ShotsActivity extends BaseActivity {
     private ProgressBar progress;
     private LayoutInflater inflater;
 
-    private String from;
-
     private int page = 1;
     private boolean canLoadMore = true;
 
@@ -123,7 +121,7 @@ public class ShotsActivity extends BaseActivity {
     }
 
     private void requestForShots(final boolean isFirst) {
-        if (from.equals("like")) {
+        if (getIntent().getStringExtra(CALL_FROM).equals("like")) {
             fetchShotsFromLike(isFirst);
         } else {
             fetchShotsFromBuckets(isFirst);
