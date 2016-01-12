@@ -21,7 +21,7 @@ import android.widget.Toast;
 
 import com.carlise.dribbble.BuildConfig;
 import com.carlise.dribbble.R;
-import com.carlise.dribbble.application.BaseActivity;
+import com.carlise.dribbble.application.SwipeBackActivity;
 import com.carlise.dribbble.users.UserInfoActivity;
 import com.carlise.dribbble.utils.AnimatorHelp;
 import com.carlise.dribbble.utils.AuthUtil;
@@ -43,7 +43,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by chengxin on 16/1/7.
  */
-public class ShotDetailActivity extends BaseActivity {
+public class ShotDetailActivity extends SwipeBackActivity {
     private static final String TAG = ShotDetailActivity.class.getSimpleName();
 
     public static final String SHOT_ID_EXTRA_FIELD = "shot_extra";
@@ -52,6 +52,7 @@ public class ShotDetailActivity extends BaseActivity {
 
     private LayoutInflater inflater;
 
+    private Toolbar toolbar;
     private SimpleDraweeView avatar;
     private TextView authorName;
     private RelativeLayout navShare;
@@ -121,6 +122,9 @@ public class ShotDetailActivity extends BaseActivity {
 
     private void initView() {
         inflater = LayoutInflater.from(this);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        initToolBar(toolbar);
 
         avatar = (SimpleDraweeView) findViewById(R.id.shot_detail_avatar);
         authorName = (TextView) findViewById(R.id.shot_detail_author);
@@ -448,9 +452,16 @@ public class ShotDetailActivity extends BaseActivity {
         commentAdapter.notifyDataSetChanged();
     }
 
-    @Override
-    public void onInitToolBar(Toolbar toolbar) {
-        super.onInitToolBar(toolbar);
+    public void initToolBar(Toolbar toolbar) {
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
         RelativeLayout viewGroup = (RelativeLayout) toolbar.findViewById(R.id.toolbar_container);
         View view = LayoutInflater.from(this).inflate(R.layout.title_shot_detail, viewGroup, false);
         viewGroup.removeAllViews();
