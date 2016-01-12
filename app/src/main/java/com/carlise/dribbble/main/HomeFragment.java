@@ -1,6 +1,7 @@
 package com.carlise.dribbble.main;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -87,6 +88,10 @@ public class HomeFragment extends Fragment {
 
             listView.setDivider(null);
             listView.setFriction(ViewConfiguration.getScrollFriction() /** 0.7f*/);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                listView.setNestedScrollingEnabled(true);
+            }
 
             requestForList();
 
