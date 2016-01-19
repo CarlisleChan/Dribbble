@@ -23,10 +23,12 @@ import android.widget.TextView;
 
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.bucket.BucketsActivity;
+import com.carlise.dribbble.event.BackToUpEvent;
 import com.carlise.dribbble.shot.ShotsActivity;
 import com.carlise.dribbble.users.UserInfoActivity;
 import com.carlise.dribbble.utils.AuthUtil;
 import com.carlise.dribbble.utils.UserHelper;
+import com.carlisle.dribbble.com.rx.RxBus;
 import com.carlisle.model.DribleUser;
 import com.carlisle.provider.Domain;
 import com.facebook.drawee.backends.pipeline.Fresco;
@@ -170,9 +172,9 @@ public class HomeActivity extends AppCompatActivity implements Toolbar.OnMenuIte
         fragmentList.add(rightFragment);
 
         List<String> titles = new ArrayList<>();
-        titles.add("Top Shots");
-        titles.add("Latest");
-        titles.add("Animation");
+        titles.add(HomeFragment.TAG_1);
+        titles.add(HomeFragment.TAG_2);
+        titles.add(HomeFragment.TAG_3);
 
         fragmentAdapter = new FragmentAdapter(getSupportFragmentManager(), fragmentList, titles);
 
@@ -180,7 +182,22 @@ public class HomeActivity extends AppCompatActivity implements Toolbar.OnMenuIte
         viewPager.setCurrentItem(0);
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.setTabsFromPagerAdapter(fragmentAdapter);
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
 
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                RxBus.getInstance().postEvent(new BackToUpEvent(tab.getPosition()));
+            }
+        });
     }
 
     private void showUserInfo() {

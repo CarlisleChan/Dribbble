@@ -1,4 +1,16 @@
 apply plugin: 'com.android.application'
+apply plugin: 'loglifecycle'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.github.stephanenicolas.loglifecycle:loglifecycle-plugin:1.0.3'
+    }
+}
+
 
 android {
     compileSdkVersion 23
@@ -39,11 +51,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'com.android.support:design:23.1.0'
     compile 'com.facebook.fresco:fresco:0.8.1'
-    compile 'io.reactivex:rxjava:1.1.0'
-    compile 'io.reactivex:rxandroid:1.1.0'
-    compile 'com.squareup.retrofit:retrofit:1.8.0'
-    compile 'com.squareup.okhttp:okhttp:2.2.0'
-    compile 'com.squareup.okhttp:okhttp-urlconnection:2.2.0'
     compile 'io.realm:realm-android:0.84.1'
     compile 'me.imid.swipebacklayout.lib:library:1.0.0'
     compile project(':common')

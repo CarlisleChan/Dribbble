@@ -21,12 +21,15 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.carlise.dribbble.R;
+import com.carlise.dribbble.event.BackToUpEvent;
 import com.carlise.dribbble.shot.ShotDetailActivity;
 import com.carlise.dribbble.shot.ShotListAdapter;
 import com.carlise.dribbble.utils.AuthUtil;
 import com.carlise.dribbble.utils.PreferenceKey;
+import com.carlisle.dribbble.com.rx.RxBus;
 import com.carlisle.model.DribleShot;
 import com.carlisle.provider.ApiFactory;
+import com.github.stephanenicolas.loglifecycle.LogLifeCycle;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,16 +37,22 @@ import java.util.List;
 
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * Created by chengxin on 16/1/7.
  */
+@LogLifeCycle
 public class HomeFragment extends Fragment {
     private static final String TAG = HomeFragment.class.getSimpleName();
 
+    public static final String TAG_1 = "Top Shots";
+    public static final String TAG_2 = "Latest";
+    public static final String TAG_3 = "Animation";
+
     public static final String TAB_INDEX_FIELD = "tab_index";
-    private static final int RETRY_COUNT = 5;
 
     private int index;
     private SwipeRefreshLayout refreshLayout;
@@ -68,6 +77,7 @@ public class HomeFragment extends Fragment {
 
     private boolean canScroll = true;
     private boolean canLoadMore = true;
+    private CompositeSubscription subscriptions;
 
     @Nullable
     @Override
@@ -75,6 +85,7 @@ public class HomeFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
 
         index = getArguments().getInt(TAB_INDEX_FIELD);
+        subscriptions = new CompositeSubscription();
 
         if (listView == null) {
             refreshLayout = (SwipeRefreshLayout) inflater.inflate(R.layout.home_content_fragment, container, false);
@@ -153,8 +164,7 @@ public class HomeFragment extends Fragment {
             refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                    requestForList();
-                    page = 1;
+                    reload();
                 }
             });
             refreshLayout.setColorSchemeResources(R.color.pretty_blue,
@@ -183,6 +193,12 @@ public class HomeFragment extends Fragment {
     String sort = null;
     String list = null;
     int page = 1;
+
+    private void reload() {
+        page = 1;
+        refreshLayout.setRefreshing(true);
+        requestForList();
+    }
 
     private void requestForList() {
         final String accessToken = AuthUtil.getAccessToken(getActivity());
@@ -280,6 +296,26 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         refreshLayout.setRefreshing(false);
+
+        subscriptions.add(RxBus.getInstance().toObservable().subscribe(new Action1() {
+            @Override
+            public void call(Object o) {
+                if (o instanceof BackToUpEvent) {
+                    if (((BackToUpEvent) o).position == index) {
+                        if (listView.getFirstVisiblePosition() == 0) {
+                            reload();
+                        } else {
+                            listView.smoothScrollToPosition(0);
+                        }
+                    }
+                }
+            }
+        }));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
     }
 
     @Override
@@ -287,4 +323,11 @@ public class HomeFragment extends Fragment {
         super.onViewStateRestored(savedInstanceState);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (subscriptions != null) {
+            subscriptions.unsubscribe();
+        }
+    }
 }
