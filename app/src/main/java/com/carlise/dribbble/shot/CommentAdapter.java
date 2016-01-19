@@ -67,7 +67,7 @@ public class CommentAdapter extends BaseAdapter {
         holder.commentBody.setText(Html.fromHtml(comment.body));
         holder.commentBody.setMovementMethod(LinkMovementMethod.getInstance());
 
-        Uri uri = Uri.parse(comment.user.avatar_url);
+        Uri uri = Uri.parse(comment.user.avatarUrl);
         holder.avatar.setImageURI(uri);
         holder.authorName.setText(comment.user.name);
         holder.avatar.setOnClickListener(new View.OnClickListener() {
@@ -89,7 +89,7 @@ public class CommentAdapter extends BaseAdapter {
         });
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
-        holder.created_at.setText(formatter.format(comment.created_at.getTime()));
+        holder.created_at.setText(formatter.format(comment.createdAt.getTime()));
         return convertView;
     }
 

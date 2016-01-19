@@ -1,4 +1,4 @@
-package com.carlisle.tools;
+package com.carlisle.dribbble.com;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

@@ -7,7 +7,7 @@ import java.util.Date;
  */
 public class FollowResult {
     public long id;
-    public Date created_at;
+    public Date createdAt;
     public DribleUser followee;
     public DribleUser follower;
 

@@ -7,8 +7,8 @@ import android.text.TextUtils;
 
 import com.carlise.dribbble.main.HomeActivity;
 import com.carlise.dribbble.main.LoginActivity;
+import com.carlisle.dribbble.com.tools.SPUtils;
 import com.carlisle.model.DribleUser;
-import com.carlisle.tools.SPUtils;
 
 /**
  * Created by zhanglei on 15/7/28.

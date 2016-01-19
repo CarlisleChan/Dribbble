@@ -7,6 +7,6 @@ import java.util.Date;
  */
 public class LikesResult {
     public long id;
-    public Date created_at;
+    public Date createdAt;
     public DribleShot shot;
 }

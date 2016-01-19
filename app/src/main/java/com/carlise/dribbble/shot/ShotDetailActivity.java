@@ -223,8 +223,8 @@ public class ShotDetailActivity extends SwipeBackActivity {
 
     private void fillData(final DribleShot shot) {
 
-        if (!TextUtils.isEmpty(shot.user.avatar_url)) {
-            Uri uri = Uri.parse(shot.user.avatar_url);
+        if (!TextUtils.isEmpty(shot.user.avatarUrl)) {
+            Uri uri = Uri.parse(shot.user.avatarUrl);
             avatar.setImageURI(uri);
             avatar.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -248,11 +248,11 @@ public class ShotDetailActivity extends SwipeBackActivity {
             });
         }
 
-        if (!TextUtils.isEmpty(shot.html_url)) {
+        if (!TextUtils.isEmpty(shot.htmlUrl)) {
             navShare.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String shareUrl = shot.html_url;
+                    String shareUrl = shot.htmlUrl;
                     Intent shareIntent = new Intent(Intent.ACTION_SEND);
                     shareIntent.setType("text/plain");
                     shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Sharing URL");
@@ -292,9 +292,9 @@ public class ShotDetailActivity extends SwipeBackActivity {
             shotDescription.setMovementMethod(LinkMovementMethod.getInstance());
         }
 
-        shotInfoLikeText.setText(String.valueOf(shot.likes_count));
-        shotInfoCommentText.setText(String.valueOf(shot.comments_count));
-        shotInfoViewText.setText(String.valueOf(shot.views_count));
+        shotInfoLikeText.setText(String.valueOf(shot.likesCount));
+        shotInfoCommentText.setText(String.valueOf(shot.commentsCount));
+        shotInfoViewText.setText(String.valueOf(shot.viewsCount));
 
         ArrayList<String> tags = shot.tags;
         if (tags.size() > 0) {

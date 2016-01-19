@@ -87,12 +87,12 @@ public class ShotListAdapter extends BaseAdapter {
         }
 
         holder.itemTitle.setText(dribleShot.title);
-        Uri avatarUri = Uri.parse(dribleShot.user.avatar_url);
+        Uri avatarUri = Uri.parse(dribleShot.user.avatarUrl);
         holder.itemAvatar.setImageURI(avatarUri);
         holder.itemAuthName.setText(dribleShot.user.name);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
-        holder.itemCreate.setText(formatter.format(dribleShot.created_at.getTime()));
-        holder.itemLikesCount.setText("" + dribleShot.likes_count);
+        holder.itemCreate.setText(formatter.format(dribleShot.createdAt.getTime()));
+        holder.itemLikesCount.setText("" + dribleShot.likesCount);
 
         holder.itemHeader.setOnClickListener(new View.OnClickListener() {
             @Override

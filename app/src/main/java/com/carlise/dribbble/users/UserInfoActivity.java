@@ -241,15 +241,15 @@ public class UserInfoActivity extends BaseActivity {
             userName.setText(user.name);
         }
 
-        if (!TextUtils.isEmpty(user.avatar_url)) {
-            Uri avatarUri = Uri.parse(user.avatar_url);
+        if (!TextUtils.isEmpty(user.avatarUrl)) {
+            Uri avatarUri = Uri.parse(user.avatarUrl);
             userAvatar.setImageURI(avatarUri);
         }
 
-        int followerCount = user.followers_count;
+        int followerCount = user.followersCount;
         String followerCStr = followerCount > 1000 ? (String.valueOf(followerCount / 1000) + "K") : String.valueOf(followerCount);
         userFollowerC.setText(followerCStr);
-        int followingCount = user.followings_count;
+        int followingCount = user.followingsCount;
         String followingCStr = followingCount > 1000 ? (String.valueOf(followingCount / 1000) + "K") : String.valueOf(followingCount);
         userFollowingC.setText(followingCStr);
 

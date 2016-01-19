@@ -1,5 +1,7 @@
 package com.carlisle.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Date;
 
 /**
@@ -8,9 +10,13 @@ import java.util.Date;
 public class DribleComment {
     public int id;
     public String body;
-    public int likes_count;
-    public String likes_url;
-    public Date created_at;
-    public Date updated_at;
+    @SerializedName("likes_count")
+    public int likesCount;
+    @SerializedName("likes_url")
+    public String likesUrl;
+    @SerializedName("created_at")
+    public Date createdAt;
+    @SerializedName("updated_at")
+    public Date updatedAt;
     public DribleUser user;
 }

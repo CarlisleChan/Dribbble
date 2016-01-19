@@ -67,8 +67,8 @@ public class UserListAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        if (!TextUtils.isEmpty(mUsers.get(position).avatar_url)) {
-            Uri avatarUri = Uri.parse(mUsers.get(position).avatar_url);
+        if (!TextUtils.isEmpty(mUsers.get(position).avatarUrl)) {
+            Uri avatarUri = Uri.parse(mUsers.get(position).avatarUrl);
             holder.avatar.setImageURI(avatarUri);
             final int userId = mUsers.get(position).id;
             holder.avatar.setOnClickListener(new View.OnClickListener() {

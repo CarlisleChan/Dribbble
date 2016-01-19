@@ -17,12 +17,12 @@ import com.carlise.dribbble.R;
 import com.carlise.dribbble.application.BaseActivity;
 import com.carlise.dribbble.utils.AuthUtil;
 import com.carlise.dribbble.utils.PreferenceKey;
+import com.carlisle.dribbble.com.tools.SPUtils;
 import com.carlisle.model.AuthRequest;
 import com.carlisle.model.AuthResult;
 import com.carlisle.model.DribleUser;
 import com.carlisle.provider.ApiFactory;
 import com.carlisle.provider.Domain;
-import com.carlisle.tools.SPUtils;
 import com.google.gson.Gson;
 
 import rx.Observer;

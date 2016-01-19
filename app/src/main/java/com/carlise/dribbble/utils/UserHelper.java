@@ -3,8 +3,8 @@ package com.carlise.dribbble.utils;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.carlisle.dribbble.com.tools.SPUtils;
 import com.carlisle.model.DribleUser;
-import com.carlisle.tools.SPUtils;
 import com.google.gson.Gson;
 
 /**

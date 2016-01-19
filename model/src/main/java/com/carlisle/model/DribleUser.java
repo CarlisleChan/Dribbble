@@ -1,11 +1,10 @@
 package com.carlisle.model;
 
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.carlisle.model.e.Link;
-import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
 
@@ -15,159 +14,101 @@ import java.util.Date;
 public class DribleUser implements Parcelable {
     private static final String TAG = DribleUser.class.getSimpleName();
 
-    public static final String USER_ID = "id";
-    public static final String USER_NAME = "name";
-    public static final String USER_USERNAME = "username";
-    public static final String USER_HTML_URL = "html_url";
-    public static final String USER_AVATAR_URL = "avatar_url";
-
-    public static final String USER_BIO = "bio";
-    public static final String USER_LOCATION = "location";
-    public static final String USER_LINKS = "links";
-    public static final String USER_BUCKETS_COUNT = "buckets_count";
-    public static final String USER_COMMENTS_RECEIVED_COUNT = "comments_received_count";
-
-    public static final String USER_FOLLOWERS_COUNT = "followers_count";
-    public static final String USER_FOLLOWINGS_COUNT = "followings_count";
-    public static final String USER_LIKES_COUNT = "likes_count";
-    public static final String USER_LIKES_RECEIVED_COUNT = "likes_received_count";
-    public static final String USER_PROJECTS_COUNT = "projects_count";
-
-    public static final String USER_REBOUNDS_RECEIVED_COUNT = "rebounds_received_count";
-    public static final String USER_SHOTS_COUNT = "shots_count";
-    public static final String USER_TEAMS_COUNT = "teams_count";
-    public static final String USER_CAN_UPLOAD_SHOT = "can_upload_shot";
-    public static final String USER_TYPE = "type";
-
-    public static final String USER_PRO = "pro";
-    public static final String USER_BUCKETS_URL = "buckets_url";
-    public static final String USER_FOLLOWERS_URL = "followers_url";
-    public static final String USER_FOLLOWINGS_URL = "following_url";
-    public static final String USER_LIKES_URL = "likes_url";
-
-    public static final String USER_PROJECTS_URL = "projects_url";
-    public static final String USER_SHOTS_URL = "shots_url";
-    public static final String USER_TEAMS_URL = "teams_url";
-    public static final String USER_CREATED_AT = "created_at";
-    public static final String USER_UPDATED_AT = "updated_at";
-
     // for mem, totally 30 fields
     public int id;
     public String name;
     public String username;
-    public String html_url;
-    public String avatar_url;
+    @SerializedName("html_url")
+    public String htmlUrl;
+    @SerializedName("avatar_url")
+    public String avatarUrl;
     public String bio;
     public String location;
     public Link links;
-    public int buckets_count;
-    public int comments_received_count;
-    public int followers_count;
-    public int followings_count;
-    public int likes_count;
-    public int likes_received_count;
-    public int projects_count;
-    public int rebounds_received_count;
-    public int shots_count;
-    public int teams_count;
-    public boolean can_upload_shot;
+    @SerializedName("buckets_count")
+    public int bucketsCount;
+    @SerializedName("comments_received_count")
+    public int commentsReceivedCount;
+    @SerializedName("followers_count")
+    public int followersCount;
+    @SerializedName("followings_count")
+    public int followingsCount;
+    @SerializedName("likes_count")
+    public int likesCount;
+    @SerializedName("likes_received_count")
+    public int likesReceivedCount;
+    @SerializedName("projects_count")
+    public int projectsCount;
+    @SerializedName("rebounds_received_count")
+    public int reboundsReceivedCount;
+    @SerializedName("shots_count")
+    public int shotsCount;
+    @SerializedName("teams_count")
+    public int teamsCount;
+    @SerializedName("can_upload_shot")
+    public boolean canUploadShot;
     public String type;
     public boolean pro;
-    public String buckets_url;
-    public String followers_url;
-    public String followings_url;
-    public String likes_url;
-    public String projects_url;
-    public String shots_url;
-    public String teams_url;
-    public Date created_at;
-    public Date updated_at;
-
+    @SerializedName("buckets_url")
+    public String bucketsUrl;
+    @SerializedName("followers_url")
+    public String followersUrl;
+    @SerializedName("followings_url")
+    public String followingsUrl;
+    @SerializedName("likes_url")
+    public String likesUrl;
+    @SerializedName("projects_url")
+    public String projectsUrl;
+    @SerializedName("shots_url")
+    public String shotsUrl;
+    @SerializedName("teams_url")
+    public String teamsUrl;
+    @SerializedName("created_at")
+    public Date createdAt;
+    @SerializedName("updated_at")
+    public Date updatedAt;
 
     public DribleUser() {
+
     }
 
-    public DribleUser(Parcel in) {
-        Bundle bundle = in.readBundle();
-        this.comments_received_count = bundle.getInt(USER_COMMENTS_RECEIVED_COUNT);
-        this.id = bundle.getInt(USER_ID);
-        this.name = bundle.getString(USER_NAME);
-        this.username = bundle.getString(USER_USERNAME);
-        this.html_url = bundle.getString(USER_HTML_URL);
-        this.avatar_url = bundle.getString(USER_AVATAR_URL);
-        this.bio = bundle.getString(USER_BIO);
-        this.location = bundle.getString(USER_LOCATION);
-        this.links = new Gson().fromJson(bundle.getString(USER_LINKS), Link.class);
-        this.buckets_count = bundle.getInt(USER_BUCKETS_COUNT);
-        this.followers_count = bundle.getInt(USER_FOLLOWERS_COUNT);
-        this.followings_count = bundle.getInt(USER_FOLLOWINGS_COUNT);
-        this.likes_count = bundle.getInt(USER_LIKES_COUNT);
-        this.likes_received_count = bundle.getInt(USER_LIKES_RECEIVED_COUNT);
-        this.projects_count = bundle.getInt(USER_PROJECTS_COUNT);
-        this.rebounds_received_count = bundle.getInt(USER_REBOUNDS_RECEIVED_COUNT);
-        this.shots_count = bundle.getInt(USER_SHOTS_COUNT);
-        this.teams_count = bundle.getInt(USER_TEAMS_COUNT);
-        this.can_upload_shot = bundle.getBoolean(USER_CAN_UPLOAD_SHOT);
-        this.type = bundle.getString(USER_TYPE);
-        this.pro = bundle.getBoolean(USER_PRO);
-        this.buckets_url = bundle.getString(USER_BUCKETS_URL);
-        this.followers_url = bundle.getString(USER_FOLLOWERS_URL);
-        this.followings_url = bundle.getString(USER_FOLLOWINGS_URL);
-        this.likes_url = bundle.getString(USER_LIKES_URL);
-        this.projects_url = bundle.getString(USER_PROJECTS_URL);
-        this.shots_url = bundle.getString(USER_SHOTS_URL);
-        this.teams_url = bundle.getString(USER_TEAMS_URL);
-        this.created_at = (Date) bundle.get(USER_CREATED_AT);
-        this.updated_at = (Date) bundle.get(USER_UPDATED_AT);
+    protected DribleUser(Parcel in) {
+        id = in.readInt();
+        name = in.readString();
+        username = in.readString();
+        htmlUrl = in.readString();
+        avatarUrl = in.readString();
+        bio = in.readString();
+        location = in.readString();
+        links = in.readParcelable(Link.class.getClassLoader());
+        bucketsCount = in.readInt();
+        commentsReceivedCount = in.readInt();
+        followersCount = in.readInt();
+        followingsCount = in.readInt();
+        likesCount = in.readInt();
+        likesReceivedCount = in.readInt();
+        projectsCount = in.readInt();
+        reboundsReceivedCount = in.readInt();
+        shotsCount = in.readInt();
+        teamsCount = in.readInt();
+        canUploadShot = in.readByte() != 0;
+        type = in.readString();
+        pro = in.readByte() != 0;
+        bucketsUrl = in.readString();
+        followersUrl = in.readString();
+        followingsUrl = in.readString();
+        likesUrl = in.readString();
+        projectsUrl = in.readString();
+        shotsUrl = in.readString();
+        teamsUrl = in.readString();
+        createdAt = (Date) in.readSerializable();
+        updatedAt = (Date) in.readSerializable();
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        Bundle bundle = new Bundle();
-        bundle.putInt(USER_COMMENTS_RECEIVED_COUNT, comments_received_count);
-        bundle.putInt(USER_ID, id);
-        this.id = bundle.getInt(USER_ID);
-        bundle.putString(USER_NAME, name);
-        bundle.putString(USER_USERNAME, username);
-        bundle.putString(USER_HTML_URL, html_url);
-        bundle.putString(USER_AVATAR_URL, avatar_url);
-        bundle.putString(USER_BIO, bio);
-        bundle.putString(USER_LOCATION, location);
-        bundle.putString(USER_LINKS, new Gson().toJson(links));
-        bundle.putInt(USER_BUCKETS_COUNT, buckets_count);
-        bundle.putInt(USER_FOLLOWERS_COUNT, followers_count);
-        bundle.putInt(USER_FOLLOWINGS_COUNT, followings_count);
-        bundle.putInt(USER_LIKES_COUNT, likes_count);
-        bundle.putInt(USER_LIKES_RECEIVED_COUNT, likes_received_count);
-        bundle.putInt(USER_PROJECTS_COUNT, projects_count);
-        bundle.putInt(USER_REBOUNDS_RECEIVED_COUNT, rebounds_received_count);
-        bundle.putInt(USER_SHOTS_COUNT, shots_count);
-        bundle.putInt(USER_TEAMS_COUNT, teams_count);
-        bundle.putBoolean(USER_CAN_UPLOAD_SHOT, can_upload_shot);
-        bundle.putString(USER_TYPE, type);
-        bundle.putBoolean(USER_PRO, pro);
-        bundle.putString(USER_BUCKETS_URL, buckets_url);
-        bundle.putString(USER_FOLLOWERS_URL, followers_url);
-        bundle.putString(USER_FOLLOWINGS_URL, followings_url);
-        bundle.putString(USER_LIKES_URL, likes_url);
-        bundle.putString(USER_PROJECTS_URL, projects_url);
-        bundle.putString(USER_SHOTS_URL, shots_url);
-        bundle.putString(USER_TEAMS_URL, teams_url);
-        this.teams_url = bundle.getString(USER_TEAMS_URL);
-        bundle.putSerializable(USER_CREATED_AT, created_at);
-        bundle.putSerializable(USER_UPDATED_AT, updated_at);
-        dest.writeBundle(bundle);
-    }
-
-    public static final Creator CREATOR = new Creator<DribleUser>() {
+    public static final Creator<DribleUser> CREATOR = new Creator<DribleUser>() {
         @Override
-        public DribleUser createFromParcel(Parcel source) {
-            return new DribleUser(source);
+        public DribleUser createFromParcel(Parcel in) {
+            return new DribleUser(in);
         }
 
         @Override
@@ -176,4 +117,42 @@ public class DribleUser implements Parcelable {
         }
     };
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(name);
+        dest.writeString(username);
+        dest.writeString(htmlUrl);
+        dest.writeString(avatarUrl);
+        dest.writeString(bio);
+        dest.writeString(location);
+        dest.writeParcelable(links, flags);
+        dest.writeInt(bucketsCount);
+        dest.writeInt(commentsReceivedCount);
+        dest.writeInt(followersCount);
+        dest.writeInt(followingsCount);
+        dest.writeInt(likesCount);
+        dest.writeInt(likesReceivedCount);
+        dest.writeInt(projectsCount);
+        dest.writeInt(reboundsReceivedCount);
+        dest.writeInt(shotsCount);
+        dest.writeInt(teamsCount);
+        dest.writeByte((byte) (canUploadShot ? 1 : 0));
+        dest.writeString(type);
+        dest.writeByte((byte) (pro ? 1 : 0));
+        dest.writeString(bucketsUrl);
+        dest.writeString(followersUrl);
+        dest.writeString(followingsUrl);
+        dest.writeString(likesUrl);
+        dest.writeString(projectsUrl);
+        dest.writeString(shotsUrl);
+        dest.writeString(teamsUrl);
+        dest.writeSerializable(createdAt);
+        dest.writeSerializable(updatedAt);
+    }
 }

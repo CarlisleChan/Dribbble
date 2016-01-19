@@ -88,7 +88,7 @@ public class HomeActivity extends AppCompatActivity implements Toolbar.OnMenuIte
 
                 switch (menuItem.getItemId()) {
                     case R.id.item_liked_shots:
-                        String like_url = UserHelper.getInstance(HomeActivity.this).getDribleUser().likes_url;
+                        String like_url = UserHelper.getInstance(HomeActivity.this).getDribleUser().likesUrl;
                         intent = new Intent(HomeActivity.this, ShotsActivity.class);
                         intent.putExtra(ShotsActivity.SHOTS_TITLE_EXTRA, "My liked");
                         intent.putExtra(ShotsActivity.CALL_FROM, "like");
@@ -186,8 +186,8 @@ public class HomeActivity extends AppCompatActivity implements Toolbar.OnMenuIte
     private void showUserInfo() {
         final DribleUser user = AuthUtil.getMe(this);
 
-        if (user != null && !TextUtils.isEmpty(user.avatar_url)) {
-            Uri avatarUri = Uri.parse(user.avatar_url);
+        if (user != null && !TextUtils.isEmpty(user.avatarUrl)) {
+            Uri avatarUri = Uri.parse(user.avatarUrl);
             avatar.setImageURI(avatarUri);
 
             avatar.setOnClickListener(new View.OnClickListener() {
