@@ -62,7 +62,7 @@
                     android:id="@+id/shot_detail_info_like_img"
                     android:layout_width="@dimen/nav_icon_w_h"
                     android:layout_height="@dimen/nav_icon_w_h"
-                    android:src="@drawable/like" />
+                    android:src="@mipmap/like" />
 
                 <TextView
                     android:id="@+id/shot_detail_info_like_text"
@@ -76,7 +76,7 @@
                     android:layout_width="@dimen/nav_icon_w_h"
                     android:layout_height="@dimen/nav_icon_w_h"
                     android:layout_marginLeft="@dimen/shot_detail_info_left"
-                    android:src="@drawable/comment" />
+                    android:src="@mipmap/comment" />
 
                 <TextView
                     android:id="@+id/shot_detail_info_comment_text"
@@ -90,7 +90,7 @@
                     android:layout_width="@dimen/nav_icon_w_h"
                     android:layout_height="@dimen/nav_icon_w_h"
                     android:layout_marginLeft="@dimen/shot_detail_info_left"
-                    android:src="@drawable/view" />
+                    android:src="@mipmap/view" />
 
                 <TextView
                     android:id="@+id/shot_detail_info_view_text"
@@ -152,7 +152,7 @@
             android:layout_width="@dimen/shot_detail_zone_img_w_h"
             android:layout_height="@dimen/shot_detail_zone_img_w_h"
             android:layout_marginTop="@dimen/shot_detail_tag_margin_t"
-            android:src="@drawable/buckets" />
+            android:src="@mipmap/buckets" />
 
         <TextView
             android:layout_width="match_parent"
@@ -194,7 +194,7 @@
             android:layout_width="@dimen/shot_detail_zone_img_w_h"
             android:layout_height="@dimen/shot_detail_zone_img_w_h"
             android:layout_marginTop="@dimen/shot_detail_tag_margin_t"
-            android:src="@drawable/commentbig" />
+            android:src="@mipmap/commentbig" />
 
         <TextView
             android:layout_width="match_parent"

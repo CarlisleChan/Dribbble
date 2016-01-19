@@ -10,7 +10,7 @@
 
         <ImageView
             android:layout_centerInParent="true"
-            android:src="@drawable/buckets"
+            android:src="@mipmap/buckets"
             android:layout_width="30dp"
             android:layout_height="30dp" />
     </RelativeLayout>

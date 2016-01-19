@@ -107,6 +107,6 @@ public class InputActivity extends BaseActivity {
     public void onInitToolBar(Toolbar toolbar) {
         super.onInitToolBar(toolbar);
         setTitle("Input");
-        toolbar.setNavigationIcon(R.drawable.cancel);
+        toolbar.setNavigationIcon(R.mipmap.cancel);
     }
 }

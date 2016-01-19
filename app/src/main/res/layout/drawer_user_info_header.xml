@@ -119,7 +119,7 @@
             <ImageView
                 android:layout_below="@id/elsewhere_indicator"
                 android:layout_centerHorizontal="true"
-                android:src="@drawable/earth"
+                android:src="@mipmap/earth"
                 android:layout_marginTop="10dp"
                 android:layout_width="25dp"
                 android:layout_height="25dp" />
