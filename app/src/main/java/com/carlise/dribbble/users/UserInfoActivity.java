@@ -23,7 +23,7 @@ import android.widget.Toast;
 
 import com.carlise.dribbble.BuildConfig;
 import com.carlise.dribbble.R;
-import com.carlise.dribbble.application.BaseActivity;
+import com.carlise.dribbble.application.BaseToolsBarActivity;
 import com.carlise.dribbble.shot.ShotDetailActivity;
 import com.carlise.dribbble.shot.ShotListAdapter;
 import com.carlise.dribbble.utils.AuthUtil;
@@ -47,7 +47,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by zhanglei on 15/7/24.
  */
-public class UserInfoActivity extends BaseActivity {
+public class UserInfoActivity extends BaseToolsBarActivity {
     private static final String TAG = UserInfoActivity.class.getSimpleName();
 
     private RelativeLayout followZone;

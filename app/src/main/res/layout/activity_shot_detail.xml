@@ -1,52 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="256dp">
 
-        <include layout="@layout/toolbar_layout" />
-
-        <com.facebook.drawee.view.SimpleDraweeView
-            android:id="@+id/shot_detail_img"
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/image_placeholder"
-            android:minHeight="250dp"
-            android:scaleType="centerCrop" />
+            android:layout_height="match_parent"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:contentScrim="?attr/colorPrimary"
+            app:expandedTitleMarginStart="48dp"
+            app:expandedTitleMarginEnd="64dp">
+
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/shot_detail_img"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/image_placeholder"
+                android:src="@mipmap/buckets"
+                android:minHeight="250dp"
+                android:scaleType="centerCrop" />
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                app:layout_collapseMode="pin">
+
+                <RelativeLayout
+                    android:id="@+id/nav"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:gravity="center_vertical">
+
+                    <com.facebook.drawee.view.SimpleDraweeView
+                        android:id="@+id/shot_detail_avatar"
+                        android:layout_width="?attr/actionBarSize"
+                        android:layout_height="?attr/actionBarSize"
+                        android:padding="10dp"
+                        android:layout_centerVertical="true"
+                        android:scaleType="centerCrop"
+                        app:roundAsCircle="true" />
+
+                    <TextView
+                        android:id="@+id/shot_detail_author"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="10dp"
+                        android:layout_toRightOf="@id/shot_detail_avatar"
+                        android:maxWidth="@dimen/shot_detail_author_length"
+                        android:singleLine="true"
+                        tools:text="Author" />
+
+                    <RelativeLayout
+                        android:id="@+id/nav_like"
+                        android:layout_width="?attr/actionBarSize"
+                        android:layout_height="?attr/actionBarSize"
+                        android:layout_alignParentRight="true"
+                        android:clickable="true">
+
+                        <ImageView
+                            android:id="@+id/nav_like_img"
+                            android:layout_width="@dimen/nav_icon_w_h"
+                            android:layout_height="@dimen/nav_icon_w_h"
+                            android:layout_centerInParent="true"
+                            android:src="@mipmap/like" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/nav_share"
+                        android:layout_width="?attr/actionBarSize"
+                        android:layout_height="?attr/actionBarSize"
+                        android:layout_toLeftOf="@id/nav_like"
+                        android:clickable="true">
+
+                        <ImageView
+                            android:layout_width="@dimen/nav_icon_w_h"
+                            android:layout_height="@dimen/nav_icon_w_h"
+                            android:layout_centerInParent="true"
+                            android:src="@mipmap/share" />
+                    </RelativeLayout>
+
+                </RelativeLayout>
+
+            </android.support.v7.widget.Toolbar>
+
+        </android.support.design.widget.CollapsingToolbarLayout>
 
     </android.support.design.widget.AppBarLayout>
 
-    <LinearLayout
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/shot_detail_comments_list"
+        android:background="@color/main_back"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <ListView
-            android:id="@+id/shot_detail_comments_list"
-            android:background="@color/main_back"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-    </LinearLayout>
-
-    <RelativeLayout
-        android:id="@+id/shot_progress"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/content_back"
-        android:visibility="gone">
-
-        <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true" />
-
-    </RelativeLayout>
+        android:layout_height="match_parent" />
 
 </android.support.design.widget.CoordinatorLayout>

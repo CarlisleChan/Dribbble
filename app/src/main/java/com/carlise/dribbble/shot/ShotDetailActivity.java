@@ -1,8 +1,13 @@
 package com.carlise.dribbble.shot;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.graphics.Palette;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.TextUtils;
@@ -14,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,6 +30,7 @@ import com.carlise.dribbble.users.UserInfoActivity;
 import com.carlise.dribbble.utils.AnimatorHelp;
 import com.carlise.dribbble.utils.AuthUtil;
 import com.carlise.dribbble.utils.ImageHelper;
+import com.carlise.dribbble.view.RecyclerViewPro.HeaderViewRecyclerAdapter;
 import com.carlisle.model.DribleComment;
 import com.carlisle.model.DribleShot;
 import com.carlisle.model.MarkResult;
@@ -59,12 +64,9 @@ public class ShotDetailActivity extends SwipeBackActivity {
     private RelativeLayout navLike;
     private ImageView navLikeImg;
     private boolean liked;
-    private RelativeLayout progressLayout;
 
-    private View header;
-
-    private ListView commentsList;
-    private CommentAdapter commentAdapter;
+    private RecyclerView commentsList;
+    private HeaderViewRecyclerAdapter commentAdapter;
 
     private LinearLayout commentsHeader;
     private SimpleDraweeView detailImage;
@@ -121,8 +123,6 @@ public class ShotDetailActivity extends SwipeBackActivity {
     }
 
     private void initView() {
-        inflater = LayoutInflater.from(this);
-
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         initToolBar(toolbar);
 
@@ -132,19 +132,17 @@ public class ShotDetailActivity extends SwipeBackActivity {
         navLike = (RelativeLayout) findViewById(R.id.nav_like);
         navLikeImg = (ImageView) findViewById(R.id.nav_like_img);
         navLike.setVisibility(View.INVISIBLE);
-        progressLayout = (RelativeLayout) findViewById(R.id.shot_progress);
-
-        commentsList = (ListView) findViewById(R.id.shot_detail_comments_list);
-
-        commentsHeader = (LinearLayout) inflater.inflate(R.layout.header_shot_detail_comments, commentsList, false);
-
-        shotScrollWall = (LinearLayout) commentsHeader.findViewById(R.id.shot_detail_scroll_wall);
-
-        //mHeader = findViewById(R.id.shot_detail_header);
         detailImage = (SimpleDraweeView) findViewById(R.id.shot_detail_img);
+
+        commentsList = (RecyclerView) findViewById(R.id.shot_detail_comments_list);
+        commentsList.setLayoutManager(new LinearLayoutManager(this));
+        commentsList.setHasFixedSize(true);
+
+        inflater = LayoutInflater.from(this);
+        commentsHeader = (LinearLayout) inflater.inflate(R.layout.header_shot_detail_comments, commentsList, false);
+        shotScrollWall = (LinearLayout) commentsHeader.findViewById(R.id.shot_detail_scroll_wall);
         shotTitle = (TextView) commentsHeader.findViewById(R.id.shot_detail_title);
         shotDescription = (TextView) commentsHeader.findViewById(R.id.shot_detail_description);
-
         shotInfoLikeImg = (ImageView) commentsHeader.findViewById(R.id.shot_detail_info_like_img);
         shotInfoLikeImg.setColorFilter(getResources().getColor(R.color.text_default_color));
         shotInfoLikeText = (TextView) commentsHeader.findViewById(R.id.shot_detail_info_like_text);
@@ -154,30 +152,35 @@ public class ShotDetailActivity extends SwipeBackActivity {
         shotInfoViewImg = (ImageView) commentsHeader.findViewById(R.id.shot_detail_info_view_img);
         shotInfoViewImg.setColorFilter(getResources().getColor(R.color.text_default_color));
         shotInfoViewText = (TextView) commentsHeader.findViewById(R.id.shot_detail_info_view_text);
-
         shotTag = (LinearLayout) commentsHeader.findViewById(R.id.shot_detail_tag_zone);
         shotTagText = (TextView) commentsHeader.findViewById(R.id.shot_detail_tag_text);
-
         shotComment = (RelativeLayout) commentsHeader.findViewById(R.id.shot_detail_comment_zone);
         shotComImg = (ImageView) commentsHeader.findViewById(R.id.shot_detail_comment_zone_img);
         shotComImg.setColorFilter(getResources().getColor(R.color.grey_text));
-
         shotBucket = (RelativeLayout) commentsHeader.findViewById(R.id.shot_detail_bucket_zone);
         shotBucketImg = (ImageView) commentsHeader.findViewById(R.id.shot_detail_bucket_zone_img);
         shotBucketImg.setColorFilter(getResources().getColor(R.color.grey_text));
 
-        commentsList.addHeaderView(commentsHeader);
-
         View footer = new View(this);
         AbsListView.LayoutParams footParams = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.comments_list_foot_height));
         footer.setLayoutParams(footParams);
-        commentsList.addFooterView(footer);
 
-        commentAdapter = new CommentAdapter(this, somments);
+        CommentAdapter adapter = new CommentAdapter(this, somments);
+        commentAdapter = new HeaderViewRecyclerAdapter(adapter);
+        commentAdapter.addHeaderView(commentsHeader);
+        commentAdapter.addFooterView(footer);
         commentsList.setAdapter(commentAdapter);
-        commentsList.setDivider(null);
+    }
 
-        progressLayout.setVisibility(View.VISIBLE);
+    private void updateToolbarColor(Bitmap bitmap) {
+        Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
+            @Override
+            public void onGenerated(Palette palette) {
+                Palette.Swatch vibrant = palette.getVibrantSwatch();
+                getActionBar().setBackgroundDrawable(new ColorDrawable(vibrant.getRgb()));
+                toolbar.setBackgroundColor(vibrant.getTitleTextColor());
+            }
+        });
     }
 
     private int mLoadShotRetryCount = 5;
@@ -217,7 +220,6 @@ public class ShotDetailActivity extends SwipeBackActivity {
     }
 
     private void handleResponse(DribleShot dribleShot) {
-        progressLayout.setVisibility(View.INVISIBLE);
         fillData(dribleShot);
     }
 
@@ -461,11 +463,6 @@ public class ShotDetailActivity extends SwipeBackActivity {
                 finish();
             }
         });
-
-        RelativeLayout viewGroup = (RelativeLayout) toolbar.findViewById(R.id.toolbar_container);
-        View view = LayoutInflater.from(this).inflate(R.layout.title_shot_detail, viewGroup, false);
-        viewGroup.removeAllViews();
-        viewGroup.addView(view);
     }
 
 }

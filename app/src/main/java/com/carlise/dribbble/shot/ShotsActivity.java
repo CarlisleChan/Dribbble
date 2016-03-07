@@ -16,7 +16,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.carlise.dribbble.R;
-import com.carlise.dribbble.application.BaseActivity;
+import com.carlise.dribbble.application.BaseToolsBarActivity;
 import com.carlise.dribbble.utils.UserHelper;
 import com.carlisle.model.DribleShot;
 import com.carlisle.model.LikesResult;
@@ -33,7 +33,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by chengxin on 16/1/7.
  */
-public class ShotsActivity extends BaseActivity {
+public class ShotsActivity extends BaseToolsBarActivity {
     private static final String TAG = ShotsActivity.class.getSimpleName();
 
     public static final String SHOTS_TITLE_EXTRA = "title_extra";

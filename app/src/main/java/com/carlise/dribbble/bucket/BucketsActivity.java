@@ -11,7 +11,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.carlise.dribbble.R;
-import com.carlise.dribbble.application.BaseActivity;
+import com.carlise.dribbble.application.BaseToolsBarActivity;
 import com.carlise.dribbble.shot.ShotsActivity;
 import com.carlise.dribbble.utils.UserHelper;
 import com.carlisle.model.DribleBucket;
@@ -28,7 +28,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by chengxin on 16/1/11.
  */
-public class BucketsActivity extends BaseActivity {
+public class BucketsActivity extends BaseToolsBarActivity {
     private static final String TAG = BucketsActivity.class.getSimpleName();
 
     private ListView listView;

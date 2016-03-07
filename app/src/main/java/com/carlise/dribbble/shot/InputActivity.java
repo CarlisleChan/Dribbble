@@ -12,7 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.carlise.dribbble.R;
-import com.carlise.dribbble.application.BaseActivity;
+import com.carlise.dribbble.application.BaseToolsBarActivity;
 import com.carlisle.model.CommentRequest;
 import com.carlisle.model.PushCommentResult;
 import com.carlisle.provider.ApiFactory;
@@ -24,7 +24,7 @@ import retrofit.client.Response;
 /**
  * Created by chengxin on 16/1/7.
  */
-public class InputActivity extends BaseActivity {
+public class InputActivity extends BaseToolsBarActivity {
 
     public static final String INPUT_NAME = "input_extra";
     public static final String SHOT_ID = "shot_id";

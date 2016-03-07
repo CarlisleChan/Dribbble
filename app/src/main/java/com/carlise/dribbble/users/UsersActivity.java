@@ -11,7 +11,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.carlise.dribbble.R;
-import com.carlise.dribbble.application.BaseActivity;
+import com.carlise.dribbble.application.BaseToolsBarActivity;
 import com.carlise.dribbble.utils.UserHelper;
 import com.carlisle.model.DribleUser;
 import com.carlisle.model.FollowResult;
@@ -28,7 +28,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by chengxin on 16/1/11.
  */
-public class UsersActivity extends BaseActivity {
+public class UsersActivity extends BaseToolsBarActivity {
     private static final String TAG = UsersActivity.class.getSimpleName();
 
     public static final String USERS_TITLE = "title_extra";

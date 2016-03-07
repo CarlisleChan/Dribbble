@@ -14,7 +14,7 @@ import android.widget.Toast;
 
 import com.carlise.dribbble.BuildConfig;
 import com.carlise.dribbble.R;
-import com.carlise.dribbble.application.BaseActivity;
+import com.carlise.dribbble.application.BaseToolsBarActivity;
 import com.carlise.dribbble.utils.AuthUtil;
 import com.carlise.dribbble.utils.PreferenceKey;
 import com.carlisle.dribbble.com.tools.SPUtils;
@@ -32,7 +32,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by chengxin on 16/1/7.
  */
-public class LoginActivity extends BaseActivity {
+public class LoginActivity extends BaseToolsBarActivity {
     private static final String TAG = LoginActivity.class.getSimpleName();
 
     private WebView loginWeb;

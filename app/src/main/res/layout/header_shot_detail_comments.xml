@@ -142,7 +142,6 @@
         android:clickable="true"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-
         android:paddingBottom="@dimen/shot_detail_zone_padding_t_b"
         android:paddingLeft="20dp"
         android:paddingRight="20dp">
@@ -157,10 +156,10 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
             android:layout_marginBottom="15dp"
             android:layout_marginLeft="@dimen/shot_detail_comment_left"
             android:layout_toRightOf="@id/shot_detail_bucket_zone_img"
+            android:layout_centerVertical="true"
             android:text="Add in a bucket"
             android:textColor="@color/grey_text"
             android:textSize="@dimen/shot_detail_tag_text_size" />
@@ -199,10 +198,10 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
             android:layout_marginBottom="15dp"
             android:layout_marginLeft="@dimen/shot_detail_comment_left"
             android:layout_toRightOf="@id/shot_detail_comment_zone_img"
+            android:layout_centerVertical="true"
             android:text="Create a response"
             android:textColor="@color/grey_text"
             android:textSize="@dimen/shot_detail_tag_text_size" />
