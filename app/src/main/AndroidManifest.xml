@@ -33,7 +33,8 @@
         <activity android:name=".users.UsersActivity" />
         <activity android:name=".shot.ShotsActivity" />
         <activity android:name=".bucket.BucketsActivity" />
-        <activity android:name=".main.AboutActivity" />
+        <activity android:name=".main.AboutActivity"
+            android:theme="@style/AppTheme"/>
 
     </application>
 

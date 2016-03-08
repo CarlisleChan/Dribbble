@@ -2,18 +2,19 @@ package com.carlise.dribbble.bucket;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.application.BaseToolsBarActivity;
 import com.carlise.dribbble.shot.ShotsActivity;
 import com.carlise.dribbble.utils.UserHelper;
+import com.carlise.dribbble.view.RecyclerViewPro.HeaderViewRecyclerAdapter;
 import com.carlisle.model.DribleBucket;
 import com.carlisle.provider.ApiFactory;
 import com.facebook.drawee.backends.pipeline.Fresco;
@@ -28,13 +29,13 @@ import rx.schedulers.Schedulers;
 /**
  * Created by chengxin on 16/1/11.
  */
-public class BucketsActivity extends BaseToolsBarActivity {
+public class BucketsActivity extends BaseToolsBarActivity implements BucketListAdapter.OnClickListener {
     private static final String TAG = BucketsActivity.class.getSimpleName();
 
-    private ListView listView;
+    private RecyclerView recyclerView;
     private View header;
 
-    private BucketListAdapter bucketListAdapter;
+    private HeaderViewRecyclerAdapter recyclerAdapter;
     private ArrayList<DribleBucket> buckets = new ArrayList<>();
 
     private ProgressBar progress;
@@ -52,32 +53,21 @@ public class BucketsActivity extends BaseToolsBarActivity {
     }
 
     private void initView() {
+        recyclerView = (RecyclerView) findViewById(R.id.buckets_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        listView = (ListView) findViewById(R.id.buckets_list);
+        BucketListAdapter adapter = new BucketListAdapter(this, buckets);
+        adapter.setListener(this);
+        recyclerAdapter = new HeaderViewRecyclerAdapter(adapter);
+        recyclerView.setAdapter(adapter);
 
         header = new View(this);
         AbsListView.LayoutParams headParam = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.toolbar_height));
         header.setLayoutParams(headParam);
-        listView.addHeaderView(header);
-
-        bucketListAdapter = new BucketListAdapter(this, buckets);
-        listView.setAdapter(bucketListAdapter);
-        listView.setDivider(null);
+        recyclerAdapter.addHeaderView(header);
 
         progress = (ProgressBar) findViewById(R.id.buckets_progress);
         progress.setVisibility(View.VISIBLE);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(BucketsActivity.this, ShotsActivity.class);
-                intent.putExtra(ShotsActivity.SHOTS_TITLE_EXTRA, "Shots of " + buckets.get(position).name);
-                intent.putExtra(ShotsActivity.BUCKET_ID, buckets.get(position).id);
-                intent.putExtra(ShotsActivity.CALL_FROM, "bucket");
-                startActivity(intent);
-            }
-        });
-
     }
 
     private void requestForBuckets() {
@@ -108,12 +98,21 @@ public class BucketsActivity extends BaseToolsBarActivity {
             return;
         }
         buckets.addAll(dribleBuckets);
-        bucketListAdapter.notifyDataSetChanged();
+        recyclerAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onInitToolBar(Toolbar toolbar) {
         super.onInitToolBar(toolbar);
         setTitle("Buckets");
+    }
+
+    @Override
+    public void onClick(View view, int position) {
+        Intent intent = new Intent(BucketsActivity.this, ShotsActivity.class);
+        intent.putExtra(ShotsActivity.SHOTS_TITLE_EXTRA, "Shots of " + buckets.get(position).name);
+        intent.putExtra(ShotsActivity.BUCKET_ID, buckets.get(position).id);
+        intent.putExtra(ShotsActivity.CALL_FROM, "bucket");
+        startActivity(intent);
     }
 }

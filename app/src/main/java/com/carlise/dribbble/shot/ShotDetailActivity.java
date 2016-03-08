@@ -65,8 +65,8 @@ public class ShotDetailActivity extends SwipeBackActivity {
     private ImageView navLikeImg;
     private boolean liked;
 
-    private RecyclerView commentsList;
-    private HeaderViewRecyclerAdapter commentAdapter;
+    private RecyclerView recyclerView;
+    private HeaderViewRecyclerAdapter recyclerAdapter;
 
     private LinearLayout commentsHeader;
     private SimpleDraweeView detailImage;
@@ -134,12 +134,12 @@ public class ShotDetailActivity extends SwipeBackActivity {
         navLike.setVisibility(View.INVISIBLE);
         detailImage = (SimpleDraweeView) findViewById(R.id.shot_detail_img);
 
-        commentsList = (RecyclerView) findViewById(R.id.shot_detail_comments_list);
-        commentsList.setLayoutManager(new LinearLayoutManager(this));
-        commentsList.setHasFixedSize(true);
+        recyclerView = (RecyclerView) findViewById(R.id.shot_detail_comments_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
 
         inflater = LayoutInflater.from(this);
-        commentsHeader = (LinearLayout) inflater.inflate(R.layout.header_shot_detail_comments, commentsList, false);
+        commentsHeader = (LinearLayout) inflater.inflate(R.layout.header_shot_detail_comments, recyclerView, false);
         shotScrollWall = (LinearLayout) commentsHeader.findViewById(R.id.shot_detail_scroll_wall);
         shotTitle = (TextView) commentsHeader.findViewById(R.id.shot_detail_title);
         shotDescription = (TextView) commentsHeader.findViewById(R.id.shot_detail_description);
@@ -166,10 +166,10 @@ public class ShotDetailActivity extends SwipeBackActivity {
         footer.setLayoutParams(footParams);
 
         CommentAdapter adapter = new CommentAdapter(this, somments);
-        commentAdapter = new HeaderViewRecyclerAdapter(adapter);
-        commentAdapter.addHeaderView(commentsHeader);
-        commentAdapter.addFooterView(footer);
-        commentsList.setAdapter(commentAdapter);
+        recyclerAdapter = new HeaderViewRecyclerAdapter(adapter);
+        recyclerAdapter.addHeaderView(commentsHeader);
+        recyclerAdapter.addFooterView(footer);
+        recyclerView.setAdapter(recyclerAdapter);
     }
 
     private void updateToolbarColor(Bitmap bitmap) {
@@ -451,7 +451,7 @@ public class ShotDetailActivity extends SwipeBackActivity {
         }
         somments.clear();
         somments.addAll(dribleComments);
-        commentAdapter.notifyDataSetChanged();
+        recyclerAdapter.notifyDataSetChanged();
     }
 
     public void initToolBar(Toolbar toolbar) {

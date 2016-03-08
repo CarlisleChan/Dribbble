@@ -5,17 +5,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -27,6 +26,8 @@ import com.carlise.dribbble.application.BaseToolsBarActivity;
 import com.carlise.dribbble.shot.ShotDetailActivity;
 import com.carlise.dribbble.shot.ShotListAdapter;
 import com.carlise.dribbble.utils.AuthUtil;
+import com.carlise.dribbble.view.RecyclerViewPro.EndlessRecyclerOnScrollListener;
+import com.carlise.dribbble.view.RecyclerViewPro.HeaderViewRecyclerAdapter;
 import com.carlisle.model.CheckFollowResult;
 import com.carlisle.model.DribleShot;
 import com.carlisle.model.DribleUser;
@@ -47,7 +48,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by zhanglei on 15/7/24.
  */
-public class UserInfoActivity extends BaseToolsBarActivity {
+public class UserInfoActivity extends BaseToolsBarActivity implements ShotListAdapter.OnClickListener {
     private static final String TAG = UserInfoActivity.class.getSimpleName();
 
     private RelativeLayout followZone;
@@ -56,13 +57,14 @@ public class UserInfoActivity extends BaseToolsBarActivity {
     private boolean canChangeFollow = false;
 
     private SwipeRefreshLayout refreshLayout;
-    private boolean canLoadMore = true;
-    private ListView listView;
+    private RecyclerView recyclerView;
     private RelativeLayout headerLayout;
     private RelativeLayout footerLayout;
     private ProgressBar footProgress;
-    private ArrayList<DribleShot> dribleShots = new ArrayList<DribleShot>();
-    private ShotListAdapter shotAdapter;
+    private TextView footContent;
+
+    private List<DribleShot> dribleShots = new ArrayList<DribleShot>();
+    private HeaderViewRecyclerAdapter recyclerAdapter;
     private LayoutInflater inflater;
 
     private TextView navName;
@@ -91,8 +93,7 @@ public class UserInfoActivity extends BaseToolsBarActivity {
         super.onCreate(savedInstanceState);
         Fresco.initialize(this);
         setContentView(R.layout.activity_user_info);
-        inflater = LayoutInflater.from(this);
-        userId = getIntent().getIntExtra(USER_ID_EXTRA, 69311);
+        userId = getIntent().getIntExtra(USER_ID_EXTRA, 0);
         initView();
 
         requestUserInfo();
@@ -110,71 +111,57 @@ public class UserInfoActivity extends BaseToolsBarActivity {
         followZone.setVisibility(View.INVISIBLE);
 
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.user_info_swipe);
-        listView = (ListView) findViewById(R.id.user_info_list);
+        recyclerView = (RecyclerView) findViewById(R.id.user_info_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
 
-        headerLayout = (RelativeLayout) inflater.inflate(R.layout.drawer_user_info_header, listView, false);
-        listView.addHeaderView(headerLayout);
-        listView.setDivider(null);
+        final ShotListAdapter adapter = new ShotListAdapter(this, dribleShots);
+        adapter.setListener(this);
+        recyclerAdapter = new HeaderViewRecyclerAdapter(adapter);
+        recyclerView.setAdapter(recyclerAdapter);
 
-        footerLayout = (RelativeLayout) inflater.inflate(R.layout.footer_home_list, listView, false);
+        inflater = LayoutInflater.from(this);
+        headerLayout = (RelativeLayout) inflater.inflate(R.layout.drawer_user_info_header, recyclerView, false);
+        recyclerAdapter.addHeaderView(headerLayout);
+
+        footerLayout = (RelativeLayout) inflater.inflate(R.layout.footer_home_list, recyclerView, false);
         footProgress = (ProgressBar) footerLayout.findViewById(R.id.footer_progress);
-        AbsListView.LayoutParams footParams = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 200);
+        footContent = (TextView) footerLayout.findViewById(R.id.footer_content);
+        AbsListView.LayoutParams footParams = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.home_footer_height));
         footerLayout.setLayoutParams(footParams);
-        listView.addFooterView(footerLayout);
-
-        shotAdapter = new ShotListAdapter(this, dribleShots);
-        listView.setAdapter(shotAdapter);
-
-        if (AuthUtil.getMe(this).id != userId) {
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Intent intent = new Intent(UserInfoActivity.this, ShotDetailActivity.class);
-                    intent.putExtra(ShotDetailActivity.SHOT_ID_EXTRA_FIELD, dribleShots.get(position - 1).id);
-                    startActivity(intent);
-                }
-            });
-        }
+        recyclerAdapter.addFooterView(footerLayout);
 
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                reload();
+            }
+        });
+        refreshLayout.setProgressViewOffset(true, (int) getResources().getDimension(R.dimen.toolbar_height), (int) (getResources().getDimension(R.dimen.toolbar_height) + 150));
+
+        refreshLayout.setColorSchemeResources(R.color.pretty_blue, R.color.pretty_green);
+
+        recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener((LinearLayoutManager) recyclerView.getLayoutManager()) {
+            @Override
+            public void onLoadMore(int currentPage) {
                 requestUserShots();
             }
-        });
-        refreshLayout.setProgressViewOffset(true, (int) getResources().getDimension(R.dimen.toolbar_height),
-                (int) (getResources().getDimension(R.dimen.toolbar_height) + 150));
-
-        refreshLayout.setColorSchemeResources(R.color.pretty_blue,
-                R.color.pretty_green);
-
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-            }
 
             @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                handleNavNameAlpha(firstVisibleItem);
-
-
-                if (!listView.canScrollVertically(1) && (firstVisibleItem + visibleItemCount == totalItemCount)
-                        && firstVisibleItem > 0 && canLoadMore) {
-                    canLoadMore = false;
-                    requestUserShots();
-                }
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                handleNavNameAlpha();
             }
         });
 
-        userAvatar = (SimpleDraweeView) findViewById(R.id.user_info_avatar);
-        userName = (TextView) findViewById(R.id.user_info_name);
-        userFollowerZone = (RelativeLayout) findViewById(R.id.user_info_follower_zone);
-        userFollowerC = (TextView) findViewById(R.id.follower_count);
-        userFollowingZone = (RelativeLayout) findViewById(R.id.user_info_following_zone);
-        userFollowingC = (TextView) findViewById(R.id.following_count);
-        userElseZone = (RelativeLayout) findViewById(R.id.user_info_else);
-        userBio = (TextView) findViewById(R.id.user_info_bio_text);
+        userAvatar = (SimpleDraweeView) headerLayout.findViewById(R.id.user_info_avatar);
+        userName = (TextView) headerLayout.findViewById(R.id.user_info_name);
+        userFollowerZone = (RelativeLayout) headerLayout.findViewById(R.id.user_info_follower_zone);
+        userFollowerC = (TextView) headerLayout.findViewById(R.id.follower_count);
+        userFollowingZone = (RelativeLayout) headerLayout.findViewById(R.id.user_info_following_zone);
+        userFollowingC = (TextView) headerLayout.findViewById(R.id.following_count);
+        userElseZone = (RelativeLayout) headerLayout.findViewById(R.id.user_info_else);
+        userBio = (TextView) headerLayout.findViewById(R.id.user_info_bio_text);
 
         progressZone = (RelativeLayout) findViewById(R.id.progress_zone);
         progressZone.setVisibility(View.VISIBLE);
@@ -195,7 +182,7 @@ public class UserInfoActivity extends BaseToolsBarActivity {
         });
     }
 
-    private void handleNavNameAlpha(int firstVisibleItem) {
+    private void handleNavNameAlpha() {
         int height = headerLayout.getHeight();
         int delta = height - headerLayout.getBottom();
         if (delta >= height / 2 && delta < height * 3 / 4) {
@@ -258,6 +245,7 @@ public class UserInfoActivity extends BaseToolsBarActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(UserInfoActivity.this, UsersActivity.class);
                 intent.putExtra(UsersActivity.USERS_TITLE, UsersActivity.TITLE_FOLLOWER);
+                intent.putExtra(UsersActivity.USER_ID, userId);
                 startActivity(intent);
             }
         });
@@ -266,6 +254,7 @@ public class UserInfoActivity extends BaseToolsBarActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(UserInfoActivity.this, UsersActivity.class);
                 intent.putExtra(UsersActivity.USERS_TITLE, UsersActivity.TITLE_FOLLOWING);
+                intent.putExtra(UsersActivity.USER_ID, userId);
                 startActivity(intent);
             }
         });
@@ -287,9 +276,7 @@ public class UserInfoActivity extends BaseToolsBarActivity {
         }
 
         progressZone.setVisibility(View.INVISIBLE);
-        requestUserShots();
         refreshLayout.setRefreshing(true);
-
     }
 
     private void checkIfFollowing() {
@@ -400,6 +387,14 @@ public class UserInfoActivity extends BaseToolsBarActivity {
         canChangeFollow = false;
     }
 
+    private void reload() {
+        page = 1;
+        dribleShots.clear();
+        footContent.setVisibility(View.INVISIBLE);
+        footProgress.setVisibility(View.VISIBLE);
+        requestUserShots();
+    }
+
     private void requestUserShots() {
         ApiFactory.getDribleApi().fetchUserShots(userId, page)
                 .subscribeOn(Schedulers.io())
@@ -428,31 +423,18 @@ public class UserInfoActivity extends BaseToolsBarActivity {
                 refreshLayout.setRefreshing(false);
             }
         }, 30000);
-
-        if (page != 1) {
-            footProgress.setVisibility(View.VISIBLE);
-        }
     }
 
     private void handleUserShots(List<DribleShot> dribleShots) {
         refreshLayout.setRefreshing(false);
-        if (dribleShots.size() <= 0) {
-            canLoadMore = false;
-            listView.setOnItemClickListener(null);
-            TextView noShots = new TextView(this);
-            noShots.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-            noShots.setText("No shots yet");
-            noShots.setTextColor(getResources().getColor(R.color.grey_text));
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            params.addRule(RelativeLayout.CENTER_IN_PARENT);
-            noShots.setLayoutParams(params);
-            footProgress.setVisibility(View.INVISIBLE);
-            footerLayout.addView(noShots);
-            return;
-        }
 
-        if (page == 1) {
-            this.dribleShots.clear();
+        if (dribleShots.size() <= 0) {
+            footProgress.setVisibility(View.INVISIBLE);
+            footContent.setVisibility(View.VISIBLE);
+            footContent.setText("Load finished");
+        } else {
+            footProgress.setVisibility(View.VISIBLE);
+            footContent.setVisibility(View.INVISIBLE);
         }
 
         for (DribleShot dribleShot : dribleShots) {
@@ -460,9 +442,7 @@ public class UserInfoActivity extends BaseToolsBarActivity {
             this.dribleShots.add(dribleShot);
         }
 
-        shotAdapter.notifyDataSetChanged();
-        footProgress.setVisibility(View.INVISIBLE);
-        canLoadMore = true;
+        recyclerAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -472,5 +452,14 @@ public class UserInfoActivity extends BaseToolsBarActivity {
         View view = LayoutInflater.from(this).inflate(R.layout.title_user_info, viewGroup, false);
         viewGroup.removeAllViews();
         viewGroup.addView(view);
+    }
+
+    @Override
+    public void onClick(View view, int position) {
+        if (AuthUtil.getMe(this).id != userId) {
+            Intent intent = new Intent(UserInfoActivity.this, ShotDetailActivity.class);
+            intent.putExtra(ShotDetailActivity.SHOT_ID_EXTRA_FIELD, dribleShots.get(position).id);
+            startActivity(intent);
+        }
     }
 }

@@ -7,15 +7,13 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -26,10 +24,11 @@ import com.carlise.dribbble.shot.ShotDetailActivity;
 import com.carlise.dribbble.shot.ShotListAdapter;
 import com.carlise.dribbble.utils.AuthUtil;
 import com.carlise.dribbble.utils.PreferenceKey;
+import com.carlise.dribbble.view.RecyclerViewPro.EndlessRecyclerOnScrollListener;
+import com.carlise.dribbble.view.RecyclerViewPro.HeaderViewRecyclerAdapter;
 import com.carlisle.dribbble.com.rx.RxBus;
 import com.carlisle.model.DribleShot;
 import com.carlisle.provider.ApiFactory;
-import com.github.stephanenicolas.loglifecycle.LogLifeCycle;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,8 +43,7 @@ import rx.subscriptions.CompositeSubscription;
 /**
  * Created by chengxin on 16/1/7.
  */
-@LogLifeCycle
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements ShotListAdapter.OnClickListener {
     private static final String TAG = HomeFragment.class.getSimpleName();
 
     public static final String TAG_1 = "Top Shots";
@@ -56,17 +54,16 @@ public class HomeFragment extends Fragment {
 
     private int index;
     private SwipeRefreshLayout refreshLayout;
-    private ListView listView;
+    private RecyclerView recyclerView;
     private RelativeLayout footerLayout;
     private ProgressBar footProgress;
 
-    private ShotListAdapter listAdapter;
-    private ArrayList<DribleShot> shotList;
+    private HeaderViewRecyclerAdapter recyclerAdapter;
+    private List<DribleShot> shotList = new ArrayList<>();
 
     private HashMap<Integer, Integer> leftItemsH = new HashMap<Integer, Integer>();
     private HashMap<Integer, Integer> midItemsH = new HashMap<Integer, Integer>();
     private HashMap<Integer, Integer> rigItemsH = new HashMap<Integer, Integer>();
-    private int lastScrollY;
 
     private Runnable timeOut = new Runnable() {
         @Override
@@ -75,9 +72,9 @@ public class HomeFragment extends Fragment {
         }
     };
 
-    private boolean canScroll = true;
-    private boolean canLoadMore = true;
     private CompositeSubscription subscriptions;
+
+    private int firstVisibleItemPosition;
 
     @Nullable
     @Override
@@ -87,90 +84,71 @@ public class HomeFragment extends Fragment {
         index = getArguments().getInt(TAB_INDEX_FIELD);
         subscriptions = new CompositeSubscription();
 
-        if (listView == null) {
-            refreshLayout = (SwipeRefreshLayout) inflater.inflate(R.layout.home_content_fragment, container, false);
-            listView = (ListView) refreshLayout.findViewById(R.id.home_content_fragment);
+        ShotListAdapter adapter = new ShotListAdapter(getActivity(), shotList);
+        adapter.setListener(this);
+        recyclerAdapter = new HeaderViewRecyclerAdapter(adapter);
 
-            footerLayout = (RelativeLayout) inflater.inflate(R.layout.footer_home_list, null, false);
-            AbsListView.LayoutParams footParams = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.home_footer_height));
-            footerLayout.setLayoutParams(footParams);
-            listView.addFooterView(footerLayout);
-            footProgress = (ProgressBar) footerLayout.findViewById(R.id.footer_progress);
+        refreshLayout = (SwipeRefreshLayout) inflater.inflate(R.layout.fragment_home_content, container, false);
+        recyclerView = (RecyclerView) refreshLayout.findViewById(R.id.home_content_fragment);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(recyclerAdapter);
 
-            listView.setDivider(null);
-            listView.setFriction(ViewConfiguration.getScrollFriction() /** 0.7f*/);
+        footerLayout = (RelativeLayout) inflater.inflate(R.layout.footer_home_list, null, false);
+        AbsListView.LayoutParams footParams = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.home_footer_height));
+        footerLayout.setLayoutParams(footParams);
+        footProgress = (ProgressBar) footerLayout.findViewById(R.id.footer_progress);
+        recyclerAdapter.addFooterView(footerLayout);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                listView.setNestedScrollingEnabled(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            recyclerView.setNestedScrollingEnabled(true);
+        }
+
+        requestForList();
+
+        refreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                refreshLayout.setRefreshing(true);
+            }
+        });
+
+        recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener((LinearLayoutManager) recyclerView.getLayoutManager()) {
+            @Override
+            public void onLoadMore(int currentPage) {
+                requestForList();
             }
 
-            requestForList();
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
 
-            refreshLayout.post(new Runnable() {
-                @Override
-                public void run() {
-                    refreshLayout.setRefreshing(true);
-                }
-            });
-
-            listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-                @Override
-                public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-                }
-
-                @Override
-                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                    int index = getArguments().getInt(TAB_INDEX_FIELD);
-                    int scrollHeight = 0;
-                    if (listView.getChildAt(0) != null) {
-                        switch (index) {
-                            case 0:
-                                leftItemsH.put(firstVisibleItem, listView.getChildAt(0).getHeight());
-                                break;
-                            case 1:
-                                midItemsH.put(firstVisibleItem, listView.getChildAt(0).getHeight());
-                                break;
-                            case 2:
-                                rigItemsH.put(firstVisibleItem, listView.getChildAt(0).getHeight());
-                                break;
-                        }
-
-
-                        HashMap<Integer, Integer> heights = index == 0 ? leftItemsH : index == 1 ? midItemsH : rigItemsH;
-                        for (int i = 0; i < firstVisibleItem; i++) {
-                            if (heights.containsKey(i)) {
-                                scrollHeight += heights.get(i);
-                            } else { // This should not occur,
-                                Log.e(TAG, "This should not occur, you can slow down scroll speed to fix it");
-                                heights.put(i, heights.get(i - 1));
-                                scrollHeight += heights.get(i);
-                            }
-                        }
-                        scrollHeight += -listView.getChildAt(0).getTop();
-                    }
-
-                    if (onScrollListListener != null && canScroll) {
-                        onScrollListListener.onListScroll(scrollHeight - lastScrollY);
-                    }
-                    lastScrollY = scrollHeight;
-                    if (firstVisibleItem + visibleItemCount == totalItemCount && !listView.canScrollVertically(1)
-                            && listView.getAdapter() != null && canLoadMore) {
-                        canLoadMore = false;
-                        requestForList();
+                int index = getArguments().getInt(TAB_INDEX_FIELD);
+                if (recyclerView.getChildAt(0) != null) {
+                    switch (index) {
+                        case 0:
+                            leftItemsH.put(firstVisibleItemPosition, recyclerView.getChildAt(0).getHeight());
+                            break;
+                        case 1:
+                            midItemsH.put(firstVisibleItemPosition, recyclerView.getChildAt(0).getHeight());
+                            break;
+                        case 2:
+                            rigItemsH.put(firstVisibleItemPosition, recyclerView.getChildAt(0).getHeight());
+                            break;
                     }
                 }
-            });
-            refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                @Override
-                public void onRefresh() {
-                    reload();
-                }
-            });
-            refreshLayout.setColorSchemeResources(R.color.pretty_blue,
-                    R.color.pretty_green);
+            }
+        });
 
-        }
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                reload();
+            }
+        });
+        refreshLayout.setColorSchemeResources(R.color.pretty_blue, R.color.pretty_green);
 
         return refreshLayout;
     }
@@ -180,14 +158,12 @@ public class HomeFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
     }
 
-    private OnScrollListListener onScrollListListener;
-
-    public void setOnScrollListListener(OnScrollListListener listener) {
-        onScrollListListener = listener;
-    }
-
-    public interface OnScrollListListener {
-        void onListScroll(int scrollDisY);
+    @Override
+    public void onClick(View view, int position) {
+        Intent intent = new Intent(getActivity(), ShotDetailActivity.class);
+        intent.putExtra(ShotDetailActivity.SHOT_ID_EXTRA_FIELD, shotList.get(position).id);
+        startActivity(intent);
+        getActivity().overridePendingTransition(0, 0);
     }
 
     String sort = null;
@@ -196,6 +172,7 @@ public class HomeFragment extends Fragment {
 
     private void reload() {
         page = 1;
+        shotList.clear();
         refreshLayout.setRefreshing(true);
         requestForList();
     }
@@ -242,54 +219,18 @@ public class HomeFragment extends Fragment {
                         refreshLayout.setRefreshing(false);
                         handleResponse(dribleShots);
 
-                        if (dribleShots.isEmpty()) {
-                            canLoadMore = false;
-                        } else {
-                            canLoadMore = true;
-                        }
                         page++;
                     }
                 });
-
-        if (canLoadMore) {
-            footProgress.setVisibility(View.VISIBLE);
-        }
 
         new Handler().removeCallbacks(timeOut);
         new Handler().postDelayed(timeOut, 10000);
     }
 
     private void handleResponse(List<DribleShot> dribleShots) {
-        try {
-            if (shotList == null) {
-                shotList = new ArrayList<>();
-            }
-            if (listAdapter == null) {
-                listAdapter = new ShotListAdapter(getActivity(), shotList);
-                listView.setAdapter(listAdapter);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Intent intent = new Intent(getActivity(), ShotDetailActivity.class);
-                        intent.putExtra(ShotDetailActivity.SHOT_ID_EXTRA_FIELD, shotList.get(position).id);
-                        startActivity(intent);
-                        getActivity().overridePendingTransition(0, 0);
-                    }
-                });
-            }
-
-            if (page == 1) {
-                shotList.clear();
-            }
-
-            shotList.addAll(dribleShots);
-            listAdapter.notifyDataSetChanged();
-            canLoadMore = true;
-            footProgress.setVisibility(View.INVISIBLE);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        footProgress.setVisibility(View.VISIBLE);
+        shotList.addAll(dribleShots);
+        recyclerAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -302,10 +243,10 @@ public class HomeFragment extends Fragment {
             public void call(Object o) {
                 if (o instanceof BackToUpEvent) {
                     if (((BackToUpEvent) o).position == index) {
-                        if (listView.getFirstVisiblePosition() == 0) {
+                        if (firstVisibleItemPosition == 0) {
                             reload();
                         } else {
-                            listView.smoothScrollToPosition(0);
+                            recyclerView.smoothScrollToPosition(0);
                         }
                     }
                 }

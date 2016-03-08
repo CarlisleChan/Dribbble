@@ -1,18 +1,21 @@
 package com.carlise.dribbble.users;
 
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.application.BaseToolsBarActivity;
-import com.carlise.dribbble.utils.UserHelper;
+import com.carlise.dribbble.view.RecyclerViewPro.EndlessRecyclerOnScrollListener;
+import com.carlise.dribbble.view.RecyclerViewPro.HeaderViewRecyclerAdapter;
 import com.carlisle.model.DribleUser;
 import com.carlisle.model.FollowResult;
 import com.carlisle.provider.ApiFactory;
@@ -34,21 +37,21 @@ public class UsersActivity extends BaseToolsBarActivity {
     public static final String USERS_TITLE = "title_extra";
     public static final String TITLE_FOLLOWING = "Following";
     public static final String TITLE_FOLLOWER = "Follower";
+    public static final String USER_ID = "user_id";
 
-    private ListView listView;
+    private RecyclerView recyclerView;
     private RelativeLayout footerLayout;
     private TextView showMore;
     private ProgressBar footProgress;
 
     private ArrayList<DribleUser> users = new ArrayList<>();
-    private UserListAdapter usersAdapter;
+    private HeaderViewRecyclerAdapter recyclerAdapter;
 
     private ProgressBar progress;
 
     private LayoutInflater inflater;
 
     private int page = 1;
-    private boolean canLoadMore = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,42 +64,36 @@ public class UsersActivity extends BaseToolsBarActivity {
 
     private void initView() {
 
-        listView = (ListView) findViewById(R.id.users_list);
-
         progress = (ProgressBar) findViewById(R.id.users_progress);
 
-        footerLayout = (RelativeLayout) inflater.inflate(R.layout.users_foot, listView, false);
+        footerLayout = (RelativeLayout) inflater.inflate(R.layout.footer_users, recyclerView, false);
+        AbsListView.LayoutParams footParams = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 200);
+        footerLayout.setLayoutParams(footParams);
         showMore = (TextView) footerLayout.findViewById(R.id.foot_load_more);
-
         footProgress = (ProgressBar) footerLayout.findViewById(R.id.footer_progress);
 
-        listView.addFooterView(footerLayout);
+        UserListAdapter usersAdapter = new UserListAdapter(this, users);
+        recyclerAdapter = new HeaderViewRecyclerAdapter(usersAdapter);
+        recyclerAdapter.addFooterView(footerLayout);
 
-        usersAdapter = new UserListAdapter(this, users);
-        listView.setAdapter(usersAdapter);
-        listView.setDivider(null);
+        recyclerView = (RecyclerView) findViewById(R.id.users_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(recyclerAdapter);
 
         requestUsers();
 
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+        recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener((LinearLayoutManager) recyclerView.getLayoutManager()) {
             @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (!listView.canScrollVertically(1) && firstVisibleItem > 0 && canLoadMore && page != 1) {
-                    showMore.setVisibility(View.VISIBLE);
-                    footerLayout.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            showMore.setVisibility(View.INVISIBLE);
-                            footProgress.setVisibility(View.VISIBLE);
-                            requestUsers();
-                        }
-                    });
-                }
+            public void onLoadMore(int currentPage) {
+                showMore.setVisibility(View.VISIBLE);
+                footerLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showMore.setVisibility(View.INVISIBLE);
+                        footProgress.setVisibility(View.VISIBLE);
+                        requestUsers();
+                    }
+                });
             }
         });
     }
@@ -116,26 +113,19 @@ public class UsersActivity extends BaseToolsBarActivity {
         public void onNext(List<FollowResult> followResults) {
             footProgress.setVisibility(View.INVISIBLE);
             handleUsers(followResults);
-
-            if (!followResults.isEmpty()) {
-                canLoadMore = true;
-            } else {
-                canLoadMore = false;
-            }
-
             page++;
         }
     };
 
     private void resuestFollowing() {
-        ApiFactory.getDribleApi().fetchFollowing(UserHelper.getInstance(this).getDribleUser().id, page)
+        ApiFactory.getDribleApi().fetchFollowing(getIntent().getIntExtra(USER_ID, 0), page)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(observable);
     }
 
     private void requestFollower() {
-        ApiFactory.getDribleApi().fetchFollowers(UserHelper.getInstance(this).getDribleUser().id, page)
+        ApiFactory.getDribleApi().fetchFollowers(getIntent().getIntExtra(USER_ID, 0), page)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(observable);
@@ -158,7 +148,7 @@ public class UsersActivity extends BaseToolsBarActivity {
         for (FollowResult followResult : followResults) {
             users.add(followResult.getFollow());
         }
-        usersAdapter.notifyDataSetChanged();
+        recyclerAdapter.notifyDataSetChanged();
     }
 
     @Override

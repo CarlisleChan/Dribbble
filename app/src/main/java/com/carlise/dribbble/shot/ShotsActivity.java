@@ -3,14 +3,13 @@ package com.carlise.dribbble.shot;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -18,6 +17,8 @@ import android.widget.TextView;
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.application.BaseToolsBarActivity;
 import com.carlise.dribbble.utils.UserHelper;
+import com.carlise.dribbble.view.RecyclerViewPro.EndlessRecyclerOnScrollListener;
+import com.carlise.dribbble.view.RecyclerViewPro.HeaderViewRecyclerAdapter;
 import com.carlisle.model.DribleShot;
 import com.carlisle.model.LikesResult;
 import com.carlisle.provider.ApiFactory;
@@ -33,7 +34,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by chengxin on 16/1/7.
  */
-public class ShotsActivity extends BaseToolsBarActivity {
+public class ShotsActivity extends BaseToolsBarActivity implements ShotListAdapter.OnClickListener {
     private static final String TAG = ShotsActivity.class.getSimpleName();
 
     public static final String SHOTS_TITLE_EXTRA = "title_extra";
@@ -41,18 +42,18 @@ public class ShotsActivity extends BaseToolsBarActivity {
     public static final String CALL_FROM = "call_from";
 
     private SwipeRefreshLayout refreshLayout;
-    private ListView listView;
-    private ShotListAdapter shotsAdapter;
-    private ArrayList<DribleShot> shots = new ArrayList<>();
+    private RecyclerView recyclerView;
+    private HeaderViewRecyclerAdapter recyclerAdapter;
+    private List<DribleShot> shots = new ArrayList<>();
 
     private RelativeLayout footerLayout;
     private ProgressBar footProgress;
+    private TextView footContent;
 
     private ProgressBar progress;
     private LayoutInflater inflater;
 
     private int page = 1;
-    private boolean canLoadMore = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,75 +61,66 @@ public class ShotsActivity extends BaseToolsBarActivity {
         Fresco.initialize(this);
         setContentView(R.layout.activity_shots);
         initView();
-        requestForShots(true);
+        requestForShots();
     }
 
     private void initView() {
-        inflater = LayoutInflater.from(this);
-
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.shots_swipe);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                requestForShots(true);
+                reload();
             }
         });
+
         int toolbarH = (int) getResources().getDimension(R.dimen.toolbar_height);
         refreshLayout.setProgressViewOffset(true, toolbarH, toolbarH + 200);
-
-        listView = (ListView) findViewById(R.id.shots_list);
-
-        footerLayout = (RelativeLayout) inflater.inflate(R.layout.footer_home_list, null, false);
-        AbsListView.LayoutParams footParams = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.home_footer_height));
-        footerLayout.setLayoutParams(footParams);
-        listView.addFooterView(footerLayout);
-        footProgress = (ProgressBar) footerLayout.findViewById(R.id.footer_progress);
-
+        recyclerView = (RecyclerView) findViewById(R.id.shots_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         progress = (ProgressBar) findViewById(R.id.shots_progress);
         progress.setVisibility(View.VISIBLE);
 
-        shotsAdapter = new ShotListAdapter(this, shots);
-        listView.setAdapter(shotsAdapter);
-        listView.setDivider(null);
+        final ShotListAdapter adapter = new ShotListAdapter(this, shots);
+        adapter.setListener(this);
+        recyclerAdapter = new HeaderViewRecyclerAdapter(adapter);
+        recyclerView.setAdapter(recyclerAdapter);
+        recyclerView.setHasFixedSize(true);
 
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+        inflater = LayoutInflater.from(this);
+        footerLayout = (RelativeLayout) inflater.inflate(R.layout.footer_home_list, null, false);
+        AbsListView.LayoutParams footParams = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.home_footer_height));
+        footerLayout.setLayoutParams(footParams);
+        footProgress = (ProgressBar) footerLayout.findViewById(R.id.footer_progress);
+        footContent = (TextView) footerLayout.findViewById(R.id.footer_content);
+        recyclerAdapter.addFooterView(footerLayout);
+
+        recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener((LinearLayoutManager) recyclerView.getLayoutManager()) {
             @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
-                if (!listView.canScrollVertically(1) && firstVisibleItem > 0 &&
-                        (firstVisibleItem + visibleItemCount == totalItemCount && canLoadMore && page != 1)) {
-                    footProgress.setVisibility(View.VISIBLE);
-                    requestForShots(false);
-
-                }
-            }
-        });
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(ShotsActivity.this, ShotDetailActivity.class);
-                intent.putExtra(ShotDetailActivity.SHOT_ID_EXTRA_FIELD, shots.get(position).id);
-                startActivity(intent);
+            public void onLoadMore(int currentPage) {
+                requestForShots();
             }
         });
 
     }
 
-    private void requestForShots(final boolean isFirst) {
+    private void reload() {
+        page = 1;
+        shots.clear();
+
+        footProgress.setVisibility(View.VISIBLE);
+        footContent.setVisibility(View.INVISIBLE);
+        requestForShots();
+    }
+
+    private void requestForShots() {
         if (getIntent().getStringExtra(CALL_FROM).equals("like")) {
-            fetchShotsFromLike(isFirst);
+            fetchShotsFromLike();
         } else {
-            fetchShotsFromBuckets(isFirst);
+            fetchShotsFromBuckets();
         }
     }
 
-    private void fetchShotsFromLike(final boolean isFirst) {
+    private void fetchShotsFromLike() {
         ApiFactory.getDribleApi().fetchShotsFromLike(UserHelper.getInstance(this).getDribleUser().id, page)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -140,33 +132,25 @@ public class ShotsActivity extends BaseToolsBarActivity {
 
                     @Override
                     public void onError(Throwable e) {
-                        whenReuestDone();
+
                     }
 
                     @Override
                     public void onNext(List<LikesResult> likesResults) {
-                        whenReuestDone();
-
                         List<DribleShot> dribleShots = new ArrayList<DribleShot>();
 
                         for (LikesResult likesResult : likesResults) {
                             dribleShots.add(likesResult.shot);
                         }
 
-                        handleShots(dribleShots, isFirst);
-
-                        if (likesResults.isEmpty()) {
-                            canLoadMore = false;
-                        } else {
-                            canLoadMore = true;
-                        }
+                        handleShots(dribleShots);
 
                         page++;
                     }
                 });
     }
 
-    private void fetchShotsFromBuckets(final boolean isFirst) {
+    private void fetchShotsFromBuckets() {
         ApiFactory.getDribleApi().fetchShotsFromBuckets(getIntent().getLongExtra(BUCKET_ID, 0), page)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -178,58 +162,45 @@ public class ShotsActivity extends BaseToolsBarActivity {
 
                     @Override
                     public void onError(Throwable e) {
-                        whenReuestDone();
+
                     }
 
                     @Override
                     public void onNext(List<DribleShot> dribleShots) {
-                        whenReuestDone();
-
-                        handleShots(dribleShots, isFirst);
-
-                        if (dribleShots.isEmpty()) {
-                            canLoadMore = false;
-                        } else {
-                            canLoadMore = true;
-                        }
+                        handleShots(dribleShots);
 
                         page++;
                     }
                 });
     }
 
-    private void whenReuestDone() {
+    private void handleShots(List<DribleShot> dribleShots) {
         progress.setVisibility(View.INVISIBLE);
         refreshLayout.setRefreshing(false);
-        footProgress.setVisibility(View.INVISIBLE);
-    }
 
-    private void handleShots(List<DribleShot> dribleShots, boolean isFirst) {
         if (dribleShots.size() <= 0) {
-            listView.setOnItemClickListener(null);
-            TextView noShots = new TextView(this);
-            noShots.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-            noShots.setText("Load finished.");
-            noShots.setTextColor(getResources().getColor(R.color.grey_text));
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            params.addRule(RelativeLayout.CENTER_IN_PARENT);
-            noShots.setLayoutParams(params);
-            footerLayout.addView(noShots);
-        }
-
-        if (isFirst) {
-            shots.clear();
+            footProgress.setVisibility(View.INVISIBLE);
+            footContent.setVisibility(View.VISIBLE);
+            footContent.setText("Load finished");
+        } else {
+            footProgress.setVisibility(View.VISIBLE);
+            footContent.setVisibility(View.INVISIBLE);
         }
 
         shots.addAll(dribleShots);
-        shotsAdapter.notifyDataSetChanged();
-
+        recyclerAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onInitToolBar(Toolbar toolbar) {
         super.onInitToolBar(toolbar);
         setTitle(getIntent().getStringExtra(SHOTS_TITLE_EXTRA));
+    }
 
+    @Override
+    public void onClick(View view, int position) {
+        Intent intent = new Intent(this, ShotDetailActivity.class);
+        intent.putExtra(ShotDetailActivity.SHOT_ID_EXTRA_FIELD, shots.get(position).id);
+        startActivity(intent);
     }
 }

@@ -26,7 +26,6 @@
         android:paddingRight="8dp"
         android:clickable="true"
         android:background="@drawable/btn_back"
-
         android:layout_width="wrap_content"
         android:layout_height="match_parent">
 
