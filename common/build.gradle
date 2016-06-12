@@ -22,7 +22,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     /*ReactiveX library*/
-    compile 'io.reactivex:rxjava:1.0.3'
+    compile 'io.reactivex:rxjava:1.1.5'
     compile 'com.trello:rxlifecycle:0.3.0'
     compile 'com.trello:rxlifecycle-components:0.3.0'
     compile 'com.jakewharton.rxbinding:rxbinding:0.3.0'
