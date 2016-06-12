@@ -46,6 +46,7 @@ ext {
             palette_v7              : "compile",
             design                  : "compile",
             swipebacklayout         : "compile",
+            rxandroid               : "compile",
             fresco                  : "compile",
             realm                   : "compile",
             stetho                  : "debugCompile",

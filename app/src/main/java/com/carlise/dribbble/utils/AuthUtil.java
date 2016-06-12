@@ -14,15 +14,6 @@ import com.carlisle.model.DribleUser;
  * Created by zhanglei on 15/7/28.
  */
 public class AuthUtil {
-    public static String getAccessToken(Context context) {
-        String access_token = SPUtils.getSharedPreference(context).getString(PreferenceKey.DRIBLE_TOKEN_FIELD, null);
-
-        if (TextUtils.isEmpty(access_token)) {
-            Intent intent = new Intent(context, LoginActivity.class);
-            context.startActivity(intent);
-        }
-        return access_token;
-    }
 
     public static DribleUser getMe(Context context) {
         int id = UserHelper.getInstance(context).getDribleUser().id;
@@ -47,6 +38,16 @@ public class AuthUtil {
         } else {
             goLogin(context);
         }
+    }
+
+    public static boolean hasLogin(Context context) {
+        String access = SPUtils.getSharedPreference(context).getString(PreferenceKey.DRIBLE_TOKEN_FIELD, null);
+        boolean hasLogin = !TextUtils.isEmpty(access);
+        if (!hasLogin) {
+            Intent intent = new Intent(context, LoginActivity.class);
+            context.startActivity(intent);
+        }
+        return hasLogin;
     }
 
     public static void goHome(Context context) {

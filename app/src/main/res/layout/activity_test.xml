@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:visibility="visible"
-    tools:context=".main.MainActivity">
+    tools:context=".TestActivity">
 
     <Button
         android:id="@+id/btn_login"

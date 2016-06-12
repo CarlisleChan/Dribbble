@@ -187,8 +187,7 @@ public class ShotDetailActivity extends SwipeBackActivity {
 
     private void requestShot() {
 
-        final String accessToken = AuthUtil.getAccessToken(this);
-        if (TextUtils.isEmpty(accessToken)) { // because we examine the accesstoken, so will never in this switch
+        if (AuthUtil.hasLogin(this)) { // because we examine the accesstoken, so will never in this switch
             return;
         }
 
@@ -329,8 +328,7 @@ public class ShotDetailActivity extends SwipeBackActivity {
     }
 
     private void checkIfLike() {
-        final String accessToken = AuthUtil.getAccessToken(this);
-        if (TextUtils.isEmpty(accessToken)) {
+        if (AuthUtil.hasLogin(this)) {
             navLikeImg.clearColorFilter();
             liked = false;
             return;
