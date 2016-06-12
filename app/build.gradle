@@ -13,10 +13,15 @@ buildscript {
 
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion '23.0.2'
+
+    compileSdkVersion rootProject.ext.android.compileSdkVersion
+    buildToolsVersion rootProject.ext.android.buildToolsVersion
+
     defaultConfig {
-        applicationId "com.carlise.dribbble"
+        applicationId rootProject.ext.android.applicationId
+        minSdkVersion rootProject.ext.android.minSdkVersion
+        targetSdkVersion rootProject.ext.android.targetSdkVersion
+
         minSdkVersion 14
         targetSdkVersion 23
         versionCode 1
@@ -44,17 +49,19 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    debugCompile 'com.facebook.stetho:stetho:1.2.0'
-    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.3'
-    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.3'
-    compile 'com.android.support:appcompat-v7:23.1.0'
-    compile 'com.android.support:palette-v7:23.1.0'
-    compile 'com.android.support:design:23.1.0'
-    compile 'com.facebook.fresco:fresco:0.8.1'
-    compile 'io.realm:realm-android:0.84.1'
-    compile 'me.imid.swipebacklayout.lib:library:1.0.0'
     compile project(':common')
     compile project(':model')
     compile project(':provider')
+
+    rootProject.dependenciesMethod rootProject.ext.appDps, { type, library, key ->
+        if (type == 'compile') {
+            compile library
+        } else if (type == 'releaseCompile') {
+            releaseCompile library
+        } else if (type == 'debugCompile') {
+            debugCompile library
+        } else if (type == 'testCompile') {
+            testCompile library
+        }
+    }
 }

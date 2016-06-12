@@ -1,0 +1,93 @@
+ext {
+    // Android
+    android = [
+            compileSdkVersion: 23,
+            buildToolsVersion: '23.0.2',
+            applicationId    : 'com.carlise.dribbble',
+            minSdkVersion    : 14,
+            targetSdkVersion : 23
+    ]
+
+    // AllDependencies
+    allDependencies = [
+            /*ReactiveX library*/
+            rxjava                   : 'io.reactivex:rxjava:1.1.5',
+            rxandroid                : 'io.reactivex:rxandroid:1.2.0',
+            rxlifecycle              : 'com.trello:rxlifecycle:0.3.0',
+            rxlifecycle_components   : 'com.trello:rxlifecycle-components:0.3.0',
+            rxbinding                : 'com.jakewharton.rxbinding:rxbinding:0.3.0',
+            rxbinding_support_v4     : 'com.jakewharton.rxbinding:rxbinding-support-v4:0.3.0',
+            rxbinding_appcompat_v7   : 'com.jakewharton.rxbinding:rxbinding-appcompat-v7:0.3.0',
+            rxbinding_recyclerview_v7: 'com.jakewharton.rxbinding:rxbinding-recyclerview-v7:0.3.0',
+            rxbinding_design         : 'com.jakewharton.rxbinding:rxbinding-design:0.3.0',
+
+            appcompat_v7             : 'com.android.support:appcompat-v7:23.1.0',
+            palette_v7               : 'com.android.support:palette-v7:23.1.0',
+            design                   : 'com.android.support:design:23.1.0',
+
+            swipebacklayout          : 'me.imid.swipebacklayout.lib:library:1.0.0',
+
+            fresco                   : 'com.facebook.fresco:fresco:0.8.1',
+            realm                    : 'io.realm:realm-android:0.84.1',
+            gson                     : 'com.google.code.gson:gson:2.6',
+            retrofit                 : 'com.squareup.retrofit:retrofit:1.8.0',
+            okhttp                   : 'com.squareup.okhttp:okhttp:2.2.0',
+            okhttp_urlconnection     : 'com.squareup.okhttp:okhttp-urlconnection:2.2.0',
+
+            stetho                   : 'com.facebook.stetho:stetho:1.2.0',
+            leakcanary_android       : 'com.squareup.leakcanary:leakcanary-android:1.3',
+            leakcanary_android_no_op : 'com.squareup.leakcanary:leakcanary-android-no-op:1.3',
+
+            junit                    : 'junit:junit:4.12',
+    ]
+
+    appDps = [
+            appcompat_v7            : "compile",
+            palette_v7              : "compile",
+            design                  : "compile",
+            swipebacklayout         : "compile",
+            fresco                  : "compile",
+            realm                   : "compile",
+            stetho                  : "debugCompile",
+            leakcanary_android      : "debugCompile",
+            leakcanary_android_no_op: "releaseCompile",
+            junit                   : "testCompile",
+    ]
+
+    commonDps = [
+            rxjava                   : "compile",
+            rxlifecycle              : "compile",
+            rxlifecycle_components   : "compile",
+            rxbinding                : "compile",
+            rxbinding_support_v4     : "compile",
+            rxbinding_appcompat_v7   : "compile",
+            rxbinding_recyclerview_v7: "compile",
+            rxbinding_design         : "compile",
+    ]
+
+    modelDps = [
+            gson: "compile"
+    ]
+
+    providerDps = [
+            rxjava              : "compile",
+            rxandroid           : "compile",
+            retrofit            : "compile",
+            okhttp              : "compile",
+            okhttp_urlconnection: "compile",
+    ]
+
+    dependenciesMethod = { dps, closure ->
+        dps.each { entry ->
+            def value = entry.value
+            if (value instanceof List) {
+                value.each { result ->
+                    closure result, allDependencies.get(entry.key), entry.key
+                }
+            } else {
+                closure value, allDependencies.get(entry.key), entry.key
+            }
+        }
+    }
+
+}
