@@ -13,18 +13,22 @@ public class Domain {
     public static final String DRIBLE_SECRET = "33528ad1f9a36832eda52ab7d19e3c382c5d6c4ff993e079a5a4f8aca09ab388";
     public static String state;
 
-    private static final String DRIBLE_LOGIN_URL = DRIBLE_AUTH_BASE + "?" +
-            "client_id=" + DRIBLE_CLIENT_ID +
-            "&redirect_uri=" + DRIBLE_CALL_BACK +
-            "&scope=" + "public write comment upload" +
-            "&state=" + state;
+    private static final String DRIBLE_LOGIN_URL = DRIBLE_AUTH_BASE
+            + "?"
+            + "client_id="
+            + DRIBLE_CLIENT_ID
+            + "&redirect_uri="
+            + DRIBLE_CALL_BACK
+            + "&scope="
+            + "public write comment upload"
+            + "&state="
+            + state;
 
     public enum DomainType {
         LOGIN("login"),
         DOMAIN("domain"),
         DRIBLE("drible"),
-        SEARCH("search"),
-        ;
+        SEARCH("search");
 
         public String type;
 
@@ -33,19 +37,23 @@ public class Domain {
         }
     }
 
-    static private Map<String, String> DRIBLE = new HashMap<String, String>() {{
-        put(DomainType.LOGIN.type, DRIBLE_LOGIN_URL);
-        put(DomainType.DOMAIN.type, "https://dribbble.com/");
-        put(DomainType.DRIBLE.type, "https://api.dribbble.com/");
-        put(DomainType.SEARCH.type, "https://dribbble.com/search/");
-    }};
+    static private Map<String, String> DRIBLE = new HashMap<String, String>() {
+        {
+            put(DomainType.LOGIN.type, DRIBLE_LOGIN_URL);
+            put(DomainType.DOMAIN.type, "https://dribbble.com/");
+            put(DomainType.DRIBLE.type, "https://api.dribbble.com/");
+            put(DomainType.SEARCH.type, "https://dribbble.com/search/");
+        }
+    };
 
-    static private Map<String, String> DRIBLE_TEST = new HashMap<String, String>() {{
-        put(DomainType.LOGIN.type, DRIBLE_LOGIN_URL);
-        put(DomainType.DOMAIN.type, "https://dribbble.com");
-        put(DomainType.DRIBLE.type, "https://api.dribbble.com/v1");
-        put(DomainType.SEARCH.type, "https://dribbble.com/search/");
-    }};
+    static private Map<String, String> DRIBLE_TEST = new HashMap<String, String>() {
+        {
+            put(DomainType.LOGIN.type, DRIBLE_LOGIN_URL);
+            put(DomainType.DOMAIN.type, "https://dribbble.com");
+            put(DomainType.DRIBLE.type, "https://api.dribbble.com/v1");
+            put(DomainType.SEARCH.type, "https://dribbble.com/search/");
+        }
+    };
 
     private static Map<String, String> DOMAIN = DRIBLE_TEST;
 

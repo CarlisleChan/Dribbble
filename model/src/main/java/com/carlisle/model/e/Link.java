@@ -6,7 +6,7 @@ import android.os.Parcelable;
 /**
  * Created by chengxin on 1/7/16.
  */
-public class Link implements Parcelable{
+public class Link implements Parcelable {
     public String web;
     public String twitter;
 

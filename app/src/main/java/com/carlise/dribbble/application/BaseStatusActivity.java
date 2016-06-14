@@ -35,7 +35,9 @@ public class BaseStatusActivity extends SwipeBackActivity {
     @Override
     public void setContentView(View view) {
         rootLayout = (LinearLayout) findViewById(R.id.root_layout);
-        if (rootLayout == null) return;
+        if (rootLayout == null) {
+            return;
+        }
         rootLayout.addView(view, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
 }

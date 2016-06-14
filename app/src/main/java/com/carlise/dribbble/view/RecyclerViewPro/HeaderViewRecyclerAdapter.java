@@ -44,22 +44,25 @@ public class HeaderViewRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
     @Override
     public int getItemViewType(int position) {
         int hCount = getHeaderCount();
-        if (position < hCount) return HEADERS_START + position;
-        else {
+        if (position < hCount) {
+            return HEADERS_START + position;
+        } else {
             int itemCount = mWrappedAdapter.getItemCount();
             if (position < hCount + itemCount) {
                 return getAdapterTypeOffset() + mWrappedAdapter.getItemViewType(position - hCount);
-            } else return FOOTERS_START + position - hCount - itemCount;
+            } else {
+                return FOOTERS_START + position - hCount - itemCount;
+            }
         }
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        if (viewType < HEADERS_START + getHeaderCount())
+        if (viewType < HEADERS_START + getHeaderCount()) {
             return new StaticViewHolder(mHeaderViews.get(viewType - HEADERS_START));
-        else if (viewType < FOOTERS_START + getFooterCount())
+        } else if (viewType < FOOTERS_START + getFooterCount()) {
             return new StaticViewHolder(mFooterViews.get(viewType - FOOTERS_START));
-        else {
+        } else {
             return mWrappedAdapter.onCreateViewHolder(viewGroup, viewType - getAdapterTypeOffset());
         }
     }
@@ -67,8 +70,9 @@ public class HeaderViewRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         int hCount = getHeaderCount();
-        if (position >= hCount && position < hCount + mWrappedAdapter.getItemCount())
+        if (position >= hCount && position < hCount + mWrappedAdapter.getItemCount()) {
             mWrappedAdapter.onBindViewHolder(viewHolder, position - hCount);
+        }
     }
 
     public void addHeaderView(View view) {
@@ -98,10 +102,14 @@ public class HeaderViewRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
 
 
     private void setWrappedAdapter(RecyclerView.Adapter adapter) {
-        if (mWrappedAdapter != null) mWrappedAdapter.unregisterAdapterDataObserver(mDataObserver);
+        if (mWrappedAdapter != null) {
+            mWrappedAdapter.unregisterAdapterDataObserver(mDataObserver);
+        }
         mWrappedAdapter = adapter;
         Class adapterClass = mWrappedAdapter.getClass();
-        if (!mItemTypesOffset.containsKey(adapterClass)) putAdapterTypeOffset(adapterClass);
+        if (!mItemTypesOffset.containsKey(adapterClass)) {
+            putAdapterTypeOffset(adapterClass);
+        }
         mWrappedAdapter.registerAdapterDataObserver(mDataObserver);
     }
 

@@ -34,8 +34,9 @@ public class SwipeBackActivity extends AppCompatActivity implements SwipeBackAct
     @Override
     public View findViewById(int id) {
         View v = super.findViewById(id);
-        if (v == null && helper != null)
+        if (v == null && helper != null) {
             return helper.findViewById(id);
+        }
         return v;
     }
 

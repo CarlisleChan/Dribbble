@@ -17,6 +17,20 @@ allprojects {
     repositories {
         jcenter()
     }
+
+    apply plugin: 'checkstyle'
+    task checkstyle(type: Checkstyle) {
+        source 'src'
+        include '**/*.java'
+        exclude '**/gen/**'
+        exclude '**/R.java'
+        exclude '**/*Test.java'
+        exclude '**/BuildConfig.java'
+        configFile new File(rootDir, "checkstyle.xml")
+        // empty classpath
+        classpath = files()
+        ignoreFailures = true
+    }
 }
 
 task clean(type: Delete) {

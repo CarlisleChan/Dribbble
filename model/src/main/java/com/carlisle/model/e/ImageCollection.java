@@ -6,7 +6,7 @@ import android.os.Parcelable;
 /**
  * Created by chengxin on 1/7/16.
  */
-public class ImageCollection implements Parcelable{
+public class ImageCollection implements Parcelable {
 
     /**
      * There are three images:
@@ -20,6 +20,7 @@ public class ImageCollection implements Parcelable{
         L(2);
 
         public int level;
+
         ImageLevel(int level) {
             this.level = level;
         }

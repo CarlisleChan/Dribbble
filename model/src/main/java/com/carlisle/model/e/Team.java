@@ -8,7 +8,7 @@ import com.google.gson.annotations.SerializedName;
 /**
  * Created by chengxin on 1/7/16.
  */
-public class Team implements Parcelable{
+public class Team implements Parcelable {
     public long id;
     public String name;
     public String username;
