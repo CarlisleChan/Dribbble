@@ -15,11 +15,11 @@ before_install:
 
 android:
   components:
-    - build-tools-23.0.1
+    - build-tools-23.0.2
     - extra-android-m2repository
     - android-23
   licenses:
-    - android-sdk-license-5be876d5
+#    - android-sdk-license-5be876d5
 
 script:
   - ./gradlew assemble lint
