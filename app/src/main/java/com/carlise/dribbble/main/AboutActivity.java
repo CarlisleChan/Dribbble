@@ -6,8 +6,6 @@ import android.support.v7.widget.Toolbar;
 import com.carlise.dribbble.R;
 import com.carlise.dribbble.application.BaseToolsBarActivity;
 
-import static com.facebook.stetho.R.styleable.Toolbar;
-
 /**
  * Created by zhanglei on 15/8/7.
  */
