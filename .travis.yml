@@ -33,3 +33,6 @@ after_script:
     - adb shell input keyevent 82 &
     # now run the tests
     - ./gradlew connectedCheck
+
+notifications:
+  webhooks: https://hook.bearychat.com/=bw8Ss/travis/78c5f7dda4fc394348d3234ba48a7bb0
