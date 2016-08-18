@@ -23,8 +23,7 @@ android:
 #    - android-sdk-license-5be876d5
 
 script:
-  - ./gradlew assemble lint
-
+  - ./gradlew assembleDebug
 
 after_script:
     # Emulator Management: Create, Start and Wait
