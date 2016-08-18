@@ -39,4 +39,4 @@ ajcore.*.txt
 # buck & OkBuck
 /buck-out/
 /.buckd/
-/.okbuck/
+.okbuck/
