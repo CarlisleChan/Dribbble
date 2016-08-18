@@ -1,38 +1,28 @@
 language: android
-
 env:
   global:
-    # switch glibc to a memory conserving mode
-    - MALLOC_ARENA_MAX=2
-    # wait up to 10 minutes for adb to connect to emulator
-    - ADB_INSTALL_TIMEOUT=10
-
+  - MALLOC_ARENA_MAX=2
+  - ADB_INSTALL_TIMEOUT=10
 jdk:
- - oraclejdk7
-
+- oraclejdk7
 before_install:
- - chmod +x gradlew
-
+- chmod +x gradlew
 android:
   components:
-    - tools
-    - build-tools-23.0.2
-    - extra-android-m2repository
-    - android-23
-  licenses:
-#    - android-sdk-license-5be876d5
-
+  - tools
+  - build-tools-23.0.2
+  - extra-android-m2repository
+  - android-23
 script:
-  - ./gradlew assembleDebug
-
-after_script:
-    # Emulator Management: Create, Start and Wait
-    - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
-    - emulator -avd test -no-skin -no-audio -no-window &
-    - android-wait-for-emulator
-    - adb shell input keyevent 82 &
-    # now run the tests
-    - ./gradlew connectedCheck
-
+- ./gradlew assembleDebug
 notifications:
   webhooks: https://hook.bearychat.com/=bw8Ss/travis/78c5f7dda4fc394348d3234ba48a7bb0
+deploy:
+  provider: releases
+  api_key:
+    secure: KOKWuvVmhHsaUzDqKHerZ4uWif7R5rycLSb+C953TvIO+e60qdnTHHVGzVq+JhYNuscZBWnJgMUxWzQgon6rL4WPVmR7xObFTSIFmZnWjK00aBzLhnJ2C0N8SP3OeSUDu5kKCiBDtnokSNJgzfOJHPReJ7GGRZPMOMprzy48zwSNF+TZw1mnx/G89WhGNdBD8mzf/Xi2IPQEyMWW3VnFROQ6UA1EAFgH4Mnj/w5XAumm7I6Kc6w9iQX4lynM7nyeVf0026T/4rGjIpXVFXn/Sk6A53hcjmnlAqIKXNGtvrHk9VmzHNzi7PGZAay7omIFRMpRn9y/QByRvr+yVf8kVYqc9sS2DDRx4Gi2gVQqNLOR10POWTeXp0TIuq/E8MJQ1Nkl3KbZsIXMKbECGWJFtNn26biiWFRLlHmiMSoKLsn9fZJjgrNTPaiX0uF7Q8W2v3tQOq2o4SV74IGclUdZqCTAVsKDBtioH1SMXcshb78qeZ57gwmr9YUQROmPbu9j8YGbCXtvSUsGjiqVwadQnd9jPvou5yYYknn97IGEvexNN7IrMWwscOOjLtWuS6KWs8UmONoRISwhMH+7JuOB50vNvGYsNyT1qJGUChvizuodlx3jiIIc7nFqCYPBcyLCPwcc+FxC1NSmqkHoOtiJigaSj7bmlRf0+IN0ZRWJodk=
+  file: app/build/outputs/apk/app-debug.apk
+  skip_cleanup: true
+  on:
+  tags: true
+    repo: CarlisleChan/Dribbble
